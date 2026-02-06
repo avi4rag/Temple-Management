@@ -4,39 +4,68 @@ import {
   Menu,
   X,
   Home,
-  Users,
   Clock,
   MapPin,
   AlertTriangle,
   Info,
-  BarChart3,
   Languages,
   ChevronDown,
 } from "lucide-react";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
 import { cn } from "@/lib/utils";
 import { useLanguage, languages } from "@/contexts/LanguageContext";
+import { useNavigate } from "react-router-dom";
 
 const Navigation = ({ activeSection, onSectionChange }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
+
   const { currentLanguage, setLanguage, t } = useLanguage();
+  const navigate = useNavigate();
 
   const currentLangOption = languages.find(
     (lang) => lang.code === currentLanguage,
   );
 
   const navItems = [
-    { id: "queue", label: t("nav.darshanQueue"), icon: Clock },
-    { id: "navigation", label: t("nav.templeMap"), icon: MapPin },
-    { id: "emergency", label: t("nav.emergency"), icon: AlertTriangle },
-    { id: "services", label: t("nav.services"), icon: Info },
+    {
+      id: "queue",
+      label: t("nav.darshanQueue"),
+      icon: Clock,
+    },
+    {
+      id: "navigation",
+      label: t("nav.templeMap"),
+      icon: MapPin,
+    },
+    {
+      id: "emergency",
+      label: t("nav.emergency"),
+      icon: AlertTriangle,
+    },
+    {
+      id: "services",
+      label: t("nav.services"),
+      icon: Info,
+    },
   ];
+
+  const handleNavigation = (section) => {
+    onSectionChange(section);
+    setIsOpen(false);
+  };
+
+  const handleHomeNavigation = () => {
+    navigate("/");
+    setIsOpen(false);
+  };
 
   const handleLanguageChange = (langCode) => {
     setLanguage(langCode);
@@ -45,20 +74,24 @@ const Navigation = ({ activeSection, onSectionChange }) => {
 
   return (
     <>
+      {/* Desktop Navigation */}
       <nav className="hidden md:flex fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border shadow-sacred">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <button
-              onClick={() => onSectionChange("home")}
+              type="button"
+              onClick={handleHomeNavigation}
               className="flex items-center space-x-3 hover:opacity-80 transition-opacity cursor-pointer"
             >
               <div className="w-10 h-10 bg-gradient-sacred rounded-full flex items-center justify-center">
                 <Home className="w-6 h-6 text-primary-foreground" />
               </div>
+
               <div>
                 <h1 className="text-xl font-bold text-foreground">
                   Divya Setu
                 </h1>
+
                 <p className="text-sm text-muted-foreground">
                   Temple Management System
                 </p>
@@ -68,11 +101,12 @@ const Navigation = ({ activeSection, onSectionChange }) => {
             <div className="flex items-center space-x-1">
               {navItems.map((item) => {
                 const Icon = item.icon;
+
                 return (
                   <Button
                     key={item.id}
                     variant={activeSection === item.id ? "default" : "ghost"}
-                    onClick={() => onSectionChange(item.id)}
+                    onClick={() => handleNavigation(item.id)}
                     className={cn(
                       "flex items-center space-x-2 transition-sacred",
                       activeSection === item.id &&
@@ -99,6 +133,7 @@ const Navigation = ({ activeSection, onSectionChange }) => {
                     <ChevronDown className="w-2 h-2 ml-1" />
                   </Button>
                 </DropdownMenuTrigger>
+
                 <DropdownMenuContent align="end" className="w-48">
                   {languages.map((language) => (
                     <DropdownMenuItem
@@ -110,6 +145,7 @@ const Navigation = ({ activeSection, onSectionChange }) => {
                       )}
                     >
                       <span>{language.name}</span>
+
                       <span className="text-sm text-muted-foreground">
                         {language.nativeName}
                       </span>
@@ -122,16 +158,19 @@ const Navigation = ({ activeSection, onSectionChange }) => {
         </div>
       </nav>
 
+      {/* Mobile Navigation */}
       <nav className="md:hidden fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
             <button
-              onClick={() => onSectionChange("home")}
+              type="button"
+              onClick={handleHomeNavigation}
               className="flex items-center space-x-3 hover:opacity-80 transition-opacity cursor-pointer"
             >
               <div className="w-8 h-8 bg-gradient-sacred rounded-full flex items-center justify-center">
                 <Home className="w-4 h-4 text-primary-foreground" />
               </div>
+
               <h1 className="text-lg font-bold text-foreground">Divya Setu</h1>
             </button>
 
@@ -140,6 +179,7 @@ const Navigation = ({ activeSection, onSectionChange }) => {
               size="sm"
               onClick={() => setIsOpen(!isOpen)}
               className="p-2"
+              aria-label={isOpen ? "Close navigation" : "Open navigation"}
             >
               {isOpen ? (
                 <X className="w-6 h-6" />
@@ -155,14 +195,12 @@ const Navigation = ({ activeSection, onSectionChange }) => {
             <div className="px-4 py-4 space-y-2">
               {navItems.map((item) => {
                 const Icon = item.icon;
+
                 return (
                   <Button
                     key={item.id}
                     variant={activeSection === item.id ? "default" : "ghost"}
-                    onClick={() => {
-                      onSectionChange(item.id);
-                      setIsOpen(false);
-                    }}
+                    onClick={() => handleNavigation(item.id)}
                     className={cn(
                       "w-full justify-start space-x-3 transition-sacred",
                       activeSection === item.id &&
@@ -174,6 +212,7 @@ const Navigation = ({ activeSection, onSectionChange }) => {
                   </Button>
                 );
               })}
+
               <div className="pt-4 border-t border-border">
                 <DropdownMenu open={isLangOpen} onOpenChange={setIsLangOpen}>
                   <DropdownMenuTrigger asChild>
@@ -183,6 +222,7 @@ const Navigation = ({ activeSection, onSectionChange }) => {
                       <ChevronDown className="w-3 h-3 ml-auto" />
                     </Button>
                   </DropdownMenuTrigger>
+
                   <DropdownMenuContent className="w-64">
                     {languages.map((language) => (
                       <DropdownMenuItem
@@ -194,6 +234,7 @@ const Navigation = ({ activeSection, onSectionChange }) => {
                         )}
                       >
                         <span>{language.name}</span>
+
                         <span className="text-sm text-muted-foreground">
                           {language.nativeName}
                         </span>
