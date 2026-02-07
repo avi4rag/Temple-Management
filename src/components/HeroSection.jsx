@@ -81,7 +81,7 @@ const HeroSection = ({ onGetStarted }) => {
               <Button
                 size="lg"
                 className="bg-primary text-primary-foreground hover:bg-primary-dark shadow-divine text-lg px-8 py-6 transition-sacred"
-                onClick={() => (window.location.href = "/admin/login")}
+                onClick={() => navigate("/admin/login")}
               >
                 Admin Portal
               </Button>
