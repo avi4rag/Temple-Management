@@ -41,7 +41,7 @@ Divya Setu (Divine Bridge) is an intelligent temple management system designed t
 - **ESLint** - Code quality and linting
 - **Vite SWC** - Fast JavaScript compilation
 - **PostCSS** - CSS transformation
-- **Bun** - Fast package manager
+- **npm** - Node package manager
 
 The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
@@ -49,23 +49,29 @@ Follow these steps:
 
 ```sh
 # Step 1: Clone the repository using the project's Git URL.
-git clone https://github.com/avi4rag/temple management.git
+git clone https://github.com/avi4rag/Temple-Management.git
 
 # Step 2: Navigate to the project directory.
-cd somnath-darshan-flow-main
+cd Temple-Management
 
 # Step 3: Install the necessary dependencies.
-npm i
+npm ci
 
 # Step 4: Start the development server with auto-reloading and an instant preview.
 npm run dev
 ```
 
-The application will start on `http://localhost:5173` by default.
+The application will start on `http://localhost:8080` by default.
 
 ### Environment Configuration
 
-Create a `.env.local` file in the root directory:
+Copy `.env.example` to create a `.env.local` file in the root directory:
+
+```sh
+cp .env.example .env.local
+```
+
+Configure your environment variables as needed:
 
 ```env
 VITE_SUPABASE_URL=your_supabase_url
