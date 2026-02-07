@@ -6,6 +6,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import heroImage from "@/assets/somnath-temple-hero.jpg";
 
 const HeroSection = ({ onGetStarted }) => {
+  const navigate = useNavigate();
   const { t } = useLanguage();
 
   const features = [
