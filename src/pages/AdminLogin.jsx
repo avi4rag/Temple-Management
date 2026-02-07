@@ -149,7 +149,7 @@ const AdminLogin = () => {
             </form>
 
             <div className="text-xs text-center text-muted-foreground">
-              Demo credentials: admin@somnath.temple / any password
+              Administrative credentials required for portal access
             </div>
           </CardContent>
         </Card>
