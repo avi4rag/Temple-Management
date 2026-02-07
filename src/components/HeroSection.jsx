@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Users, Clock, MapPin, Shield, TrendingUp, Bell } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
