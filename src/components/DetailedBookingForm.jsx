@@ -21,27 +21,8 @@ import {
   Download,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { z } from "zod";
-
-const devoteeSchema = z.object({
-  name: z
-    .string()
-    .trim()
-    .min(1, "Name is required")
-    .max(100, "Name must be less than 100 characters"),
-  age: z
-    .number()
-    .min(1, "Age must be at least 1")
-    .max(120, "Age must be valid"),
-  aadhaar: z
-    .string()
-    .trim()
-    .regex(/^\d{12}$/, "Aadhaar must be exactly 12 digits"),
-  phone: z
-    .string()
-    .trim()
-    .regex(/^\d{10}$/, "Phone number must be exactly 10 digits"),
-});
+import { devoteeSchema } from "@/schemas/booking";
+import { slotService } from "@/services/slotService";
 
 const DetailedBookingForm = ({ selectedSlot, onBack }) => {
   const [step, setStep] = useState(1);
@@ -131,9 +112,13 @@ const DetailedBookingForm = ({ selectedSlot, onBack }) => {
     setIsSubmitting(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const result = await slotService.bookSlot({
+        slot: selectedSlot,
+        phoneNumber,
+        devotees,
+      });
 
-      const reference = `SNT${Date.now()}`;
+      const reference = result.bookingReference;
       setBookingReference(reference);
       setBookingConfirmed(true);
 

@@ -37,40 +37,19 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { slotService } from "@/services/slotService";
-import { z } from "zod";
 import DetailedBookingForm from "./DetailedBookingForm";
 
 const QueueSystem = () => {
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [numberOfDevotees, setNumberOfDevotees] = useState(1);
-  const [isBooking, setIsBooking] = useState(false);
   const [hasBooking, setHasBooking] = useState(false);
+  const [bookingToken, setBookingToken] = useState(null);
   const [showDetailedForm, setShowDetailedForm] = useState(false);
   const [devotees, setDevotees] = useState([]);
 
   const { t } = useLanguage();
   const { toast } = useToast();
-
-  console.log("QueueSystem rendering with showDetailedForm:", showDetailedForm);
-
-  const devoteeSchema = z.object({
-    name: z
-      .string()
-      .trim()
-      .min(2, "Name must be at least 2 characters")
-      .max(50, "Name must be less than 50 characters"),
-    age: z
-      .string()
-      .transform((val) => parseInt(val))
-      .refine((val) => val >= 1 && val <= 120, "Age must be between 1 and 120"),
-    aadhaarNumber: z
-      .string()
-      .regex(/^\d{12}$/, "Aadhaar number must be exactly 12 digits"),
-    phoneNumber: z
-      .string()
-      .regex(/^\d{10}$/, "Phone number must be exactly 10 digits"),
-  });
 
   const { data: timeSlots = [] } = useQuery({
     queryKey: ["slots"],
@@ -93,14 +72,15 @@ const QueueSystem = () => {
   }, [numberOfDevotees, phoneNumber]);
 
   const getStatusColor = (status) => {
-    switch (status) {
-      case "Available":
+    switch (status?.toLowerCase()) {
+      case "available":
         return "bg-success text-success-foreground";
-      case "Moderate":
+      case "filling":
+      case "moderate":
         return "bg-warning text-warning-foreground";
-      case "High":
+      case "high":
         return "bg-orange-500 text-white";
-      case "Full":
+      case "full":
         return "bg-destructive text-destructive-foreground";
       default:
         return "bg-muted";
@@ -146,7 +126,7 @@ const QueueSystem = () => {
                   <QrCode className="w-12 h-12 text-primary-foreground" />
                 </div>
                 <h2 className="text-2xl font-bold text-foreground mb-2">
-                  Token: DS{Date.now().toString().slice(-6)}
+                  Token: {bookingToken || "DS1008"}
                 </h2>
                 <p className="text-muted-foreground">
                   Show this token at the entry gate
