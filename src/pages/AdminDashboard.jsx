@@ -23,90 +23,66 @@ import {
   LogOut,
   Clock,
 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { cameraService } from "@/services/cameraService";
+import { alertService } from "@/services/alertService";
+import { authService } from "@/services/authService";
 import { useToast } from "@/hooks/use-toast";
 
 const AdminDashboard = () => {
-  const [cameras, setCameras] = useState([]);
-  const [alerts, setAlerts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [adminUser, setAdminUser] = useState(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
-    const storedAdmin = localStorage.getItem("admin_user");
+    const storedAdmin = authService.getCurrentUser();
     if (!storedAdmin) {
       navigate("/admin/login");
       return;
     }
-    setAdminUser(JSON.parse(storedAdmin));
-
-    fetchDashboardData();
+    setAdminUser(storedAdmin);
   }, [navigate]);
 
-  const fetchDashboardData = async () => {
-    try {
-      const { data: camerasData, error: camerasError } = await supabase
-        .from("cameras")
-        .select("*")
-        .eq("is_active", true);
+  const { data: cameras = [], isLoading: camerasLoading } = useQuery({
+    queryKey: ["cameras"],
+    queryFn: cameraService.getCameras,
+  });
 
-      if (camerasError) throw camerasError;
-      setCameras(camerasData || []);
+  const { data: alerts = [], isLoading: alertsLoading } = useQuery({
+    queryKey: ["alerts"],
+    queryFn: alertService.getAlerts,
+  });
 
-      const { data: alertsData, error: alertsError } = await supabase
-        .from("alerts")
-        .select("*")
-        .in("status", ["active", "acknowledged"])
-        .order("created_at", { ascending: false });
-
-      if (alertsError) throw alertsError;
-      setAlerts(alertsData || []);
-    } catch (error) {
-      console.error("Error fetching dashboard data:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load dashboard data",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleAcknowledgeAlert = async (alertId) => {
-    try {
-      const { error } = await supabase
-        .from("alerts")
-        .update({
-          status: "acknowledged",
-          acknowledged_by: adminUser?.id,
-          acknowledged_at: new Date().toISOString(),
-        })
-        .eq("id", alertId);
-
-      if (error) throw error;
-
+  const acknowledgeMutation = useMutation({
+    mutationFn: (alertId) =>
+      alertService.acknowledgeAlert(alertId, adminUser?.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["alerts"] });
       toast({
         title: "Alert Acknowledged",
         description: "Alert has been acknowledged and logged",
       });
-
-      fetchDashboardData();
-    } catch (error) {
+    },
+    onError: () => {
       toast({
         title: "Error",
         description: "Failed to acknowledge alert",
         variant: "destructive",
       });
-    }
+    },
+  });
+
+  const handleAcknowledgeAlert = (alertId) => {
+    acknowledgeMutation.mutate(alertId);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("admin_user");
+  const handleLogout = async () => {
+    await authService.logout();
     navigate("/admin/login");
   };
+
+  const loading = camerasLoading || alertsLoading;
 
   const getCrowdLevelColor = (density) => {
     if (density >= 80) return "bg-destructive text-destructive-foreground";

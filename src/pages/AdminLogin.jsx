@@ -19,7 +19,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, Shield, Users } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { authService } from "@/services/authService";
 import { useToast } from "@/hooks/use-toast";
 
 const AdminLogin = () => {
@@ -37,17 +37,7 @@ const AdminLogin = () => {
     setError("");
 
     try {
-      const { data: adminUser, error: queryError } = await supabase
-        .from("admin_users")
-        .select("*")
-        .eq("email", email)
-        .eq("is_active", true)
-        .single();
-
-      if (queryError || !adminUser) {
-        setError("Invalid credentials or account not found");
-        return;
-      }
+      const adminUser = await authService.login(email, password);
 
       toast({
         title: "Login Successful",
@@ -58,7 +48,7 @@ const AdminLogin = () => {
       navigate("/admin/dashboard");
     } catch (err) {
       console.error("Login error:", err);
-      setError("Login failed. Please try again.");
+      setError(err.message || "Login failed. Please try again.");
     } finally {
       setLoading(false);
     }
