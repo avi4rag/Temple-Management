@@ -35,7 +35,8 @@ import {
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
+import { slotService } from "@/services/slotService";
 import { z } from "zod";
 import DetailedBookingForm from "./DetailedBookingForm";
 
@@ -71,51 +72,10 @@ const QueueSystem = () => {
       .regex(/^\d{10}$/, "Phone number must be exactly 10 digits"),
   });
 
-  const timeSlots = [
-    {
-      time: "06:00 - 07:00",
-      status: "available",
-      waitTime: "5 min",
-      remaining: 45,
-    },
-    {
-      time: "07:00 - 08:00",
-      status: "available",
-      waitTime: "8 min",
-      remaining: 23,
-    },
-    {
-      time: "08:00 - 09:00",
-      status: "filling",
-      waitTime: "15 min",
-      remaining: 12,
-    },
-    {
-      time: "09:00 - 10:00",
-      status: "filling",
-      waitTime: "25 min",
-      remaining: 3,
-    },
-    { time: "10:00 - 11:00", status: "full", waitTime: "40 min", remaining: 0 },
-    {
-      time: "11:00 - 12:00",
-      status: "available",
-      waitTime: "12 min",
-      remaining: 34,
-    },
-    {
-      time: "12:00 - 13:00",
-      status: "available",
-      waitTime: "7 min",
-      remaining: 56,
-    },
-    {
-      time: "13:00 - 14:00",
-      status: "filling",
-      waitTime: "18 min",
-      remaining: 15,
-    },
-  ];
+  const { data: timeSlots = [] } = useQuery({
+    queryKey: ["slots"],
+    queryFn: slotService.getSlots,
+  });
 
   useEffect(() => {
     if (numberOfDevotees > 0) {

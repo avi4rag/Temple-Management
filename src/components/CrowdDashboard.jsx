@@ -13,11 +13,23 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useQuery } from "@tanstack/react-query";
+import { crowdService } from "@/services/crowdService";
 
 const CrowdDashboard = () => {
   const { t } = useLanguage();
+  const { data: crowdDataQuery, refetch, isFetching } = useQuery({
+    queryKey: ["crowd"],
+    queryFn: crowdService.getCrowdStatus,
+  });
+
   const [currentCount, setCurrentCount] = useState(2847);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  useEffect(() => {
+    if (crowdDataQuery?.currentCount) {
+      setCurrentCount(crowdDataQuery.currentCount);
+    }
+  }, [crowdDataQuery]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -27,11 +39,11 @@ const CrowdDashboard = () => {
   }, []);
 
   const handleRefresh = () => {
-    setIsRefreshing(true);
-    setTimeout(() => setIsRefreshing(false), 1000);
+    refetch();
   };
 
-  const capacity = 5000;
+  const isRefreshing = isFetching;
+  const capacity = crowdDataQuery?.capacity || 5000;
   const crowdPercentage = (currentCount / capacity) * 100;
 
   const getCrowdStatus = () => {
@@ -57,8 +69,7 @@ const CrowdDashboard = () => {
   };
 
   const crowdData = getCrowdStatus();
-
-  const zones = [
+  const zones = crowdDataQuery?.zones || [
     { name: "Main Temple", count: 892, capacity: 1200, status: "Moderate" },
     { name: "Pradakshina Path", count: 654, capacity: 800, status: "High" },
     { name: "Entry Gate", count: 423, capacity: 600, status: "Low" },
