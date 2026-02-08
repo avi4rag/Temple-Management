@@ -175,14 +175,8 @@ const AdminDashboard = () => {
                 <Monitor className="mr-2 h-4 w-4" />
                 Crowd Monitor
               </Button>
-              <Button
-                variant="outline"
-                onClick={() => navigate("/admin/cameras")}
-              >
-                <Monitor className="mr-2 h-4 w-4" />
-                Manage Cameras
-              </Button>
-              <Button variant="outline" onClick={() => navigate("/admin/map")}>
+
+              <Button variant="outline" onClick={() => navigate("/map")}>
                 <MapPin className="mr-2 h-4 w-4" />
                 Interactive Map
               </Button>
