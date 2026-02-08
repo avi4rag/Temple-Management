@@ -239,63 +239,92 @@ const TempleMap = () => {
                     <div className="absolute -top-12 -left-12 w-40 h-40 border-2 border-dashed border-primary/40 rounded-full" />
                   </div>
 
-                  <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-8 h-4 bg-secondary rounded cursor-pointer hover:bg-secondary/80">
+                  <button
+                    type="button"
+                    aria-label="North Gate"
+                    className="absolute top-2 left-1/2 transform -translate-x-1/2 w-8 h-4 bg-secondary rounded cursor-pointer hover:bg-secondary/80 focus-visible:ring-2 focus-visible:ring-primary focus:outline-none"
+                    onClick={() => setSelectedPOI("main-temple")}
+                  >
                     <span className="text-xs absolute -top-4 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
                       North Gate
                     </span>
-                  </div>
-                  <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-8 h-4 bg-secondary rounded cursor-pointer hover:bg-secondary/80">
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="South Gate"
+                    className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-8 h-4 bg-secondary rounded cursor-pointer hover:bg-secondary/80 focus-visible:ring-2 focus-visible:ring-primary focus:outline-none"
+                    onClick={() => setSelectedPOI("main-temple")}
+                  >
                     <span className="text-xs absolute -bottom-4 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
                       South Gate
                     </span>
-                  </div>
+                  </button>
 
-                  <div
-                    className="absolute top-4 left-4 w-12 h-8 bg-blue-200 rounded border cursor-pointer hover:bg-blue-300 flex items-center justify-center"
+                  <button
+                    type="button"
+                    aria-label="North Parking Area"
+                    className="absolute top-4 left-4 w-12 h-8 bg-blue-200 rounded border cursor-pointer hover:bg-blue-300 flex items-center justify-center focus-visible:ring-2 focus-visible:ring-primary focus:outline-none"
                     onClick={() => setSelectedPOI("parking-north")}
                   >
                     <Car className="w-4 h-4" />
-                  </div>
-                  <div className="absolute top-4 right-4 w-12 h-8 bg-blue-200 rounded border cursor-pointer hover:bg-blue-300 flex items-center justify-center">
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="East Parking Area"
+                    className="absolute top-4 right-4 w-12 h-8 bg-blue-200 rounded border cursor-pointer hover:bg-blue-300 flex items-center justify-center focus-visible:ring-2 focus-visible:ring-primary focus:outline-none"
+                    onClick={() => setSelectedPOI("parking-north")}
+                  >
                     <Car className="w-4 h-4" />
-                  </div>
+                  </button>
 
-                  <div
-                    className="absolute bottom-12 left-6 w-8 h-8 bg-orange-300 rounded cursor-pointer hover:bg-orange-400 flex items-center justify-center"
+                  <button
+                    type="button"
+                    aria-label="Prasad Counter"
+                    className="absolute bottom-12 left-6 w-8 h-8 bg-orange-300 rounded cursor-pointer hover:bg-orange-400 flex items-center justify-center focus-visible:ring-2 focus-visible:ring-primary focus:outline-none"
                     onClick={() => setSelectedPOI("prasad-counter")}
                   >
                     <Utensils className="w-4 h-4" />
-                  </div>
-                  <div
-                    className="absolute bottom-12 right-6 w-8 h-8 bg-purple-300 rounded cursor-pointer hover:bg-purple-400 flex items-center justify-center"
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Temple Store and Gift Shop"
+                    className="absolute bottom-12 right-6 w-8 h-8 bg-purple-300 rounded cursor-pointer hover:bg-purple-400 flex items-center justify-center focus-visible:ring-2 focus-visible:ring-primary focus:outline-none"
                     onClick={() => setSelectedPOI("gift-shop")}
                   >
                     <ShoppingBag className="w-4 h-4" />
-                  </div>
-                  <div
-                    className="absolute top-16 right-12 w-8 h-8 bg-green-300 rounded cursor-pointer hover:bg-green-400 flex items-center justify-center"
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Public Restrooms"
+                    className="absolute top-16 right-12 w-8 h-8 bg-green-300 rounded cursor-pointer hover:bg-green-400 flex items-center justify-center focus-visible:ring-2 focus-visible:ring-primary focus:outline-none"
                     onClick={() => setSelectedPOI("restrooms")}
                   >
                     <Building className="w-4 h-4" />
-                  </div>
-                  <div
-                    className="absolute bottom-4 left-16 w-8 h-8 bg-red-300 rounded cursor-pointer hover:bg-red-400 flex items-center justify-center"
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Medical Center"
+                    className="absolute bottom-4 left-16 w-8 h-8 bg-red-300 rounded cursor-pointer hover:bg-red-400 flex items-center justify-center focus-visible:ring-2 focus-visible:ring-primary focus:outline-none"
                     onClick={() => setSelectedPOI("medical-center")}
                   >
                     <Heart className="w-4 h-4" />
-                  </div>
-                  <div
-                    className="absolute top-4 left-20 w-8 h-8 bg-blue-300 rounded cursor-pointer hover:bg-blue-400 flex items-center justify-center"
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Information Center"
+                    className="absolute top-4 left-20 w-8 h-8 bg-blue-300 rounded cursor-pointer hover:bg-blue-400 flex items-center justify-center focus-visible:ring-2 focus-visible:ring-primary focus:outline-none"
                     onClick={() => setSelectedPOI("info-center")}
                   >
                     <Info className="w-4 h-4" />
-                  </div>
-                  <div
-                    className="absolute top-20 left-1/2 transform -translate-x-1/2 w-8 h-8 bg-indigo-300 rounded cursor-pointer hover:bg-indigo-400 flex items-center justify-center"
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Light and Sound Show"
+                    className="absolute top-20 left-1/2 transform -translate-x-1/2 w-8 h-8 bg-indigo-300 rounded cursor-pointer hover:bg-indigo-400 flex items-center justify-center focus-visible:ring-2 focus-visible:ring-primary focus:outline-none"
                     onClick={() => setSelectedPOI("light-sound-show")}
                   >
                     <Info className="w-4 h-4" />
-                  </div>
+                  </button>
 
                   <div
                     className="absolute top-1/2 left-8 w-3 h-3 bg-orange-500 rounded-full animate-pulse shadow-lg"
