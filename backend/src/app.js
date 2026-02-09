@@ -1,38 +1,37 @@
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
+import { env } from "./config/env.js";
+import { globalLimiter } from "./middleware/rateLimit.js";
+import { notFoundHandler, errorHandler } from "./middleware/errorHandler.js";
 import healthRouter from "./routes/health.js";
 
 const app = express();
 
 app.use(helmet());
-app.use(cors());
+
+const allowedOrigins = env.CORS_ORIGIN.split(",").map((origin) => origin.trim());
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`Origin ${origin} not allowed by CORS`));
+      }
+    },
+    credentials: true,
+  }),
+);
+
 app.use(express.json({ limit: "10kb" }));
+app.use(globalLimiter);
 
 // Routes
 app.use("/api/health", healthRouter);
 
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    error: {
-      code: "NOT_FOUND",
-      message: `Cannot ${req.method} ${req.originalUrl}`,
-    },
-  });
-});
-
-// Centralized error handler
-app.use((err, req, res, next) => {
-  const status = err.statusCode || 500;
-  res.status(status).json({
-    success: false,
-    error: {
-      code: err.code || "INTERNAL_ERROR",
-      message: err.message || "An unexpected error occurred",
-    },
-  });
-});
+// Error handlers
+app.use(notFoundHandler);
+app.use(errorHandler);
 
 export default app;
