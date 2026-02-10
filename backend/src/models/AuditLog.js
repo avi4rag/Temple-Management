@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const auditLogSchema = new mongoose.Schema(
   {
@@ -40,12 +40,11 @@ const auditLogSchema = new mongoose.Schema(
     },
   },
   {
-    timestamps: { createdAt: true, updatedAt: false }, // Audit records are immutable once written
+    timestamps: { createdAt: true, updatedAt: false },
   }
 );
 
 auditLogSchema.index({ createdAt: -1 });
 
-const AuditLog = mongoose.model('AuditLog', auditLogSchema);
-
-module.exports = AuditLog;
+export const AuditLog = mongoose.model('AuditLog', auditLogSchema);
+export default AuditLog;

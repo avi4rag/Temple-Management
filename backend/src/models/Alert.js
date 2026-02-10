@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const alertSchema = new mongoose.Schema(
   {
@@ -80,6 +80,5 @@ const alertSchema = new mongoose.Schema(
 
 alertSchema.index({ status: 1, severity: 1, createdAt: -1 });
 
-const Alert = mongoose.model('Alert', alertSchema);
-
-module.exports = Alert;
+export const Alert = mongoose.model('Alert', alertSchema);
+export default Alert;

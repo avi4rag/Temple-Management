@@ -1,40 +1,33 @@
-const Staff = require('../models/Staff');
-const AuditLog = require('../models/AuditLog');
-const { signAccessToken, signRefreshToken, verifyRefreshToken } = require('../utils/token');
-const AppError = require('../utils/AppError');
-const asyncHandler = require('../utils/asyncHandler');
+import { Staff } from '../models/Staff.js';
+import { AuditLog } from '../models/AuditLog.js';
+import { signAccessToken, signRefreshToken, verifyRefreshToken } from '../utils/token.js';
+import { AppError } from '../utils/AppError.js';
+import { asyncHandler } from '../utils/asyncHandler.js';
 
-/**
- * Handle staff login with brute-force lockout protection
- */
-const login = asyncHandler(async (req, res) => {
+export const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
-  // 1. Check if user exists & load password
-  const staff = await Staff.findOne({ email }).select('+password');
+  const staff = await Staff.findOne({ email }).select('+passwordHash');
   if (!staff) {
-    throw new AppError('Invalid email or password.', 401);
+    throw new AppError('Invalid email or password.', 401, 'INVALID_CREDENTIALS');
   }
 
-  // 2. Check if account is locked
   if (staff.isLocked) {
     throw new AppError(
-      'Account is temporarily locked due to multiple consecutive failed login attempts. Please try again later or contact an administrator.',
-      423
+      'Account is temporarily locked due to multiple consecutive failed login attempts. Please try again after 15 minutes.',
+      423,
+      'ACCOUNT_LOCKED'
     );
   }
 
-  // 3. Verify password
   const isMatch = await staff.comparePassword(password);
   if (!isMatch) {
     await staff.handleFailedLogin();
-    throw new AppError('Invalid email or password.', 401);
+    throw new AppError('Invalid email or password.', 401, 'INVALID_CREDENTIALS');
   }
 
-  // 4. Reset failed attempts & update last login
   await staff.handleSuccessfulLogin();
 
-  // 5. Generate tokens
   const payload = {
     id: staff._id,
     role: staff.role,
@@ -42,9 +35,8 @@ const login = asyncHandler(async (req, res) => {
   };
 
   const accessToken = signAccessToken(payload);
-  const refreshToken = signRefreshToken({ id: staff._id });
+  const refreshTokenValue = signRefreshToken({ id: staff._id });
 
-  // 6. Record audit log asynchronously
   try {
     await AuditLog.create({
       staff: staff._id,
@@ -56,44 +48,39 @@ const login = asyncHandler(async (req, res) => {
       userAgent: req.headers['user-agent'] || '',
     });
   } catch {
-    // Non-blocking for audit logging
+    // Non-blocking
   }
 
-  // 7. Send sanitized response
-  const sanitizedStaff = staff.toObject();
-  delete sanitizedStaff.password;
+  const staffObj = staff.toObject();
+  delete staffObj.passwordHash;
 
   res.status(200).json({
-    status: 'success',
-    message: 'Login successful',
+    success: true,
     data: {
-      user: sanitizedStaff,
+      user: staffObj,
       accessToken,
-      refreshToken,
+      refreshToken: refreshTokenValue,
     },
   });
 });
 
-/**
- * Refresh access token using valid refresh token
- */
-const refreshToken = asyncHandler(async (req, res) => {
+export const refreshToken = asyncHandler(async (req, res) => {
   const token = req.body.refreshToken || (req.cookies && req.cookies.refreshToken);
 
   if (!token) {
-    throw new AppError('Refresh token is required.', 400);
+    throw new AppError('Refresh token is required.', 400, 'REFRESH_TOKEN_REQUIRED');
   }
 
   let decoded;
   try {
     decoded = verifyRefreshToken(token);
   } catch {
-    throw new AppError('Invalid or expired refresh token. Please log in again.', 401);
+    throw new AppError('Invalid or expired refresh token. Please log in again.', 401, 'INVALID_REFRESH_TOKEN');
   }
 
   const staff = await Staff.findById(decoded.id);
-  if (!staff || !staff.active) {
-    throw new AppError('Account is inactive or no longer exists.', 401);
+  if (!staff || !staff.isActive) {
+    throw new AppError('Account is inactive or no longer exists.', 401, 'USER_INACTIVE');
   }
 
   const newAccessToken = signAccessToken({
@@ -103,29 +90,23 @@ const refreshToken = asyncHandler(async (req, res) => {
   });
 
   res.status(200).json({
-    status: 'success',
+    success: true,
     data: {
       accessToken: newAccessToken,
     },
   });
 });
 
-/**
- * Get profile of currently authenticated staff member
- */
-const getProfile = asyncHandler(async (req, res) => {
+export const getProfile = asyncHandler(async (req, res) => {
   res.status(200).json({
-    status: 'success',
+    success: true,
     data: {
       user: req.staff,
     },
   });
 });
 
-/**
- * Invalidate session / Logout
- */
-const logout = asyncHandler(async (req, res) => {
+export const logout = asyncHandler(async (req, res) => {
   if (req.staff) {
     try {
       await AuditLog.create({
@@ -142,33 +123,31 @@ const logout = asyncHandler(async (req, res) => {
   }
 
   res.status(200).json({
-    status: 'success',
+    success: true,
     message: 'Logged out successfully',
   });
 });
 
-/**
- * Update staff password
- */
-const updatePassword = asyncHandler(async (req, res) => {
+export const updatePassword = asyncHandler(async (req, res) => {
   const { currentPassword, newPassword } = req.body;
+  import('bcryptjs').then(async (bcrypt) => {
+    const staff = await Staff.findById(req.staff._id).select('+passwordHash');
+    const isMatch = await staff.comparePassword(currentPassword);
+    if (!isMatch) {
+      throw new AppError('Current password is incorrect.', 400, 'INVALID_CURRENT_PASSWORD');
+    }
 
-  const staff = await Staff.findById(req.staff._id).select('+password');
-  const isMatch = await staff.comparePassword(currentPassword);
-  if (!isMatch) {
-    throw new AppError('Current password is incorrect.', 400);
-  }
+    staff.passwordHash = await bcrypt.default.hash(newPassword, 12);
+    await staff.save();
 
-  staff.password = newPassword;
-  await staff.save();
-
-  res.status(200).json({
-    status: 'success',
-    message: 'Password updated successfully',
+    res.status(200).json({
+      success: true,
+      message: 'Password updated successfully',
+    });
   });
 });
 
-module.exports = {
+export default {
   login,
   refreshToken,
   getProfile,

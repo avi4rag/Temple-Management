@@ -5,6 +5,7 @@ import { env } from "./config/env.js";
 import { globalLimiter } from "./middleware/rateLimit.js";
 import { notFoundHandler, errorHandler } from "./middleware/errorHandler.js";
 import healthRouter from "./routes/health.js";
+import authRouter from "./routes/authRoutes.js";
 
 const app = express();
 
@@ -29,6 +30,7 @@ app.use(globalLimiter);
 
 // Routes
 app.use("/api/health", healthRouter);
+app.use("/api/v1/auth", authRouter);
 
 // Error handlers
 app.use(notFoundHandler);

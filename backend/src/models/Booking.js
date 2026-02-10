@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const crypto = require('crypto');
+import mongoose from 'mongoose';
+import crypto from 'crypto';
 
 // Embedded devotee sub-schema
 // CRITICAL PRIVACY RULE: Store ONLY the last 4 digits of ID numbers (idLast4). Never store full Aadhaar numbers.
@@ -115,12 +115,10 @@ const bookingSchema = new mongoose.Schema(
   }
 );
 
-// Compound indexes for user search and gate check-in lookups
 bookingSchema.index({ phone: 1, createdAt: -1 });
 bookingSchema.index({ slot: 1, status: 1 });
 bookingSchema.index({ 'devotees.qrId': 1 });
 
-// Virtuals
 bookingSchema.virtual('devoteeCount').get(function () {
   return this.devotees ? this.devotees.length : 0;
 });
@@ -130,13 +128,11 @@ bookingSchema.virtual('checkedInCount').get(function () {
   return this.devotees.filter((d) => d.status === 'checked_in').length;
 });
 
-// Helper static method to generate a unique human-friendly booking reference: DS-YYYYMMDD-XXXX
 bookingSchema.statics.generateReference = function () {
   const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
   const randomChars = crypto.randomBytes(3).toString('hex').toUpperCase();
   return `DS-${dateStr}-${randomChars}`;
 };
 
-const Booking = mongoose.model('Booking', bookingSchema);
-
-module.exports = Booking;
+export const Booking = mongoose.model('Booking', bookingSchema);
+export default Booking;

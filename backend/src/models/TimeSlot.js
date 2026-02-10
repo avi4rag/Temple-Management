@@ -1,20 +1,20 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const timeSlotSchema = new mongoose.Schema(
   {
     date: {
-      type: String, // Stored as ISO date string 'YYYY-MM-DD' for exact calendar matching
+      type: String, // 'YYYY-MM-DD'
       required: [true, 'Slot date is required'],
       index: true,
       match: [/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'],
     },
     startTime: {
-      type: String, // 'HH:mm' 24-hr format e.g. '06:00'
+      type: String, // 'HH:mm'
       required: [true, 'Slot start time is required'],
       match: [/^([01]\d|2[0-3]):[0-5]\d$/, 'Start time must be in HH:mm format'],
     },
     endTime: {
-      type: String, // 'HH:mm' 24-hr format e.g. '07:00'
+      type: String, // 'HH:mm'
       required: [true, 'Slot end time is required'],
       match: [/^([01]\d|2[0-3]):[0-5]\d$/, 'End time must be in HH:mm format'],
     },
@@ -47,21 +47,17 @@ const timeSlotSchema = new mongoose.Schema(
   }
 );
 
-// Compound unique index ensuring only one slot can exist for a specific date and start time
 timeSlotSchema.index({ date: 1, startTime: 1 }, { unique: true });
 
-// Virtual for remaining spots
 timeSlotSchema.virtual('availableSpots').get(function () {
   return Math.max(0, this.capacity - this.booked);
 });
 
-// Virtual for occupancy percentage
 timeSlotSchema.virtual('occupancyPercentage').get(function () {
   if (this.capacity === 0) return 100;
   return Math.min(100, Math.round((this.booked / this.capacity) * 100));
 });
 
-// Middleware to dynamically update status based on occupancy
 timeSlotSchema.pre('save', function (next) {
   if (this.status !== 'cancelled' && this.status !== 'completed') {
     if (this.booked >= this.capacity) {
@@ -75,6 +71,5 @@ timeSlotSchema.pre('save', function (next) {
   next();
 });
 
-const TimeSlot = mongoose.model('TimeSlot', timeSlotSchema);
-
-module.exports = TimeSlot;
+export const TimeSlot = mongoose.model('TimeSlot', timeSlotSchema);
+export default TimeSlot;

@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const cameraSchema = new mongoose.Schema(
   {
@@ -48,6 +48,5 @@ const cameraSchema = new mongoose.Schema(
   }
 );
 
-const Camera = mongoose.model('Camera', cameraSchema);
-
-module.exports = Camera;
+export const Camera = mongoose.model('Camera', cameraSchema);
+export default Camera;

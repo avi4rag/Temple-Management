@@ -1,10 +1,10 @@
-/* eslint-disable no-console */
-const mongoose = require('mongoose');
-const env = require('../src/config/env');
-const Staff = require('../src/models/Staff');
-const TimeSlot = require('../src/models/TimeSlot');
-const Camera = require('../src/models/Camera');
-const Notification = require('../src/models/Notification');
+import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
+import { env } from '../src/config/env.js';
+import { Staff } from '../src/models/Staff.js';
+import { TimeSlot } from '../src/models/TimeSlot.js';
+import { Camera } from '../src/models/Camera.js';
+import { Notification } from '../src/models/Notification.js';
 
 async function seed() {
   console.log('Connecting to database:', env.MONGODB_URI);
@@ -13,38 +13,39 @@ async function seed() {
   console.log('--- Starting Idempotent Seeding ---');
 
   // 1. Seed Staff Users
+  const defaultPasswordHash = await bcrypt.hash('TempleAdmin@2026', 12);
   const staffMembers = [
     {
       name: 'Chief Temple Administrator',
       email: 'admin@somnath.temple',
-      password: 'TempleAdmin@2026',
+      passwordHash: defaultPasswordHash,
       role: 'super_admin',
       phone: '9876543210',
-      active: true,
+      isActive: true,
     },
     {
       name: 'Gate Supervisor Rajesh',
       email: 'gate@somnath.temple',
-      password: 'GateOperator@2026',
-      role: 'gate_operator',
+      passwordHash: defaultPasswordHash,
+      role: 'gate_staff',
       phone: '9876543211',
-      active: true,
+      isActive: true,
     },
     {
       name: 'Crowd Controller Anand',
       email: 'crowd@somnath.temple',
-      password: 'CrowdManager@2026',
+      passwordHash: defaultPasswordHash,
       role: 'crowd_manager',
       phone: '9876543212',
-      active: true,
+      isActive: true,
     },
     {
       name: 'Security Officer Vikram',
       email: 'security@somnath.temple',
-      password: 'SecurityDuty@2026',
-      role: 'security_officer',
+      passwordHash: defaultPasswordHash,
+      role: 'security',
       phone: '9876543213',
-      active: true,
+      isActive: true,
     },
   ];
 

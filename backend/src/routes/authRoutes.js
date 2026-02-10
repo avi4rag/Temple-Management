@@ -1,34 +1,41 @@
-const express = require('express');
-const { z } = require('zod');
-const authController = require('../controllers/authController');
-const authenticate = require('../middleware/authenticate');
-const { validateBody } = require('../middleware/validate');
-const { authLimiter } = require('../middleware/rateLimit');
+import express from 'express';
+import { z } from 'zod';
+import * as authController from '../controllers/authController.js';
+import { authenticate } from '../middleware/authenticate.js';
+import { validate } from '../middleware/validate.js';
+import { authLimiter } from '../middleware/rateLimit.js';
 
 const router = express.Router();
 
 const loginSchema = z.object({
-  email: z.string().email('Please provide a valid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters long'),
+  body: z.object({
+    email: z.string().email('Please provide a valid email address'),
+    password: z.string().min(6, 'Password must be at least 6 characters long'),
+  }),
 });
 
 const refreshSchema = z.object({
-  refreshToken: z.string().min(1, 'Refresh token is required'),
+  body: z.object({
+    refreshToken: z.string().min(1, 'Refresh token is required'),
+  }),
 });
 
 const updatePasswordSchema = z.object({
-  currentPassword: z.string().min(1, 'Current password is required'),
-  newPassword: z.string().min(8, 'New password must be at least 8 characters long'),
+  body: z.object({
+    currentPassword: z.string().min(1, 'Current password is required'),
+    newPassword: z.string().min(8, 'New password must be at least 8 characters long'),
+  }),
 });
 
-// Public authentication routes (rate limited)
-router.post('/login', authLimiter, validateBody(loginSchema), authController.login);
-router.post('/refresh', validateBody(refreshSchema), authController.refreshToken);
+// Public authentication routes
+router.post('/login', authLimiter, validate(loginSchema), authController.login);
+router.post('/refresh', validate(refreshSchema), authController.refreshToken);
 
 // Protected routes (require valid JWT)
 router.use(authenticate);
 router.get('/me', authController.getProfile);
 router.post('/logout', authController.logout);
-router.patch('/password', validateBody(updatePasswordSchema), authController.updatePassword);
+router.patch('/password', validate(updatePasswordSchema), authController.updatePassword);
 
-module.exports = router;
+export const authRouter = router;
+export default router;

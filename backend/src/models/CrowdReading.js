@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const crowdReadingSchema = new mongoose.Schema(
   {
@@ -40,13 +40,9 @@ const crowdReadingSchema = new mongoose.Schema(
   }
 );
 
-// TTL index to automatically purge historical high-frequency readings after 30 days (2,592,000 seconds)
 crowdReadingSchema.index({ timestamp: 1 }, { expireAfterSeconds: 2592000 });
-
-// Compound index for querying zone trend charts
 crowdReadingSchema.index({ zoneId: 1, timestamp: -1 });
 
-// Automatically compute density level before saving
 crowdReadingSchema.pre('save', function (next) {
   if (this.capacity > 0) {
     const ratio = this.count / this.capacity;
@@ -63,6 +59,5 @@ crowdReadingSchema.pre('save', function (next) {
   next();
 });
 
-const CrowdReading = mongoose.model('CrowdReading', crowdReadingSchema);
-
-module.exports = CrowdReading;
+export const CrowdReading = mongoose.model('CrowdReading', crowdReadingSchema);
+export default CrowdReading;

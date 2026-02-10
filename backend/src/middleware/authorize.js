@@ -1,20 +1,17 @@
-const AppError = require('../utils/AppError');
+import { AppError } from '../utils/AppError.js';
 
-/**
- * Role-based authorization middleware
- * @param  {...string} allowedRoles - Allowed staff roles, e.g. 'super_admin', 'gate_operator'
- */
-function authorize(...allowedRoles) {
+export function authorize(...allowedRoles) {
   return (req, res, next) => {
     if (!req.staff) {
-      return next(new AppError('Authentication required before role authorization.', 401));
+      return next(new AppError('Authentication required before role authorization.', 401, 'AUTH_REQUIRED'));
     }
 
     if (!allowedRoles.includes(req.staff.role)) {
       return next(
         new AppError(
           `Forbidden: Role '${req.staff.role}' is not authorized to perform this operation.`,
-          403
+          403,
+          'FORBIDDEN'
         )
       );
     }
@@ -23,4 +20,4 @@ function authorize(...allowedRoles) {
   };
 }
 
-module.exports = authorize;
+export default authorize;
