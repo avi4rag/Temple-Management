@@ -8,6 +8,7 @@ import healthRouter from "./routes/health.js";
 import authRouter from "./routes/authRoutes.js";
 import slotRouter from "./routes/slotRoutes.js";
 import bookingRouter from "./routes/bookingRoutes.js";
+import crowdRouter from "./routes/crowdRoutes.js";
 
 const app = express();
 
@@ -35,6 +36,7 @@ app.use("/api/health", healthRouter);
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/slots", slotRouter);
 app.use("/api/v1/bookings", bookingRouter);
+app.use("/api/v1/crowd", crowdRouter);
 
 // Error handlers
 app.use(notFoundHandler);
