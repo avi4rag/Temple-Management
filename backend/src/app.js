@@ -6,6 +6,7 @@ import { globalLimiter } from "./middleware/rateLimit.js";
 import { notFoundHandler, errorHandler } from "./middleware/errorHandler.js";
 import healthRouter from "./routes/health.js";
 import authRouter from "./routes/authRoutes.js";
+import slotRouter from "./routes/slotRoutes.js";
 
 const app = express();
 
@@ -31,6 +32,7 @@ app.use(globalLimiter);
 // Routes
 app.use("/api/health", healthRouter);
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/slots", slotRouter);
 
 // Error handlers
 app.use(notFoundHandler);
