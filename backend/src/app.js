@@ -7,6 +7,7 @@ import { notFoundHandler, errorHandler } from "./middleware/errorHandler.js";
 import healthRouter from "./routes/health.js";
 import authRouter from "./routes/authRoutes.js";
 import slotRouter from "./routes/slotRoutes.js";
+import bookingRouter from "./routes/bookingRoutes.js";
 
 const app = express();
 
@@ -33,6 +34,7 @@ app.use(globalLimiter);
 app.use("/api/health", healthRouter);
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/slots", slotRouter);
+app.use("/api/v1/bookings", bookingRouter);
 
 // Error handlers
 app.use(notFoundHandler);
