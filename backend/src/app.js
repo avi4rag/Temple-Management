@@ -11,6 +11,7 @@ import bookingRouter from "./routes/bookingRoutes.js";
 import crowdRouter from "./routes/crowdRoutes.js";
 import alertRouter from "./routes/alertRoutes.js";
 import notificationRouter from "./routes/notificationRoutes.js";
+import sseRouter from "./routes/sseRoutes.js";
 
 const app = express();
 
@@ -41,6 +42,7 @@ app.use("/api/v1/bookings", bookingRouter);
 app.use("/api/v1/crowd", crowdRouter);
 app.use("/api/v1/alerts", alertRouter);
 app.use("/api/v1/notifications", notificationRouter);
+app.use("/api/v1/stream", sseRouter);
 
 // Error handlers
 app.use(notFoundHandler);
