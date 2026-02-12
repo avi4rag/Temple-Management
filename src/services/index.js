@@ -1,5 +1,6 @@
 export * from './apiClient';
 export * from './slotService';
+export * from './bookingService';
 export * from './crowdService';
 export * from './alertService';
 export * from './cameraService';
