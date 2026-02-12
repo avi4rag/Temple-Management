@@ -1,349 +1,166 @@
-# Somnath Darshan Flow - Temple Management System
+# Divya Setu (दिव्य सेतु) — Temple Management System
 
-A comprehensive digital solution for managing temple operations, including crowd monitoring, darshan (temple visit) queue management, advanced analytics, and multi-language support. Built with React and modern web technologies.
+An enterprise-grade, full-stack digital management system built for holy temples (Somnath Temple). Provides intelligent darshan queue management, real-time crowd density monitoring, AI stampede alerts, privacy-preserving pilgrim registration, and role-based gate operations.
 
-## Project Overview
-
-Divya Setu (Divine Bridge) is an intelligent temple management system designed to enhance the visitor experience and streamline administrative operations. The system provides real-time crowd monitoring, queue management, emergency alerts, emergency response protocols, and detailed analytics for temple operations.
-
-### Key Features
-
-- **Real-time Crowd Dashboard**: Monitor visitor counts and crowd density in real-time
-- **Queue Management System**: Efficient darshan queue management with estimated wait times
-- **Detailed Booking Form**: Streamlined visitor registration and booking process
-- **Emergency Alert System**: Quick emergency response protocols for critical situations
-- **Temple Map Navigation**: Interactive maps for visitor guidance
-- **Analytics Dashboard**: Comprehensive visitor and operational analytics
-- **Multi-Language Support**: Support for 7 languages (English, Hindi, Gujarati, Marathi, Tamil, Telugu, Bengali)
-- **Admin Panel**: Secure administration dashboard for temple staff
-- **Mobile Responsive**: Fully responsive design for all device sizes
-
-## Technology Stack
-
-### Frontend
-
-- **React 18** - Modern UI library with hooks
-- **Vite** - Lightning-fast build tool
-- **React Router** - Client-side routing
-- **JavaScript/JSX** - Dynamic and flexible coding
-- **Tailwind CSS** - Utility-first CSS framework
-- **Radix UI** - Unstyled, accessible component primitives
-- **shadcn/ui** - High-quality component library
-- **Lucide React** - Beautiful icon library
-
-### Backend & Database
-
-- **Supabase** - PostgreSQL database and authentication
-- **React Query** - Server state management
-
-### Development Tools
-
-- **ESLint** - Code quality and linting
-- **Vite SWC** - Fast JavaScript compilation
-- **PostCSS** - CSS transformation
-- **npm** - Node package manager
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone https://github.com/avi4rag/Temple-Management.git
-
-# Step 2: Navigate to the project directory.
-cd Temple-Management
-
-# Step 3: Install the necessary dependencies.
-npm ci
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-The application will start on `http://localhost:8080` by default.
-
-### Environment Configuration
-
-Copy `.env.example` to create a `.env.local` file in the root directory:
-
-```sh
-cp .env.example .env.local
-```
-
-Configure your environment variables as needed:
-
-```env
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-```
-
-## Project Structure
-
-```
-src/
-├── pages/              # Main page components
-│   ├── Index.jsx       # Home page
-│   ├── AdminLogin.jsx  # Admin login page
-│   ├── AdminDashboard.jsx
-│   ├── CrowdMonitor.jsx
-│   ├── AnalyticsDashboard.jsx
-│   └── NotFound.jsx
-├── components/         # Reusable components
-│   ├── Navigation.jsx  # Main navigation bar
-│   ├── HeroSection.jsx
-│   ├── CrowdDashboard.jsx
-│   ├── QueueSystem.jsx
-│   ├── DetailedBookingForm.jsx
-│   ├── EmergencyAlert.jsx
-│   ├── TempleMap.jsx
-│   ├── Analytics.jsx
-│   ├── ServicesInfo.jsx
-│   ├── Footer.jsx
-│   └── ui/            # UI component library
-├── contexts/          # React Context for state management
-│   └── LanguageContext.jsx
-├── hooks/             # Custom React hooks
-├── lib/               # Utility functions
-└── integrations/      # Third-party integrations
-	└── supabase/      # Supabase client
-```
-
-## Available Scripts
-
-### Development
-
-```bash
-npm run dev
-```
-
-Starts the development server with hot module replacement.
-
-### Build
-
-```bash
-npm run build
-```
-
-Builds the project for production with optimizations.
-
-### Preview
-
-```bash
-npm run preview
-```
-
-Locally preview the production build.
-
-### Lint
-
-```bash
-npm run lint
-```
-
-Run ESLint to check code quality.
-
-## Multi-Language Support
-
-The application supports 7 languages with automatic locale persistence using browser localStorage:
-
-- **English** (en)
-- **Hindi** (hi) - हिंदी
-- **Gujarati** (gu) - ગુજરાતી
-- **Marathi** (mr) - मराठी
-- **Tamil** (ta) - தமிழ்
-- **Telugu** (te) - తెలుగు
-- **Bengali** (bn) - বাংলা
-
-Language selection is managed through the `LanguageContext` and persists across page navigation and browser sessions.
-
-## Key Components
-
-### Navigation
-
-Multi-screen responsive navigation with language selector dropdown and section routing.
-
-### Crowd Dashboard
-
-Real-time visualization of:
-
-- Total current visitors
-- Average visitor metrics
-- Peak hours analysis
-- Crowd density indicators
-
-### Queue System
-
-- FIFO queue management
-- Estimated wait times
-- Queue status tracking
-- Booking integration
-
-### Admin Dashboard
-
-Secure administrative interface for:
-
-- System configuration
-- Staff management
-- Event scheduling
-- Report generation
-
-### Analytics Dashboard
-
-Comprehensive analytics including:
-
-- Visitor trends
-- Peak hour analysis
-- Revenue tracking
-- Operational metrics
-
-## API Integration
-
-The application integrates with Supabase for:
-
-- Real-time database operations
-- User authentication
-- Data persistence
-- API endpoints
-
-## Styling
-
-The project uses **Tailwind CSS** with custom theme configuration:
-
-- Sacred gradient themes
-- Temple-inspired color palette
-- Responsive breakpoints
-- Custom shadows and animations
-
-## Accessibility
-
-Built with accessibility in mind:
-
-- Radix UI primitives ensure WCAG compliance
-- Keyboard navigation support
-- Screen reader compatible
-- Semantic HTML structure
-- ARIA labels and attributes
-
-## Performance
-
-- **Vite** provides fast module replacement and optimized builds
-- **React Query** handles efficient server state management
-- **Code splitting** for optimal bundle sizes
-- **Lazy loading** for images and components
-
-## Browser Support
-
-- Chrome/Edge (latest)
-- Firefox (latest)
-- Safari (latest)
-- Mobile browsers (iOS Safari, Chrome Mobile)
-
-## Contributing
-
-1. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-2. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-3. Push to the branch (`git push origin feature/AmazingFeature`)
-4. Open a Pull Request
-
-## Development Guidelines
-
-- Use functional components and hooks
-- Follow React best practices
-- Maintain consistent code style with ESLint
-- Keep components modular and reusable
-- Write meaningful commit messages
-
-## Security
-
-- Environment variables for sensitive data
-- Supabase authentication for secure access
-- Input validation on all forms
-- CORS properly configured
-- No sensitive data in version control
-
-## Deployment
-
-### Building for Production
-
-```bash
-npm run build
-```
-
-### Deploy to Vercel
-
-```bash
-# Install Vercel CLI
-npm i -g vercel
-
-# Deploy
-vercel
-```
-
-### Deploy to Other Platforms
-
-The project can be deployed to any platform that supports Node.js applications (Netlify, GitHub Pages, AWS, etc.).
-
-## Troubleshooting
-
-### Blank Screen Issue
-
-- Ensure `main.jsx` entry point is correctly configured in `index.html`
-- Check browser console for errors
-- Verify Supabase configuration
-
-### Language Not Persisting
-
-- Check browser localStorage is enabled
-- Clear browser cache and reload
-- Verify LanguageContext is properly wrapping the app
-
-### Dropdown Menu Issues
-
-- Ensure Radix UI dropdown-menu component is properly imported
-- Check that Portal rendering isn't blocked by CSS
-- Verify z-index conflicts with navbar
-
-## Performance Tips
-
-- Use React DevTools Profiler to identify slow components
-- Implement code splitting for large components
-- Optimize images and assets
-- Monitor bundle size with `npm run build`
-
-## Future Enhancements
-
-- [ ] Mobile app (React Native)
-- [ ] Offline support (PWA)
-- [ ] SMS notifications
-- [ ] QR code based entry
-- [ ] AI-powered crowd prediction
-- [ ] Video streaming integration
-- [ ] Multi-temple support
-
-## License
-
-This project is proprietary and confidential. All rights reserved.
-
-## Support
-
-For issues, questions, or suggestions:
-
-- Create an issue in the repository
-- Contact the development team
-- Check existing documentation
-
-## Credits
-
-Built with:
-
-- React and Vite
-- Radix UI and shadcn/ui
-- Supabase
-- Tailwind CSS
-- Lucide Icons
+- **Hosted Web App**: [https://projectsomnath.netlify.app/](https://projectsomnath.netlify.app/)
+- **Repository**: [https://github.com/avi4rag/Temple-Management.git](https://github.com/avi4rag/Temple-Management.git)
 
 ---
 
-**Last Updated**: February 2026
-**Status**: Active Development
+## 🏛️ Architectural Overview
+
+Divya Setu operates on a decoupled full-stack architecture designed for maximum resilience, sub-second latency, and zero-compromise pilgrim privacy:
+
+```
+[ Pilgrim / Gate Operator / Admin ]
+               │
+               ▼
+   [ React 18 + Vite SPA ] ──(Netlify / CDN)
+         │           │
+         │           └── [ Real-time SSE Stream (/api/v1/stream) ]
+         ▼
+[ Express API Gateway ] ──(Rate Limit / Helmet / CORS / JWT)
+         │
+         ├── [ Slot & Booking Controller ] (Atomic MongoDB Capacity Locks)
+         ├── [ Crowd & Camera AI Controller ] (High-frequency TTL Telemetry)
+         ├── [ Incident & Emergency Alert Hub ] (Instant Broadcast Engine)
+         └── [ Staff Auth & Audit System ] (Bcrypt / Brute-force Lockout)
+               │
+               ▼
+       [ MongoDB Database ]
+```
+
+---
+
+## 🚀 Core Features
+
+### 1. Smart Darshan Slot Booking
+- Calendar slot reservation with live available spot counters.
+- **Race condition prevention**: Atomic slot booking using MongoDB `$expr` and `$inc` operators.
+- Support for special darshan assistance and Mahaprasad pre-orders.
+
+### 2. Pilgrim Data Privacy First
+- **Strict Compliance**: Only the last 4 digits (`idLast4`) of identity cards are stored in the database. Full Aadhaar / PAN numbers are **never stored or logged**.
+
+### 3. Gate QR Code Pass & Real-time Check-in
+- Each devotee receives a unique cryptographically generated QR ticket identifier.
+- Gate operators scan passes at temple entry gates with duplicate check-in prevention and automated gate telemetry.
+
+### 4. Real-time Crowd Telemetry & Automated Stampede Alerts
+- Continuous occupancy monitoring across Garbhagriha (Sanctum), Sabha Mandapa, East Entry Gate, West Exit Corridor, Pilgrim Plaza, and Mahaprasad Hall.
+- Dynamic wait-time computation algorithm based on real-time density ratios.
+- **Automated Safety Trigger**: AI detects crowd occupancy exceeding 90% and automatically dispatches high/critical alerts to security personnel.
+
+### 5. Multi-Role Staff Access Control (RBAC)
+- Five segregated roles: `super_admin`, `admin`, `security`, `gate_staff`, and `crowd_manager`.
+- Exponential lockout protection against brute-force login attempts (15-minute freeze on 5 consecutive failures).
+- Immutable security audit logging for all critical operations.
+
+### 6. Live Telemetry via Server-Sent Events (SSE)
+- Persistent real-time event pipeline (`/api/v1/stream`) delivering instant crowd metrics and emergency broadcast alerts to connected screens without heavy polling.
+
+### 7. Multi-Lingual Devotee Experience
+- Full UI localization for 7 Indian languages: English, Hindi (हिंदी), Gujarati (ગુજરાતી), Marathi (मराठी), Tamil (தமிழ்), Telugu (తెలుగు), and Bengali (বাংলা).
+
+---
+
+## 🛠️ Technology Stack
+
+| Layer | Technologies |
+|---|---|
+| **Frontend** | React 18, Vite, Tailwind CSS, shadcn/ui, Radix UI, TanStack Query, Lucide Icons |
+| **Backend API** | Node.js, Express 4, ES Modules, Zod, Helmet, Express Rate Limit, Pino |
+| **Database** | MongoDB 8 via Mongoose ODM (Indexes, Virtuals, TTL Collections) |
+| **Authentication** | JWT (JSON Web Tokens), Bcrypt.js, Secure HTTP Cookies |
+| **Real-time** | Server-Sent Events (SSE) |
+| **CI / CD** | GitHub Actions Workflow, Netlify |
+
+---
+
+## 💻 Quick Start & Local Setup
+
+### Prerequisites
+- Node.js 20+ and npm 10+
+- MongoDB instance (local or MongoDB Atlas)
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/avi4rag/Temple-Management.git
+cd Temple-Management
+```
+
+### 2. Frontend Setup
+```bash
+# Install frontend dependencies
+npm ci
+
+# Start frontend dev server
+npm run dev
+```
+The frontend runs at `http://localhost:8080`.
+
+### 3. Backend Setup
+```bash
+cd backend
+
+# Install backend dependencies
+npm install
+
+# Seed default admin, camera feeds, and 7-day time slots
+npm run seed
+
+# Start backend server with file watcher
+npm run dev
+```
+The API server runs at `http://localhost:5000` with API root at `/api/v1`.
+
+---
+
+## 📡 API Endpoints Reference
+
+### Authentication (`/api/v1/auth`)
+- `POST /login` — Staff login with brute-force lockout protection
+- `POST /refresh` — Refresh expired access token
+- `GET /me` — Current authenticated staff profile
+- `POST /logout` — Invalidate staff session
+
+### Time Slots (`/api/v1/slots`)
+- `GET /?date=YYYY-MM-DD` — Public: Get available slots and capacities
+- `POST /` — Admin: Create new darshan slot
+- `PATCH /:id` — Admin: Update capacity or slot status
+- `DELETE /:id` — Super Admin: Delete unused slot
+
+### Bookings & Check-in (`/api/v1/bookings`)
+- `POST /` — Public: Create darshan booking with atomic capacity deduction
+- `GET /search?reference=DS-XXXXXX` — Public: Track booking status
+- `POST /checkin` — Gate Staff: Validate and check in devotee via QR ticket ID
+- `GET /stats` — Staff: Daily booking and entry statistics
+- `PATCH /:id/cancel` — Cancel booking and restore slot capacity
+
+### Crowd & AI Monitoring (`/api/v1/crowd`)
+- `GET /metrics` — Public: Real-time zone density and wait time estimates
+- `GET /cameras` — Public/Staff: Live camera feed status
+- `GET /trends` — Analytics: 24-hour crowd density trend
+- `POST /readings` — Ingest AI camera headcount telemetry
+
+### Emergency Alerts & Announcements
+- `GET /api/v1/alerts` — Staff: Active operational & emergency alerts
+- `POST /api/v1/alerts` — Staff: Report new alert incident
+- `PATCH /api/v1/alerts/:id/resolve` — Staff: Resolve alert with audit note
+- `GET /api/v1/notifications` — Public: Active broadcast announcements
+- `GET /api/v1/stream` — Real-time Server-Sent Events (SSE) stream
+
+---
+
+## 🔒 Security & Privacy Commitments
+
+1. **No Sensitive ID Storage**: We never store 12-digit Aadhaar numbers or government photo IDs. Only the last 4 characters are kept for in-person gate verification.
+2. **Brute Force Mitigation**: Tiered rate limiters protect all public endpoints, while auth routes freeze after repeated failed attempts.
+3. **Audit Trails**: Security actions and check-in verifications are recorded in an immutable audit ledger.
+4. **CORS & Strict Headers**: Helmet security headers and strict CORS allowlists protect against cross-site scripting and framing attacks.
+
+---
+
+## 📄 License & Attribution
+
+Developed with devotion for Somnath Temple Management. All rights reserved.
