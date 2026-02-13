@@ -11,25 +11,28 @@ export const devoteeSchema = z.object({
     .number()
     .min(1, "Age must be at least 1")
     .max(120, "Age must be valid"),
-  aadhaar: z
+  idType: z
+    .enum(["aadhaar", "pan", "voter_id", "passport"])
+    .default("aadhaar"),
+  idLast4: z
     .string()
     .trim()
-    .regex(/^\d{12}$/, "Aadhaar must be exactly 12 digits"),
+    .regex(/^[A-Za-z0-9]{4}$/, "Must provide exactly the last 4 characters of ID"),
   phone: z
     .string()
     .trim()
-    .regex(/^\d{10}$/, "Phone number must be exactly 10 digits"),
+    .regex(/^[6-9]\d{9}$/, "Phone number must be a valid 10-digit mobile number"),
 });
 
 export const bookingFormSchema = z.object({
   phoneNumber: z
     .string()
     .trim()
-    .regex(/^\d{10}$/, "Phone number must be exactly 10 digits"),
+    .regex(/^[6-9]\d{9}$/, "Phone number must be a valid 10-digit mobile number"),
   devoteeCount: z
     .coerce
     .number()
     .min(1, "Must have at least 1 devotee")
-    .max(10, "Maximum 10 devotees per booking"),
+    .max(6, "Maximum 6 devotees per booking"),
   devotees: z.array(devoteeSchema),
 });
