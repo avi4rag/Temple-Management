@@ -18,13 +18,14 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, Shield, Users } from "lucide-react";
+import { Loader2, Shield, Users, Eye, EyeOff, AlertTriangle } from "lucide-react";
 import { authService } from "@/services/authService";
 import { useToast } from "@/hooks/use-toast";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showUserModal, setShowUserModal] = useState(false);
@@ -107,19 +108,41 @@ const AdminLogin = () => {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    autoComplete="current-password"
+                    className="pr-10"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
               </div>
 
               {error && (
-                <Alert variant="destructive">
-                  <AlertDescription>{error}</AlertDescription>
+                <Alert
+                  variant={error.toLowerCase().includes("locked") ? "destructive" : "destructive"}
+                  className={error.toLowerCase().includes("locked") ? "border-amber-500 bg-amber-50 text-amber-900" : ""}
+                >
+                  {error.toLowerCase().includes("locked") && (
+                    <AlertTriangle className="w-4 h-4 text-amber-600 mr-2 inline" />
+                  )}
+                  <AlertDescription className="inline">{error}</AlertDescription>
                 </Alert>
               )}
 
