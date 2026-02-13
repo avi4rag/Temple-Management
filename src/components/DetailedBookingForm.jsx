@@ -212,7 +212,15 @@ const DetailedBookingForm = ({ selectedSlot, onBack }) => {
               </Button>
               <Button
                 variant="outline"
-                onClick={() => window.location.reload()}
+                onClick={() => {
+                  setBookingConfirmed(false);
+                  setStep(1);
+                  setPhoneNumber("");
+                  setDevoteeCount("");
+                  setDevotees([]);
+                  setBookingReference("");
+                  if (onBack) onBack();
+                }}
               >
                 Book Another Slot
               </Button>
