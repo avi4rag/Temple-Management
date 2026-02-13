@@ -141,57 +141,61 @@ const DetailedBookingForm = ({ selectedSlot, onBack }) => {
     }
   };
 
-  const generateQRCode = (devoteeIndex) => {
-    return `QR-${bookingReference}-${devoteeIndex + 1}`;
+  const handleDownloadTickets = () => {
+    toast({
+      title: "Generating Digital Pass",
+      description: "Opening print/save dialog for your darshan passes...",
+    });
+    window.print();
   };
 
   if (bookingConfirmed) {
     return (
-      <div className="max-w-4xl mx-auto p-6 space-y-6">
-        <Card className="border-green-200 bg-green-50/50">
-          <CardHeader className="text-center">
-            <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+      <div className="max-w-4xl mx-auto p-6 space-y-6 print:p-0 print:m-0">
+        <Card className="border-green-200 bg-green-50/50 print:border-none print:shadow-none print:bg-white">
+          <CardHeader className="text-center print:pb-2">
+            <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center print:hidden">
               <CheckCircle className="w-8 h-8 text-green-600" />
             </div>
-            <CardTitle className="text-2xl text-green-800">
-              Booking Confirmed!
+            <CardTitle className="text-2xl text-green-800 print:text-xl print:text-black">
+              Shree Somnath Jyotirlinga Darshan Pass
             </CardTitle>
-            <CardDescription className="text-green-700">
-              Your darshan booking has been successfully processed
+            <CardDescription className="text-green-700 print:text-sm print:text-gray-600">
+              Official Digital Entry Pass — Shree Somnath Trust
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-center">
-              <div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-center print:grid-cols-2">
+              <div className="p-3 bg-white/80 rounded-lg border print:border-gray-300">
                 <p className="text-sm text-muted-foreground">
                   Booking Reference
                 </p>
-                <p className="text-lg font-bold">{bookingReference}</p>
+                <p className="text-lg font-bold font-mono tracking-wider">{bookingReference}</p>
               </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Time Slot</p>
+              <div className="p-3 bg-white/80 rounded-lg border print:border-gray-300">
+                <p className="text-sm text-muted-foreground">Darshan Time Slot</p>
                 <p className="text-lg font-bold">{selectedSlot}</p>
               </div>
             </div>
 
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Digital Darshan Tickets</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <h3 className="text-lg font-semibold print:text-base">Devotee Entry Passes</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 print:grid-cols-2">
                 {devotees.map((devotee, index) => (
-                  <Card key={index} className="border-2">
+                  <Card key={index} className="border-2 print:border-gray-400 print:break-inside-avoid">
                     <CardContent className="p-4">
                       <div className="flex justify-between items-start mb-3">
                         <div>
-                          <p className="font-medium">{devotee.name}</p>
+                          <p className="font-medium text-base">{devotee.name}</p>
                           <p className="text-sm text-muted-foreground">
-                            Age: {devotee.age}
+                            Age: {devotee.age} | {devotee.idType ? devotee.idType.toUpperCase() : 'ID'}: ••••{devotee.idLast4}
                           </p>
                         </div>
-                        <Badge variant="secondary">Ticket #{index + 1}</Badge>
+                        <Badge variant="secondary">Devotee #{index + 1}</Badge>
                       </div>
-                      <div className="bg-gray-100 p-4 rounded-lg text-center">
-                        <QrCode className="w-16 h-16 mx-auto mb-2 text-gray-600" />
-                        <p className="text-xs font-mono">
+                      <div className="bg-gray-100 p-4 rounded-lg text-center print:bg-white print:border">
+                        <QrCode className="w-16 h-16 mx-auto mb-2 text-gray-700 print:text-black" />
+                        <p className="text-xs font-mono font-bold tracking-wider">
                           {generateQRCode(index)}
                         </p>
                       </div>
@@ -201,10 +205,10 @@ const DetailedBookingForm = ({ selectedSlot, onBack }) => {
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button className="flex-1 sm:flex-none">
+            <div className="flex flex-col sm:flex-row gap-3 justify-center print:hidden">
+              <Button onClick={handleDownloadTickets} className="flex-1 sm:flex-none">
                 <Download className="w-4 h-4 mr-2" />
-                Download Tickets
+                Download / Print Tickets
               </Button>
               <Button
                 variant="outline"
