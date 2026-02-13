@@ -44,8 +44,8 @@ const DetailedBookingForm = ({ selectedSlot, onBack }) => {
     }
 
     const count = parseInt(devoteeCount);
-    if (!count || count < 1 || count > 20) {
-      newErrors.count = "Number of devotees must be between 1 and 20";
+    if (!count || count < 1 || count > 6) {
+      newErrors.count = "Number of devotees must be between 1 and 6";
     }
 
     setErrors(newErrors);
@@ -59,7 +59,8 @@ const DetailedBookingForm = ({ selectedSlot, onBack }) => {
         const initialDevotees = Array.from({ length: count }, (_, index) => ({
           name: "",
           age: "",
-          aadhaar: "",
+          idType: "aadhaar",
+          idLast4: "",
           phone: index === 0 ? phoneNumber : "",
         }));
         setDevotees(initialDevotees);
@@ -76,7 +77,8 @@ const DetailedBookingForm = ({ selectedSlot, onBack }) => {
         devoteeSchema.parse({
           name: devotee.name,
           age: parseInt(devotee.age),
-          aadhaar: devotee.aadhaar,
+          idType: devotee.idType || "aadhaar",
+          idLast4: devotee.idLast4,
           phone: devotee.phone,
         });
       } catch (error) {
@@ -364,27 +366,48 @@ const DetailedBookingForm = ({ selectedSlot, onBack }) => {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor={`aadhaar-${index}`}>
-                          Aadhaar Number *
+                        <Label htmlFor={`idType-${index}`}>Government ID Type *</Label>
+                        <select
+                          id={`idType-${index}`}
+                          value={devotee.idType || "aadhaar"}
+                          onChange={(e) =>
+                            updateDevotee(index, "idType", e.target.value)
+                          }
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          <option value="aadhaar">Aadhaar Card</option>
+                          <option value="pan">PAN Card</option>
+                          <option value="voter_id">Voter ID</option>
+                          <option value="passport">Passport</option>
+                        </select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor={`idLast4-${index}`}>
+                          Last 4 Digits of ID *{" "}
+                          <span className="text-xs text-muted-foreground font-normal">
+                            (Privacy Protected)
+                          </span>
                         </Label>
                         <Input
-                          id={`aadhaar-${index}`}
-                          placeholder="Enter 12-digit Aadhaar number"
-                          value={devotee.aadhaar}
+                          id={`idLast4-${index}`}
+                          placeholder="e.g. 5678"
+                          maxLength={4}
+                          value={devotee.idLast4 || ""}
                           onChange={(e) =>
                             updateDevotee(
                               index,
-                              "aadhaar",
-                              e.target.value.replace(/\D/g, "").slice(0, 12),
+                              "idLast4",
+                              e.target.value.replace(/[^A-Za-z0-9]/g, "").slice(0, 4).toUpperCase(),
                             )
                           }
-                          className={
-                            errors[`${index}-aadhaar`] ? "border-red-500" : ""
-                          }
+                          className={`font-mono tracking-widest uppercase ${
+                            errors[`${index}-idLast4`] ? "border-red-500" : ""
+                          }`}
                         />
-                        {errors[`${index}-aadhaar`] && (
+                        {errors[`${index}-idLast4`] && (
                           <p className="text-sm text-red-500">
-                            {errors[`${index}-aadhaar`]}
+                            {errors[`${index}-idLast4`]}
                           </p>
                         )}
                       </div>
