@@ -443,12 +443,45 @@ const EmergencyAlert = () => {
         </CardContent>
       </Card>
 
+      <Card className="border-border shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <MapPin className="w-4 h-4 text-primary" />
+            Designated Safe Evacuation Assembly Zones & First-Aid Posts
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-3 bg-muted/60 rounded-lg border">
+              <div className="flex items-center justify-between mb-1">
+                <span className="font-semibold text-sm">Zone A: Seaface Promenade</span>
+                <Badge variant="outline" className="text-xs bg-emerald-50 text-emerald-700 border-emerald-300">Open</Badge>
+              </div>
+              <p className="text-xs text-muted-foreground">Direct exit via West Corridor. Capacity: 3,500 pilgrims. Equipped with emergency drinking water station.</p>
+            </div>
+            <div className="p-3 bg-muted/60 rounded-lg border">
+              <div className="flex items-center justify-between mb-1">
+                <span className="font-semibold text-sm">Zone B: South Garden Court</span>
+                <Badge variant="outline" className="text-xs bg-emerald-50 text-emerald-700 border-emerald-300">Open</Badge>
+              </div>
+              <p className="text-xs text-muted-foreground">Exit via Sabha Mandapa South. Capacity: 2,500 pilgrims. Medical First-Aid Post 1 with oxygen & stretcher.</p>
+            </div>
+            <div className="p-3 bg-muted/60 rounded-lg border">
+              <div className="flex items-center justify-between mb-1">
+                <span className="font-semibold text-sm">Zone C: East Plaza Terminal</span>
+                <Badge variant="outline" className="text-xs bg-emerald-50 text-emerald-700 border-emerald-300">Open</Badge>
+              </div>
+              <p className="text-xs text-muted-foreground">Exit via East Gateway. Capacity: 4,000 pilgrims. Emergency ambulance bay & police dispatch post.</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <Alert>
         <AlertTriangle className="h-4 w-4" />
         <AlertDescription>
-          <strong>Important:</strong> In case of life-threatening emergencies,
-          always call 100 (Police) or 102 (Ambulance) first, then report through
-          this system.
+          <strong>Important Protocol:</strong> In case of life-threatening emergencies,
+          always call 112 (National SOS) or 108 (Gujarat Ambulance) immediately. Temple control room staff monitor all alerts 24/7.
         </AlertDescription>
       </Alert>
     </div>
