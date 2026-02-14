@@ -11,13 +11,23 @@ import {
   Activity,
   MapPin,
   RefreshCw,
+  Camera,
+  Video,
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useQuery } from "@tanstack/react-query";
 import { crowdService } from "@/services/crowdService";
 
 const CrowdDashboard = () => {
   const { t } = useLanguage();
+  const [selectedCameraZone, setSelectedCameraZone] = useState(null);
   const { data: crowdDataQuery, refetch, isFetching } = useQuery({
     queryKey: ["crowd"],
     queryFn: crowdService.getCrowdStatus,
@@ -220,6 +230,16 @@ const CrowdDashboard = () => {
                       {zone.name}
                     </span>
                     <div className="flex items-center space-x-2">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setSelectedCameraZone(zone)}
+                        className="h-7 px-2 text-xs text-primary hover:bg-primary/10"
+                        title="View Live CCTV Feed"
+                      >
+                        <Camera className="w-3.5 h-3.5 mr-1" />
+                        Feed
+                      </Button>
                       <span className="text-sm text-muted-foreground">
                         {zone.count}/{zone.capacity}
                       </span>
@@ -255,6 +275,79 @@ const CrowdDashboard = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Live Camera Feed Modal */}
+      <Dialog
+        open={Boolean(selectedCameraZone)}
+        onOpenChange={(open) => !open && setSelectedCameraZone(null)}
+      >
+        <DialogContent className="max-w-2xl bg-zinc-950 text-zinc-100 border-zinc-800 p-0 overflow-hidden">
+          <DialogHeader className="p-4 pb-2 border-b border-zinc-800">
+            <DialogTitle className="flex items-center justify-between text-base font-semibold">
+              <span className="flex items-center gap-2">
+                <Video className="w-4 h-4 text-emerald-400" />
+                Live Camera Feed — {selectedCameraZone?.name}
+              </span>
+              <Badge variant="outline" className="border-emerald-500/40 text-emerald-400 text-xs gap-1.5 py-0.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping inline-block" />
+                1080p @ 30fps
+              </Badge>
+            </DialogTitle>
+            <DialogDescription className="text-zinc-400 text-xs">
+              AI Headcount Ingestion & Crowd Flow Telemetry Stream
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="relative aspect-video bg-black flex flex-col justify-between p-4 overflow-hidden">
+            {/* Camera Overlay Elements */}
+            <div className="flex justify-between items-start z-10 text-xs font-mono">
+              <div className="flex items-center gap-2 bg-black/60 backdrop-blur px-2.5 py-1 rounded border border-zinc-800">
+                <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse" />
+                <span className="text-red-400 font-bold">REC</span>
+                <span className="text-zinc-400">CAM-{selectedCameraZone?.name.replace(/\s+/g, '-').toUpperCase()}</span>
+              </div>
+              <div className="bg-black/60 backdrop-blur px-2.5 py-1 rounded border border-zinc-800 text-zinc-300">
+                {new Date().toISOString().replace('T', ' ').slice(0, 19)} IST
+              </div>
+            </div>
+
+            {/* AI Bounding Box Simulation */}
+            <div className="absolute inset-x-12 inset-y-16 border border-emerald-500/30 rounded flex items-center justify-center pointer-events-none">
+              <div className="text-center bg-black/70 backdrop-blur px-4 py-2 rounded-lg border border-emerald-500/50 shadow-xl">
+                <p className="text-xs text-zinc-400 font-medium">AI Detected Pilgrims</p>
+                <p className="text-3xl font-bold font-mono text-emerald-400">
+                  {selectedCameraZone?.count || 420}{" "}
+                  <span className="text-xs text-zinc-500 font-normal">/ {selectedCameraZone?.capacity || 600}</span>
+                </p>
+                <div className="text-xs mt-1 text-zinc-400">
+                  Occupancy:{" "}
+                  <span className="font-semibold text-zinc-200">
+                    {Math.round(((selectedCameraZone?.count || 0) / (selectedCameraZone?.capacity || 1)) * 100)}%
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Stream Telemetry */}
+            <div className="flex justify-between items-end z-10 text-xs font-mono text-zinc-400 bg-black/60 backdrop-blur p-2 rounded border border-zinc-800">
+              <span>H.264 / 4500 Kbps</span>
+              <span>Optical Analytics: ONLINE</span>
+              <span className="text-emerald-400">Low Latency (&lt;200ms)</span>
+            </div>
+          </div>
+
+          <div className="p-3 bg-zinc-900 flex justify-end">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setSelectedCameraZone(null)}
+              className="border-zinc-700 hover:bg-zinc-800 text-xs text-zinc-200"
+            >
+              Close Feed
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
