@@ -59,10 +59,10 @@ const EmergencyAlert = () => {
   });
 
   const emergencyContacts = [
-    { name: "Police", number: "100", icon: "🚓" },
-    { name: "Ambulance", number: "102", icon: "🚑" },
-    { name: "Temple Security", number: "+91-XXXX-XXXX", icon: "👮" },
-    { name: "Fire Dept", number: "101", icon: "🚒" },
+    { name: "National Emergency", number: "112", icon: "🚨", desc: "Immediate Police/Fire/Medical SOS" },
+    { name: "Police Control", number: "100", icon: "🚓", desc: "Prabhas Patan Police Station" },
+    { name: "Emergency Ambulance", number: "108", icon: "🚑", desc: "Gujarat State Emergency Service" },
+    { name: "Temple Security Control", number: "+91-2876-231200", icon: "🛡️", desc: "Shree Somnath Trust Control Room" },
   ];
 
   const getSeverityColor = (severity) => {
@@ -250,28 +250,38 @@ const EmergencyAlert = () => {
         </Card>
       )}
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
         {emergencyContacts.map((contact) => (
           <Card
             key={contact.name}
-            className="hover:shadow-lg transition-shadow"
+            className="hover:shadow-lg transition-all border-destructive/20 hover:border-destructive/50"
           >
-            <CardContent className="p-4 text-center">
-              <div className="text-3xl mb-2">{contact.icon}</div>
-              <h4 className="font-semibold text-foreground text-sm">
-                {contact.name}
-              </h4>
-              <p className="text-lg font-bold text-destructive mt-1">
-                {contact.number}
-              </p>
-              <Button
-                size="sm"
-                variant="outline"
-                className="w-full mt-2 text-xs"
+            <CardContent className="p-4 text-center flex flex-col justify-between h-full">
+              <div>
+                <div className="text-3xl mb-1.5">{contact.icon}</div>
+                <h4 className="font-semibold text-foreground text-sm">
+                  {contact.name}
+                </h4>
+                <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+                  {contact.desc}
+                </p>
+                <p className="text-lg font-bold font-mono text-destructive mt-1">
+                  {contact.number}
+                </p>
+              </div>
+              <a
+                href={`tel:${contact.number.replace(/[^0-9+]/g, "")}`}
+                className="mt-3 block"
               >
-                <Phone className="w-3 h-3 mr-1" />
-                Call
-              </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="w-full text-xs hover:bg-destructive hover:text-white border-destructive/40"
+                >
+                  <Phone className="w-3.5 h-3.5 mr-1.5 text-destructive group-hover:text-white" />
+                  Call Now
+                </Button>
+              </a>
             </CardContent>
           </Card>
         ))}
