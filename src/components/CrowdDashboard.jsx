@@ -23,28 +23,27 @@ const CrowdDashboard = () => {
     queryFn: crowdService.getCrowdStatus,
   });
 
-  const [currentCount, setCurrentCount] = useState(2847);
+  const [liveOffset, setLiveOffset] = useState(0);
 
   useEffect(() => {
-    if (crowdDataQuery?.currentCount) {
-      setCurrentCount(crowdDataQuery.currentCount);
-    }
-  }, [crowdDataQuery]);
-
-  useEffect(() => {
+    // Subtle realistic visitor micro-fluctuation
     const interval = setInterval(() => {
-      setCurrentCount((prev) => prev + Math.floor(Math.random() * 21) - 10);
-    }, 3000);
+      setLiveOffset((prev) => prev + Math.floor(Math.random() * 7) - 3);
+    }, 4000);
     return () => clearInterval(interval);
   }, []);
 
   const handleRefresh = () => {
+    setLiveOffset(0);
     refetch();
   };
 
   const isRefreshing = isFetching;
-  const capacity = crowdDataQuery?.capacity || 5000;
-  const crowdPercentage = (currentCount / capacity) * 100;
+  const baseCount = crowdDataQuery?.currentCount || crowdDataQuery?.totalCrowd || 2847;
+  const currentCount = Math.max(0, baseCount + liveOffset);
+  const capacity = crowdDataQuery?.capacity || crowdDataQuery?.maxCapacity || 5000;
+  const waitTime = crowdDataQuery?.waitTime || "25 mins";
+  const crowdPercentage = Math.min(100, (currentCount / capacity) * 100);
 
   const getCrowdStatus = () => {
     if (crowdPercentage < 40)
