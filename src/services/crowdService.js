@@ -8,7 +8,9 @@ export const crowdService = {
       if (response && response.data && response.data.metrics) {
         const m = response.data.metrics;
         return {
+          currentCount: m.totalCrowd,
           totalCrowd: m.totalCrowd,
+          capacity: m.maxCapacity,
           maxCapacity: m.maxCapacity,
           crowdDensity: m.overallDensity,
           waitTime: `${m.estimatedWaitMinutes} mins`,
@@ -17,14 +19,29 @@ export const crowdService = {
             name: z.name,
             count: z.count,
             capacity: z.capacity,
-            status: z.density === 'critical' ? 'critical' : z.density === 'high' ? 'heavy' : z.density === 'moderate' ? 'moderate' : 'normal',
+            status:
+              z.density === 'critical'
+                ? 'critical'
+                : z.density === 'high'
+                ? 'heavy'
+                : z.density === 'moderate'
+                ? 'moderate'
+                : 'normal',
             trend: 'stable',
           })),
         };
       }
-      return { ...mockCrowdData };
+      return {
+        ...mockCrowdData,
+        totalCrowd: mockCrowdData.currentCount,
+        maxCapacity: mockCrowdData.capacity,
+      };
     } catch {
-      return { ...mockCrowdData };
+      return {
+        ...mockCrowdData,
+        totalCrowd: mockCrowdData.currentCount,
+        maxCapacity: mockCrowdData.capacity,
+      };
     }
   },
 
