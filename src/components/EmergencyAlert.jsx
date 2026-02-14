@@ -16,63 +16,46 @@ import {
   Users,
   Car,
 } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { alertService } from "@/services/alertService";
+import { useToast } from "@/hooks/use-toast";
 
 const EmergencyAlert = () => {
   const { t } = useLanguage();
-  const [alerts, setAlerts] = useState([
-    {
-      id: 1,
-      type: "medical",
-      severity: "high",
-      title: "Medical Emergency",
-      description: "Pilgrim assistance required at North Gate",
-      location: "North Gate",
-      time: "2 minutes ago",
-      status: "active",
-      responders: 2,
-      eta: "2 minutes",
-    },
-    {
-      id: 2,
-      type: "crowd",
-      severity: "medium",
-      title: "High Crowd Concentration",
-      description: "Excessive crowd buildup near main temple",
-      location: "Main Sanctum Area",
-      time: "5 minutes ago",
-      status: "active",
-      estimatedPeople: 500,
-      action: "Crowd management deployed",
-    },
-    {
-      id: 3,
-      type: "safety",
-      severity: "medium",
-      title: "Lost Pilgrim Alert",
-      description: "Child separated from parents",
-      location: "Temple Premises",
-      time: "8 minutes ago",
-      status: "active",
-      details: "5-year-old boy, wearing orange shirt",
-    },
-    {
-      id: 4,
-      type: "traffic",
-      severity: "low",
-      title: "Traffic Congestion",
-      description: "Heavy traffic on temple access road",
-      location: "Temple Access Road",
-      time: "12 minutes ago",
-      status: "resolved",
-      duration: "4 minutes",
-    },
-  ]);
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  const { data: alerts = [], isLoading } = useQuery({
+    queryKey: ["alerts"],
+    queryFn: alertService.getAlerts,
+    refetchInterval: 15000,
+  });
 
   const [showReportForm, setShowReportForm] = useState(false);
   const [formData, setFormData] = useState({
-    type: "other",
+    type: "medical",
     severity: "medium",
     description: "",
+  });
+
+  const reportMutation = useMutation({
+    mutationFn: (newAlert) => alertService.reportAlert(newAlert),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["alerts"] });
+      toast({
+        title: "Emergency Alert Dispatched",
+        description: "Temple security & medical team have been notified.",
+      });
+      setFormData({ type: "medical", severity: "medium", description: "" });
+      setShowReportForm(false);
+    },
+    onError: () => {
+      toast({
+        title: "Report Failed",
+        description: "Failed to dispatch alert. Please call the emergency hotline directly.",
+        variant: "destructive",
+      });
+    },
   });
 
   const emergencyContacts = [
@@ -152,20 +135,19 @@ const EmergencyAlert = () => {
   const handleReportSubmit = () => {
     if (!formData.description.trim()) return;
 
-    const newAlert = {
-      id: alerts.length + 1,
-      type: formData.type,
+    reportMutation.mutate({
+      type:
+        formData.type === "medical"
+          ? "medical_emergency"
+          : formData.type === "crowd"
+          ? "stampede_risk"
+          : "general",
       severity: formData.severity,
-      title: `New ${formData.type} report`,
+      title: `${formData.type.toUpperCase()} Incident Report`,
       description: formData.description,
       location: "Temple Premises",
-      time: "Just now",
-      status: "active",
-    };
-
-    setAlerts([newAlert, ...alerts]);
-    setFormData({ type: "other", severity: "medium", description: "" });
-    setShowReportForm(false);
+      zoneId: "plaza",
+    });
   };
 
   const activeAlerts = alerts.filter((alert) => alert.status === "active");
