@@ -24,17 +24,34 @@ const CrowdDashboard = () => {
   });
 
   const [liveOffset, setLiveOffset] = useState(0);
+  const [countdown, setCountdown] = useState(20);
 
   useEffect(() => {
+    // 1-second interval for countdown and live sync
+    const timer = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          refetch();
+          return 20;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
     // Subtle realistic visitor micro-fluctuation
-    const interval = setInterval(() => {
+    const fluctuation = setInterval(() => {
       setLiveOffset((prev) => prev + Math.floor(Math.random() * 7) - 3);
     }, 4000);
-    return () => clearInterval(interval);
-  }, []);
+
+    return () => {
+      clearInterval(timer);
+      clearInterval(fluctuation);
+    };
+  }, [refetch]);
 
   const handleRefresh = () => {
     setLiveOffset(0);
+    setCountdown(20);
     refetch();
   };
 
@@ -88,16 +105,22 @@ const CrowdDashboard = () => {
             Real-time temple occupancy and crowd flow analysis
           </p>
         </div>
-        <Button
-          onClick={handleRefresh}
-          disabled={isRefreshing}
-          className="bg-gradient-sacred shadow-sacred"
-        >
-          <RefreshCw
-            className={`w-4 h-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`}
-          />
-          Refresh Data
-        </Button>
+        <div className="flex items-center gap-3">
+          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-background/80 backdrop-blur rounded-full border text-xs text-muted-foreground shadow-sm">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>Live Sync in {countdown}s</span>
+          </div>
+          <Button
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="bg-gradient-sacred shadow-sacred"
+          >
+            <RefreshCw
+              className={`w-4 h-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`}
+            />
+            Refresh Data
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
