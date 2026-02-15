@@ -11,6 +11,13 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import {
   Camera,
   AlertTriangle,
   BarChart3,
@@ -37,6 +44,7 @@ import { useSSE } from "@/hooks/useSSE";
 const AdminDashboard = () => {
   const queryClient = useQueryClient();
   const [adminUser, setAdminUser] = useState(null);
+  const [previewCamera, setPreviewCamera] = useState(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -230,7 +238,7 @@ const AdminDashboard = () => {
               <Card
                 key={camera.id}
                 className="cursor-pointer hover:shadow-md transition-shadow"
-                onClick={() => navigate(`/admin/camera/${camera.id}`)}
+                onClick={() => setPreviewCamera(camera)}
               >
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm">{camera.name}</CardTitle>
@@ -264,7 +272,7 @@ const AdminDashboard = () => {
               <AlertTriangle className="mr-2 h-5 w-5" />
               Alert & Emergency Management
             </h2>
-            <Button variant="outline" onClick={() => navigate("/admin/alerts")}>
+            <Button variant="outline" onClick={() => navigate("/emergency")}>
               View All Alerts
             </Button>
           </div>
@@ -456,7 +464,7 @@ const AdminDashboard = () => {
               <Button
                 variant="outline"
                 className="w-full justify-start"
-                onClick={() => navigate("/admin/queue")}
+                onClick={() => navigate("/queue")}
               >
                 <Users className="mr-2 h-4 w-4" />
                 Manage Virtual Queue
@@ -473,6 +481,51 @@ const AdminDashboard = () => {
           </Card>
         </div>
       </div>
+
+      {previewCamera && (
+        <Dialog open={!!previewCamera} onOpenChange={() => setPreviewCamera(null)}>
+          <DialogContent className="max-w-xl">
+            <DialogHeader>
+              <DialogTitle className="flex items-center space-x-2">
+                <Camera className="w-5 h-5 text-primary" />
+                <span>{previewCamera.name}</span>
+              </DialogTitle>
+              <DialogDescription>
+                {previewCamera.location} • Real-time AI Vision Analytics
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 pt-2">
+              <div className="relative aspect-video bg-slate-900 rounded-lg overflow-hidden flex items-center justify-center border border-slate-700">
+                <div className="absolute top-3 left-3 flex items-center space-x-2 bg-black/60 px-2 py-1 rounded text-xs text-white">
+                  <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+                  <span>LIVE FEED</span>
+                </div>
+                <div className="absolute bottom-3 right-3 bg-black/60 px-2 py-1 rounded text-xs text-white font-mono">
+                  FPS: 30 • 1080p
+                </div>
+                <div className="text-center text-slate-400">
+                  <Camera className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">Active Video Stream</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-3 text-center">
+                <div className="p-2.5 bg-muted rounded-lg">
+                  <span className="text-xs text-muted-foreground block">Crowd Density</span>
+                  <span className="font-bold text-foreground">{previewCamera.crowd_density}%</span>
+                </div>
+                <div className="p-2.5 bg-muted rounded-lg">
+                  <span className="text-xs text-muted-foreground block">Flow Rate</span>
+                  <span className="font-bold text-foreground">Normal</span>
+                </div>
+                <div className="p-2.5 bg-muted rounded-lg">
+                  <span className="text-xs text-muted-foreground block">Status</span>
+                  <span className="font-bold text-emerald-600">Online</span>
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };

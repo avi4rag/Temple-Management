@@ -41,6 +41,8 @@ const App = () => (
               {/* Admin routes */}
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route path="/admin/queue" element={<AdminDashboard />} />
+              <Route path="/admin/alerts" element={<AdminDashboard />} />
 
               {/* Fallback */}
               <Route path="*" element={<NotFound />} />
