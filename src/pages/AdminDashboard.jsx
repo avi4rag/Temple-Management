@@ -32,12 +32,28 @@ import { alertService } from "@/services/alertService";
 import { authService } from "@/services/authService";
 import { bookingService } from "@/services/bookingService";
 import { useToast } from "@/hooks/use-toast";
+import { useSSE } from "@/hooks/useSSE";
 
 const AdminDashboard = () => {
   const queryClient = useQueryClient();
   const [adminUser, setAdminUser] = useState(null);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  const { isConnected: isSSELive } = useSSE("/api/v1/stream", {
+    enabled: !!adminUser,
+    onAlert: (incomingAlert) => {
+      queryClient.invalidateQueries({ queryKey: ["alerts"] });
+      toast({
+        title: "🚨 LIVE EMERGENCY ALERT",
+        description: `${incomingAlert.title || "New Alert"} at ${incomingAlert.location || "Temple Zone"}`,
+        variant: "destructive",
+      });
+    },
+    onCrowdUpdate: () => {
+      queryClient.invalidateQueries({ queryKey: ["cameras"] });
+    },
+  });
 
   useEffect(() => {
     const storedAdmin = authService.getCurrentUser();
@@ -169,7 +185,10 @@ const AdminDashboard = () => {
             <h1 className="text-2xl font-bold text-foreground">
               Divya Setu - Admin Portal
             </h1>
-            <Badge variant="outline">Live Operations</Badge>
+            <Badge variant="outline" className="flex items-center space-x-1.5 px-2.5 py-1">
+              <span className={`inline-block h-2 w-2 rounded-full ${isSSELive ? "bg-emerald-500 animate-pulse" : "bg-emerald-400"}`} />
+              <span className="text-xs">{isSSELive ? "SSE Stream Connected" : "Telemetry Active"}</span>
+            </Badge>
           </div>
           <div className="flex items-center space-x-4">
             <span className="text-sm text-muted-foreground">
