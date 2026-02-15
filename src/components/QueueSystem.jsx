@@ -32,11 +32,15 @@ import {
   CreditCard,
   Bell,
   Ticket,
+  Search,
+  Printer,
+  ShieldCheck,
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { slotService } from "@/services/slotService";
+import { bookingService } from "@/services/bookingService";
 import DetailedBookingForm from "./DetailedBookingForm";
 
 const QueueSystem = () => {
@@ -48,9 +52,43 @@ const QueueSystem = () => {
   const [showDetailedForm, setShowDetailedForm] = useState(false);
   const [isBooking, setIsBooking] = useState(false);
   const [devotees, setDevotees] = useState([]);
+  const [activeTab, setActiveTab] = useState("book");
+  const [trackReference, setTrackReference] = useState("");
+  const [trackPhone, setTrackPhone] = useState("");
+  const [isTracking, setIsTracking] = useState(false);
+  const [trackedBooking, setTrackedBooking] = useState(null);
 
   const { t } = useLanguage();
   const { toast } = useToast();
+
+  const handleTrackBooking = async (e) => {
+    e?.preventDefault();
+    if (!trackReference && !trackPhone) {
+      toast({
+        title: "Input required",
+        description: "Please enter booking reference ID or phone number",
+        variant: "destructive",
+      });
+      return;
+    }
+    setIsTracking(true);
+    try {
+      const res = await bookingService.getBooking(trackReference, trackPhone);
+      setTrackedBooking(res);
+      toast({
+        title: "Booking Found",
+        description: `Reference: ${res.reference} - Status: ${res.status}`,
+      });
+    } catch {
+      toast({
+        title: "Not Found",
+        description: "Could not find a booking matching the provided details",
+        variant: "destructive",
+      });
+    } finally {
+      setIsTracking(false);
+    }
+  };
 
   const { data: timeSlots = [] } = useQuery({
     queryKey: ["slots"],
@@ -195,14 +233,152 @@ const QueueSystem = () => {
         </p>
       </div>
 
-      <Card className="max-w-2xl mx-auto shadow-sacred">
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <Ticket className="w-5 h-5 mr-2" />
-            {t("queue.bookSlot")} – Select a slot below to continue
-          </CardTitle>
-        </CardHeader>
-      </Card>
+      {/* Tab Switcher */}
+      <div className="flex justify-center mb-6">
+        <div className="inline-flex rounded-lg border border-border bg-card p-1 shadow-sm">
+          <Button
+            type="button"
+            variant={activeTab === "book" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setActiveTab("book")}
+            className="rounded-md"
+          >
+            <Ticket className="w-4 h-4 mr-2" />
+            Book Darshan Slot
+          </Button>
+          <Button
+            type="button"
+            variant={activeTab === "track" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setActiveTab("track")}
+            className="rounded-md"
+          >
+            <Search className="w-4 h-4 mr-2" />
+            Track Booking / Verify Token
+          </Button>
+        </div>
+      </div>
+
+      {activeTab === "track" ? (
+        <div className="max-w-2xl mx-auto space-y-6">
+          <Card className="shadow-sacred">
+            <CardHeader>
+              <CardTitle className="flex items-center text-lg">
+                <Search className="w-5 h-5 mr-2 text-primary" />
+                Track Your Darshan Pass
+              </CardTitle>
+              <CardDescription>
+                Enter your booking reference code or registered mobile number
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleTrackBooking} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="trackRef">Booking Reference</Label>
+                    <Input
+                      id="trackRef"
+                      placeholder="e.g. DS-20260215-ABCD"
+                      value={trackReference}
+                      onChange={(e) => setTrackReference(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="trackPhone">Mobile Number</Label>
+                    <Input
+                      id="trackPhone"
+                      placeholder="e.g. 9876543210"
+                      value={trackPhone}
+                      onChange={(e) => setTrackPhone(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <Button
+                  type="submit"
+                  disabled={isTracking}
+                  className="w-full bg-gradient-sacred"
+                >
+                  {isTracking ? "Searching Booking..." : "Search Booking"}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+
+          {trackedBooking && (
+            <Card className="shadow-divine border-primary/20">
+              <CardHeader className="bg-gradient-sacred text-primary-foreground rounded-t-lg">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <CardTitle className="text-lg">
+                      Pass: {trackedBooking.reference}
+                    </CardTitle>
+                    <CardDescription className="text-primary-foreground/80">
+                      {trackedBooking.slotDate} • {trackedBooking.slotTime}
+                    </CardDescription>
+                  </div>
+                  <Badge className="bg-white text-primary uppercase font-bold">
+                    {trackedBooking.status || "CONFIRMED"}
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="p-6 space-y-4">
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div className="p-3 bg-muted rounded-lg">
+                    <span className="text-muted-foreground block text-xs">Assigned Gate</span>
+                    <span className="font-semibold text-foreground">
+                      {trackedBooking.gate || "Gate 2 (Digvijay Dwar)"}
+                    </span>
+                  </div>
+                  <div className="p-3 bg-muted rounded-lg">
+                    <span className="text-muted-foreground block text-xs">Primary Contact</span>
+                    <span className="font-semibold text-foreground">
+                      {trackedBooking.primaryContact?.name || "Devotee"} ({trackedBooking.primaryContact?.phone || "N/A"})
+                    </span>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-primary/5 rounded-lg border border-primary/10">
+                  <h4 className="text-sm font-semibold mb-2 flex items-center">
+                    <ShieldCheck className="w-4 h-4 mr-2 text-primary" />
+                    Devotees Registered ({trackedBooking.devotees?.length || 1})
+                  </h4>
+                  <ul className="text-sm space-y-1">
+                    {trackedBooking.devotees?.map((d, idx) => (
+                      <li key={idx} className="flex justify-between text-muted-foreground">
+                        <span>{d.name} ({d.age} yrs)</span>
+                        <span className="text-xs bg-muted px-2 py-0.5 rounded">
+                          {d.idType || "ID"} ending in {d.idLast4 || "••••"}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="flex justify-end pt-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => window.print()}
+                    className="flex items-center"
+                  >
+                    <Printer className="w-4 h-4 mr-2" />
+                    Print Pass
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      ) : (
+        <>
+          <Card className="max-w-2xl mx-auto shadow-sacred">
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Ticket className="w-5 h-5 mr-2" />
+                {t("queue.bookSlot")} – Select a slot below to continue
+              </CardTitle>
+            </CardHeader>
+          </Card>
 
       <Card className="shadow-temple">
         <CardHeader>
@@ -292,6 +468,8 @@ const QueueSystem = () => {
           </div>
         </CardContent>
       </Card>
+      </>
+      )}
     </div>
   );
 };
