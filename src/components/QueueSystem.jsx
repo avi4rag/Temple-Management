@@ -447,23 +447,46 @@ const QueueSystem = () => {
         </Button>
       </div>
 
-      <Card className="max-w-2xl mx-auto shadow-temple">
-        <CardHeader>
-          <CardTitle>Live Queue Status</CardTitle>
+      <Card className="max-w-2xl mx-auto shadow-temple border-primary/20">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base flex items-center">
+              <Clock className="w-4 h-4 mr-2 text-primary" />
+              Live Sanctum Queue Telemetry
+            </CardTitle>
+            <div className="flex items-center space-x-2">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+              </span>
+              <span className="text-xs text-emerald-600 font-medium">Live Feed</span>
+            </div>
+          </div>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-3 gap-4 text-center">
-            <div>
-              <div className="text-2xl font-bold text-foreground">184</div>
-              <div className="text-sm text-muted-foreground">In Queue</div>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+            <div className="p-2.5 bg-primary/5 rounded-lg border border-primary/10">
+              <div className="text-xs text-muted-foreground">Currently Serving</div>
+              <div className="text-xl font-bold text-primary font-mono">DS-1084</div>
             </div>
-            <div>
-              <div className="text-2xl font-bold text-primary">15 min</div>
-              <div className="text-sm text-muted-foreground">Avg Wait</div>
+            <div className="p-2.5 bg-muted rounded-lg">
+              <div className="text-xs text-muted-foreground">Devotees in Line</div>
+              <div className="text-xl font-bold text-foreground">148</div>
             </div>
+            <div className="p-2.5 bg-muted rounded-lg">
+              <div className="text-xs text-muted-foreground">Est. Wait Time</div>
+              <div className="text-xl font-bold text-amber-600">~12 min</div>
+            </div>
+            <div className="p-2.5 bg-muted rounded-lg">
+              <div className="text-xs text-muted-foreground">Movement Rate</div>
+              <div className="text-xl font-bold text-emerald-600">38/min</div>
+            </div>
+          </div>
+
+          <div className="p-3 bg-blue-50/70 border border-blue-200/60 rounded-md text-xs text-blue-900 flex items-start space-x-2">
+            <Users className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
             <div>
-              <div className="text-2xl font-bold text-success">98%</div>
-              <div className="text-sm text-muted-foreground">On Time</div>
+              <span className="font-semibold">Special Assistance Notice:</span> Senior citizens (65+) and differently-abled devotees may report directly to Gate 1 (Brahmakund Marg) for priority electric cart escort.
             </div>
           </div>
         </CardContent>
