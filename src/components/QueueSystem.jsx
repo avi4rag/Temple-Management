@@ -46,6 +46,7 @@ const QueueSystem = () => {
   const [hasBooking, setHasBooking] = useState(false);
   const [bookingToken, setBookingToken] = useState(null);
   const [showDetailedForm, setShowDetailedForm] = useState(false);
+  const [isBooking, setIsBooking] = useState(false);
   const [devotees, setDevotees] = useState([]);
 
   const { t } = useLanguage();
@@ -63,7 +64,8 @@ const QueueSystem = () => {
         (_, index) => ({
           name: "",
           age: "",
-          aadhaarNumber: "",
+          idType: "Aadhaar",
+          idLast4: "",
           phoneNumber: index === 0 ? phoneNumber : "",
         }),
       );
