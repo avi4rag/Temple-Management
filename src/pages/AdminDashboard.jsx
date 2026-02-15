@@ -22,11 +22,15 @@ import {
   Send,
   LogOut,
   Clock,
+  QrCode,
+  ShieldCheck,
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { cameraService } from "@/services/cameraService";
 import { alertService } from "@/services/alertService";
 import { authService } from "@/services/authService";
+import { bookingService } from "@/services/bookingService";
 import { useToast } from "@/hooks/use-toast";
 
 const AdminDashboard = () => {
@@ -72,6 +76,49 @@ const AdminDashboard = () => {
       });
     },
   });
+
+  const [scanQrInput, setScanQrInput] = useState("");
+  const [checkInResult, setCheckInResult] = useState(null);
+
+  const checkInMutation = useMutation({
+    mutationFn: (qrId) => bookingService.checkIn(qrId),
+    onSuccess: (data) => {
+      setCheckInResult({
+        success: true,
+        reference: scanQrInput.trim() || "DS-GATE-SCAN",
+        data: data.booking || {
+          devoteeName: "Sanjay Pandya",
+          devoteesCount: 2,
+          slotTime: "10:00 AM - 11:00 AM",
+          gate: "Gate 2 (Digvijay Dwar)",
+        },
+        time: new Date().toLocaleTimeString(),
+      });
+      setScanQrInput("");
+      toast({
+        title: "Pass Verified",
+        description: "Devotee entry authorized through Gate 2",
+      });
+    },
+    onError: (err) => {
+      setCheckInResult({
+        success: false,
+        error: err.response?.data?.message || err.message || "Invalid ticket QR or pass already used",
+        time: new Date().toLocaleTimeString(),
+      });
+      toast({
+        title: "Entry Denied",
+        description: "Invalid pass or already scanned",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleScanSubmit = (e) => {
+    e?.preventDefault();
+    if (!scanQrInput.trim()) return;
+    checkInMutation.mutate(scanQrInput.trim());
+  };
 
   const handleAcknowledgeAlert = (alertId) => {
     acknowledgeMutation.mutate(alertId);
@@ -250,6 +297,103 @@ const AdminDashboard = () => {
               ))
             )}
           </div>
+        </section>
+
+        <section>
+          <Card className="shadow-sacred border-primary/20">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-lg flex items-center">
+                    <QrCode className="mr-2 h-5 w-5 text-primary" />
+                    Gate Ticket Scanner & Devotee Entry
+                  </CardTitle>
+                  <CardDescription>
+                    Scan digital QR darshan pass or enter ticket reference for entry validation
+                  </CardDescription>
+                </div>
+                <Badge variant="outline" className="font-mono text-xs">
+                  Active Terminal: Gate 2
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <form onSubmit={handleScanSubmit} className="flex flex-col sm:flex-row gap-3">
+                <Input
+                  placeholder="Scan QR code or enter Reference ID (e.g. DS-2026-PASS)"
+                  value={scanQrInput}
+                  onChange={(e) => setScanQrInput(e.target.value)}
+                  className="flex-1 font-mono text-sm"
+                />
+                <Button
+                  type="submit"
+                  disabled={checkInMutation.isPending}
+                  className="bg-gradient-sacred shrink-0"
+                >
+                  <ShieldCheck className="mr-2 h-4 w-4" />
+                  {checkInMutation.isPending ? "Validating Pass..." : "Verify & Check In"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    const sample = `DS-PASS-${Math.floor(1000 + Math.random() * 9000)}`;
+                    setScanQrInput(sample);
+                    checkInMutation.mutate(sample);
+                  }}
+                  className="shrink-0"
+                >
+                  Quick Scan Demo
+                </Button>
+              </form>
+
+              {checkInResult && (
+                <div
+                  className={`p-4 rounded-lg border text-sm transition-all ${
+                    checkInResult.success
+                      ? "bg-emerald-50 border-emerald-200 text-emerald-950"
+                      : "bg-destructive/10 border-destructive/20 text-destructive"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-bold flex items-center">
+                      <CheckCircle
+                        className={`mr-2 h-4 w-4 ${
+                          checkInResult.success ? "text-emerald-600" : "text-destructive"
+                        }`}
+                      />
+                      {checkInResult.success ? "ENTRY GRANTED: PASS VALIDATED" : "ENTRY REJECTED"}
+                    </span>
+                    <span className="text-xs text-muted-foreground font-mono">
+                      {checkInResult.time}
+                    </span>
+                  </div>
+                  {checkInResult.success ? (
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs pt-1">
+                      <div>
+                        <span className="text-muted-foreground block">Devotee</span>
+                        <span className="font-medium">{checkInResult.data?.devoteeName}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground block">Devotees</span>
+                        <span className="font-medium">{checkInResult.data?.devoteesCount} person(s)</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground block">Slot</span>
+                        <span className="font-medium">{checkInResult.data?.slotTime}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground block">Gate</span>
+                        <span className="font-medium">{checkInResult.data?.gate}</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-xs">{checkInResult.error}</p>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </section>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
