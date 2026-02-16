@@ -551,7 +551,7 @@ const TempleMap = () => {
                   </div>
                 </div>
               );
-            })}
+            }))}
           </CardContent>
         </Card>
       </div>

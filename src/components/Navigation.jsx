@@ -10,6 +10,8 @@ import {
   Info,
   Languages,
   ChevronDown,
+  Users,
+  Shield,
 } from "lucide-react";
 
 import {
@@ -35,6 +37,11 @@ const Navigation = ({ activeSection, onSectionChange }) => {
   );
 
   const navItems = [
+    {
+      id: "dashboard",
+      label: t("nav.crowdDashboard") || "Live Crowd",
+      icon: Users,
+    },
     {
       id: "queue",
       label: t("nav.darshanQueue"),
@@ -153,6 +160,16 @@ const Navigation = ({ activeSection, onSectionChange }) => {
                   ))}
                 </DropdownMenuContent>
               </DropdownMenu>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate("/admin/login")}
+                className="text-xs px-2.5 py-1 flex items-center border-primary/20 hover:bg-primary/5"
+              >
+                <Shield className="w-3.5 h-3.5 mr-1 text-primary" />
+                Staff Portal
+              </Button>
             </div>
           </div>
         </div>
@@ -242,6 +259,20 @@ const Navigation = ({ activeSection, onSectionChange }) => {
                     ))}
                   </DropdownMenuContent>
                 </DropdownMenu>
+
+                <div className="pt-2 border-t mt-2">
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start text-sm"
+                    onClick={() => {
+                      navigate("/admin/login");
+                      setIsOpen(false);
+                    }}
+                  >
+                    <Shield className="w-4 h-4 mr-2 text-primary" />
+                    Staff Portal
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
