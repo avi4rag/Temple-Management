@@ -492,6 +492,37 @@ const ServicesInfo = () => {
         </TabsContent>
 
         <TabsContent value="food" className="space-y-4">
+          <Card className="shadow-sacred border-primary/20 bg-gradient-to-r from-amber-50/80 to-orange-50/80">
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg flex items-center text-amber-950">
+                  <Utensils className="w-5 h-5 mr-2 text-primary" />
+                  Shree Somnath Trust Mahaprasad Bhojanalaya (Annakshetra)
+                </CardTitle>
+                <Badge className="bg-emerald-600 text-white font-medium">Serving Now</Badge>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-sm text-amber-900">
+                Subsidized pure satvik Gujarati Bhojan Prasad served with devotion in spacious air-cooled dining halls. Clean filtered water and traditional service.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                <div className="p-2.5 bg-white/80 rounded-lg border border-amber-200">
+                  <span className="text-muted-foreground block">Lunch Prasad</span>
+                  <span className="font-semibold text-foreground">11:00 AM – 03:00 PM</span>
+                </div>
+                <div className="p-2.5 bg-white/80 rounded-lg border border-amber-200">
+                  <span className="text-muted-foreground block">Dinner Prasad</span>
+                  <span className="font-semibold text-foreground">07:00 PM – 10:00 PM</span>
+                </div>
+                <div className="p-2.5 bg-white/80 rounded-lg border border-amber-200">
+                  <span className="text-muted-foreground block">Token Price</span>
+                  <span className="font-semibold text-emerald-700">₹50 (Unlimited Thali)</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {restaurants.map((restaurant) => (
               <Card
