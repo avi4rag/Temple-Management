@@ -26,12 +26,28 @@ import {
   AlertCircle,
   CheckCircle,
   Activity,
+  Download,
+  FileSpreadsheet,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const Analytics = () => {
   const { t } = useLanguage();
   const [selectedMetric, setSelectedMetric] = useState("daily");
   const [timeRange, setTimeRange] = useState("week");
+
+  const handleExportCSV = () => {
+    const headers = "Hour,Crowd,Capacity\n";
+    const rows = dailyCrowdData.map((d) => `${d.time},${d.crowd},${d.capacity}`).join("\n");
+    const blob = new Blob([headers + rows], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `somnath-crowd-analytics-${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const dailyCrowdData = [
     { time: "6 AM", crowd: 150, capacity: 500 },
@@ -135,12 +151,31 @@ const Analytics = () => {
       <div className="flex flex-col justify-between items-start md:items-center md:flex-row gap-4">
         <div>
           <h1 className="text-3xl font-bold text-foreground mb-2 flex items-center">
-            <Activity className="w-8 h-8 mr-3" />
+            <Activity className="w-8 h-8 mr-3 text-primary" />
             Analytics Dashboard
           </h1>
           <p className="text-muted-foreground">
             Real-time crowd insights and booking analytics
           </p>
+        </div>
+        <div className="flex items-center space-x-3">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleExportCSV}
+            className="flex items-center"
+          >
+            <Download className="w-4 h-4 mr-2" />
+            Export CSV
+          </Button>
+          <Button
+            size="sm"
+            onClick={() => window.print()}
+            className="bg-gradient-sacred flex items-center"
+          >
+            <FileSpreadsheet className="w-4 h-4 mr-2" />
+            Print Report
+          </Button>
         </div>
       </div>
 
