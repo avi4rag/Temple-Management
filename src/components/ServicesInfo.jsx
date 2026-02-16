@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useToast } from "@/hooks/use-toast";
 import {
   Hotel,
   Utensils,
@@ -20,48 +21,91 @@ import {
   Train,
   Bus,
   Plane,
+  Sparkles,
+  CheckCircle2,
 } from "lucide-react";
 
 const ServicesInfo = () => {
   const { t } = useLanguage();
+  const { toast } = useToast();
   const [selectedService, setSelectedService] = useState(null);
   const [activeTab, setActiveTab] = useState("accommodation");
+  const [selectedSeva, setSelectedSeva] = useState(null);
+
+  const poojaSevas = [
+    {
+      id: "mahapuja",
+      name: "Somnath Maha Puja",
+      duration: "45 mins",
+      samagri: "Included",
+      dakshina: "₹1,100",
+      description: "Comprehensive 16-upachara Vedic archana performed by sanctum priests with holy bilva patra.",
+      timings: "Daily: 7:30 AM & 12:30 PM",
+    },
+    {
+      id: "rudrabhishek",
+      name: "Laghu Rudra Abhishek",
+      duration: "90 mins",
+      samagri: "Included",
+      dakshina: "₹2,500",
+      description: "Sacred continuous panchamrut abhishek with 11 recitations of Sri Rudram for divine health and peace.",
+      timings: "Morning: 8:00 AM - 10:00 AM",
+    },
+    {
+      id: "dhwajarohan",
+      name: "Dhwajarohan (Flag Offering)",
+      duration: "30 mins",
+      samagri: "Included",
+      dakshina: "₹5,100",
+      description: "Ceremonial sacred flag hoisted at the 155-foot gold Kalash Shikhar of Somnath Temple.",
+      timings: "Daily: 9:00 AM, 12:00 PM, 5:00 PM",
+    },
+    {
+      id: "bilvapuja",
+      name: "Sahasra Bilva Patra Archana",
+      duration: "40 mins",
+      samagri: "Included",
+      dakshina: "₹500",
+      description: "Offering of 1,008 fresh holy Bilva leaves with chanting of 108 names of Lord Somnath.",
+      timings: "Daily: 6:30 AM - 11:30 AM",
+    },
+  ];
 
   const accommodations = [
     {
       id: 1,
-      name: "Somnath Palace Hotel",
-      category: "5-Star",
+      name: "Sagar Darshan Guest House",
+      category: "5-Star Trust",
       rating: 4.8,
-      price: "₹5,000 - ₹12,000",
-      distance: "0.5 km from temple",
-      amenities: ["WiFi", "AC", "Restaurant", "Parking", "Spa"],
-      description: "Luxury hotel with modern facilities and temple view",
-      phone: "+91-XXXX-XXXX",
+      price: "₹3,500 - ₹8,000",
+      distance: "0.2 km from temple",
+      amenities: ["WiFi", "AC", "Sea View", "Restaurant", "Parking"],
+      description: "Official temple trust luxury sea-facing guest house right on the Arabian Sea shore",
+      phone: "+91 2876 231200",
       image: "🏨",
     },
     {
       id: 2,
-      name: "Shiva Rest House",
-      category: "3-Star",
+      name: "Maheshwari Guest House",
+      category: "Deluxe Trust",
       rating: 4.5,
-      price: "₹1,500 - ₹3,500",
-      distance: "1 km from temple",
-      amenities: ["WiFi", "AC", "Restaurant", "Parking"],
-      description: "Budget-friendly accommodation near temple",
-      phone: "+91-XXXX-XXXX",
+      price: "₹1,200 - ₹2,500",
+      distance: "0.8 km from temple",
+      amenities: ["WiFi", "AC", "Dining Hall", "Parking"],
+      description: "Comfortable trust-managed family accommodation near Somnath bypass",
+      phone: "+91 2876 231212",
       image: "🏩",
     },
     {
       id: 3,
-      name: "Pilgrim Rest House",
-      category: "Budget",
-      rating: 4.2,
-      price: "₹500 - ₹1,500",
-      distance: "2 km from temple",
-      amenities: ["WiFi", "Fan", "Basic Kitchen", "Common Area"],
-      description: "Basic accommodation for pilgrims",
-      phone: "+91-XXXX-XXXX",
+      name: "Lilavati Atithi Bhavan",
+      category: "Budget Trust",
+      rating: 4.3,
+      price: "₹500 - ₹1,200",
+      distance: "1.2 km from temple",
+      amenities: ["Clean Rooms", "Fan/AC", "Lift", "Common Canteen"],
+      description: "Affordable and peaceful accommodation managed by Shree Somnath Trust",
+      phone: "+91 2876 233533",
       image: "🏢",
     },
   ];
@@ -286,13 +330,20 @@ const ServicesInfo = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-5 lg:grid-cols-5 w-full">
+        <TabsList className="grid grid-cols-3 sm:grid-cols-6 w-full">
           <TabsTrigger
             value="accommodation"
             className="flex items-center text-xs lg:text-sm"
           >
             <Hotel className="w-4 h-4" />
             <span className="hidden sm:inline ml-1">Stay</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="pooja"
+            className="flex items-center text-xs lg:text-sm"
+          >
+            <Sparkles className="w-4 h-4" />
+            <span className="hidden sm:inline ml-1">Pooja</span>
           </TabsTrigger>
           <TabsTrigger
             value="food"
@@ -323,6 +374,54 @@ const ServicesInfo = () => {
             <span className="hidden sm:inline ml-1">Services</span>
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="pooja" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {poojaSevas.map((seva) => (
+              <Card key={seva.id} className="shadow-temple border-primary/10 hover:border-primary/40 transition-all">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-base flex items-center">
+                      <Sparkles className="w-4 h-4 mr-2 text-primary" />
+                      {seva.name}
+                    </CardTitle>
+                    <Badge className="bg-gradient-sacred text-primary-foreground font-mono">
+                      {seva.dakshina}
+                    </Badge>
+                  </div>
+                  <div className="text-xs text-muted-foreground flex items-center space-x-3 pt-1">
+                    <span className="flex items-center">
+                      <Clock className="w-3 h-3 mr-1" />
+                      {seva.duration}
+                    </span>
+                    <span>• {seva.timings}</span>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <p className="text-sm text-muted-foreground">{seva.description}</p>
+                  <div className="flex items-center justify-between pt-2">
+                    <span className="text-xs bg-muted px-2 py-1 rounded text-muted-foreground">
+                      Pooja Samagri: {seva.samagri}
+                    </span>
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        setSelectedSeva(seva);
+                        toast({
+                          title: "Seva Selected",
+                          description: `You have selected ${seva.name}. Report to Seva Booking Counter opposite Nandi Mandapam.`,
+                        });
+                      }}
+                      className="bg-gradient-sacred text-xs"
+                    >
+                      Book This Seva
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
 
         <TabsContent value="accommodation" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
