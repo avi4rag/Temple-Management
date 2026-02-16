@@ -17,6 +17,9 @@ import {
   Clock,
   Users,
   Search,
+  Compass,
+  Footprints,
+  ArrowRight,
 } from "lucide-react";
 
 const TempleMap = () => {
@@ -25,6 +28,8 @@ const TempleMap = () => {
   const [showRoutes, setShowRoutes] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [activeDirectionsPoi, setActiveDirectionsPoi] = useState(null);
+  const [startingGate] = useState("Gate 2 (Digvijay Dwar)");
 
   const pointsOfInterest = [
     {
@@ -486,6 +491,55 @@ const TempleMap = () => {
                                 {facility}
                               </Badge>
                             ))}
+                          </div>
+
+                          <div className="pt-2 border-t mt-3">
+                            <Button
+                              size="sm"
+                              variant={activeDirectionsPoi === poi.id ? "default" : "outline"}
+                              className="w-full text-xs flex items-center justify-center"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setActiveDirectionsPoi(
+                                  activeDirectionsPoi === poi.id ? null : poi.id,
+                                );
+                              }}
+                            >
+                              <Footprints className="w-3.5 h-3.5 mr-1.5" />
+                              {activeDirectionsPoi === poi.id
+                                ? "Hide Walking Route"
+                                : "Get Walking Directions"}
+                            </Button>
+
+                            {activeDirectionsPoi === poi.id && (
+                              <div className="mt-3 p-3 bg-muted/80 rounded-lg space-y-2 text-xs border border-border">
+                                <div className="flex items-center justify-between font-semibold text-foreground">
+                                  <span className="flex items-center">
+                                    <Compass className="w-3.5 h-3.5 mr-1 text-primary" />
+                                    From {startingGate}
+                                  </span>
+                                  <span className="text-primary font-mono font-bold">
+                                    ~3 min (180m)
+                                  </span>
+                                </div>
+                                <div className="space-y-1.5 text-muted-foreground pt-1">
+                                  <div className="flex items-start space-x-1.5">
+                                    <ArrowRight className="w-3 h-3 text-primary shrink-0 mt-0.5" />
+                                    <span>Proceed straight past Digvijay Dwar security checkpoint.</span>
+                                  </div>
+                                  <div className="flex items-start space-x-1.5">
+                                    <ArrowRight className="w-3 h-3 text-primary shrink-0 mt-0.5" />
+                                    <span>Follow marked yellow pathway towards {poi.name} (Ramp access).</span>
+                                  </div>
+                                  <div className="flex items-start space-x-1.5">
+                                    <ArrowRight className="w-3 h-3 text-emerald-600 shrink-0 mt-0.5" />
+                                    <span className="font-medium text-foreground">
+                                      Arrive at {poi.name} entrance.
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </div>
                       )}
