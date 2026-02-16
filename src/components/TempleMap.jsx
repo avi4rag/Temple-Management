@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   MapPin,
@@ -15,12 +16,15 @@ import {
   Info,
   Clock,
   Users,
+  Search,
 } from "lucide-react";
 
 const TempleMap = () => {
   const { t } = useLanguage();
   const [selectedPOI, setSelectedPOI] = useState(null);
   const [showRoutes, setShowRoutes] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
 
   const pointsOfInterest = [
     {
@@ -188,6 +192,18 @@ const TempleMap = () => {
         return "bg-muted";
     }
   };
+
+  const filteredPOIs = pointsOfInterest.filter((poi) => {
+    const matchesCategory =
+      selectedCategory === "all" || poi.type === selectedCategory;
+    const matchesSearch =
+      poi.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      poi.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      poi.facilities?.some((f) =>
+        f.toLowerCase().includes(searchQuery.toLowerCase()),
+      );
+    return matchesCategory && matchesSearch;
+  });
 
   return (
     <div className="p-6 space-y-6 bg-gradient-peaceful min-h-screen">
@@ -360,11 +376,53 @@ const TempleMap = () => {
         </Card>
 
         <Card className="shadow-temple">
-          <CardHeader>
-            <CardTitle>Points of Interest</CardTitle>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between mb-2">
+              <CardTitle className="text-lg">Points of Interest</CardTitle>
+              <Badge variant="outline" className="text-xs">
+                {filteredPOIs.length} locations
+              </Badge>
+            </div>
+            <div className="relative">
+              <Search className="w-4 h-4 absolute left-3 top-2.5 text-muted-foreground" />
+              <Input
+                placeholder="Search spots, lockers, prasad..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 h-9 text-xs"
+              />
+            </div>
+            <div className="flex flex-wrap gap-1.5 pt-2">
+              {[
+                { id: "all", label: "All" },
+                { id: "temple", label: "Temple" },
+                { id: "parking", label: "Parking" },
+                { id: "food", label: "Prasad" },
+                { id: "medical", label: "Medical" },
+                { id: "facility", label: "Facilities" },
+              ].map((cat) => (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setSelectedCategory(cat.id)}
+                  className={`text-xs px-2.5 py-1 rounded-full transition-colors ${
+                    selectedCategory === cat.id
+                      ? "bg-primary text-primary-foreground font-medium"
+                      : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  }`}
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </div>
           </CardHeader>
           <CardContent className="space-y-3 max-h-96 overflow-y-auto">
-            {pointsOfInterest.map((poi) => {
+            {filteredPOIs.length === 0 ? (
+              <div className="text-center py-6 text-sm text-muted-foreground">
+                No locations match your filter.
+              </div>
+            ) : (
+              filteredPOIs.map((poi) => {
               const Icon = poi.icon;
               return (
                 <div
