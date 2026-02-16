@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useToast } from "@/hooks/use-toast";
 import {
   MapPin,
   Navigation,
@@ -20,10 +21,13 @@ import {
   Compass,
   Footprints,
   ArrowRight,
+  ShieldAlert,
+  LifeBuoy,
 } from "lucide-react";
 
 const TempleMap = () => {
   const { t } = useLanguage();
+  const { toast } = useToast();
   const [selectedPOI, setSelectedPOI] = useState(null);
   const [showRoutes, setShowRoutes] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -637,6 +641,66 @@ const TempleMap = () => {
               <span className="text-sm">
                 Prasad counter queue: ~8 minute wait
               </span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="shadow-sacred border-primary/20">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center text-foreground">
+            <LifeBuoy className="w-5 h-5 mr-2 text-primary" />
+            On-Ground Pilgrim Assistance & Emergency Services
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-3 bg-muted/60 rounded-lg flex items-center justify-between">
+              <div>
+                <span className="text-xs text-muted-foreground block">Temple Control Room</span>
+                <span className="font-semibold text-sm font-mono">+91 2876 231200</span>
+              </div>
+              <a
+                href="tel:02876231200"
+                className="p-2 bg-primary/10 hover:bg-primary/20 rounded-full text-primary transition-colors"
+                title="Call Control Room"
+              >
+                <Phone className="w-4 h-4" />
+              </a>
+            </div>
+
+            <div className="p-3 bg-muted/60 rounded-lg flex items-center justify-between">
+              <div>
+                <span className="text-xs text-muted-foreground block">Dispensary & First Aid</span>
+                <span className="font-semibold text-sm">Gate 1 (24/7 Paramedic)</span>
+              </div>
+              <a
+                href="tel:108"
+                className="p-2 bg-destructive/10 hover:bg-destructive/20 rounded-full text-destructive transition-colors"
+                title="Emergency Ambulance 108"
+              >
+                <Heart className="w-4 h-4" />
+              </a>
+            </div>
+
+            <div className="p-3 bg-muted/60 rounded-lg flex items-center justify-between">
+              <div>
+                <span className="text-xs text-muted-foreground block">Elderly / Differently-Abled</span>
+                <span className="font-semibold text-sm">Battery Cart Escort</span>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                className="text-xs"
+                onClick={() => {
+                  toast({
+                    title: "Escort Requested",
+                    description: "Volunteer team alerted for Gate 2 Digvijay Dwar pickup.",
+                  });
+                }}
+              >
+                Request Cart
+              </Button>
             </div>
           </div>
         </CardContent>
