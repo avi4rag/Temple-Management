@@ -24,9 +24,12 @@ import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 import { devoteeSchema } from "@/schemas/booking";
 import { slotService } from "@/services/slotService";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const DetailedBookingForm = ({ selectedSlot, onBack }) => {
+  const { t, currentLanguage } = useLanguage();
   const [step, setStep] = useState(1);
+  const [quotaType, setQuotaType] = useState("standard");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [devoteeCount, setDevoteeCount] = useState("");
   const [devotees, setDevotees] = useState([]);
@@ -118,6 +121,7 @@ const DetailedBookingForm = ({ selectedSlot, onBack }) => {
       const result = await slotService.bookSlot({
         slot: selectedSlot,
         phoneNumber,
+        quotaType,
         devotees,
       });
 
@@ -139,6 +143,12 @@ const DetailedBookingForm = ({ selectedSlot, onBack }) => {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const quotaLabels = {
+    standard: "General Darshan",
+    senior_divyang: "Divyang / Senior Citizen",
+    aarti_priority: "Aarti Priority Darshan",
   };
 
   const handleDownloadTickets = () => {
@@ -165,7 +175,7 @@ const DetailedBookingForm = ({ selectedSlot, onBack }) => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-center print:grid-cols-2">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center print:grid-cols-3">
               <div className="p-3 bg-white/80 rounded-lg border print:border-gray-300">
                 <p className="text-sm text-muted-foreground">
                   Booking Reference
@@ -175,6 +185,12 @@ const DetailedBookingForm = ({ selectedSlot, onBack }) => {
               <div className="p-3 bg-white/80 rounded-lg border print:border-gray-300">
                 <p className="text-sm text-muted-foreground">Darshan Time Slot</p>
                 <p className="text-lg font-bold">{selectedSlot}</p>
+              </div>
+              <div className="p-3 bg-white/80 rounded-lg border print:border-gray-300">
+                <p className="text-sm text-muted-foreground">Quota Category</p>
+                <p className="text-base font-bold text-primary">
+                  {quotaLabels[quotaType] || "General Darshan"}
+                </p>
               </div>
             </div>
 
@@ -263,6 +279,55 @@ const DetailedBookingForm = ({ selectedSlot, onBack }) => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
+            {/* Darshan Quota Selection */}
+            <div className="space-y-2">
+              <Label>Darshan Quota Category</Label>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setQuotaType("standard")}
+                  className={`p-3 rounded-lg border text-left transition-all ${
+                    quotaType === "standard"
+                      ? "border-primary bg-primary/10 ring-1 ring-primary"
+                      : "border-border hover:bg-muted/50"
+                  }`}
+                >
+                  <p className="font-semibold text-sm">General Darshan</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Standard virtual queue entry
+                  </p>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setQuotaType("senior_divyang")}
+                  className={`p-3 rounded-lg border text-left transition-all ${
+                    quotaType === "senior_divyang"
+                      ? "border-primary bg-primary/10 ring-1 ring-primary"
+                      : "border-border hover:bg-muted/50"
+                  }`}
+                >
+                  <p className="font-semibold text-sm">Divyang & Seniors</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Assisted access & wheelchair lane
+                  </p>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setQuotaType("aarti_priority")}
+                  className={`p-3 rounded-lg border text-left transition-all ${
+                    quotaType === "aarti_priority"
+                      ? "border-primary bg-primary/10 ring-1 ring-primary"
+                      : "border-border hover:bg-muted/50"
+                  }`}
+                >
+                  <p className="font-semibold text-sm">Aarti & Pooja</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Designated sanctum viewing bay
+                  </p>
+                </button>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="phone">Contact Phone Number</Label>
@@ -284,15 +349,15 @@ const DetailedBookingForm = ({ selectedSlot, onBack }) => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="count">Number of Devotees</Label>
+                <Label htmlFor="count">Number of Devotees (Max 6 per Token)</Label>
                 <Input
                   id="count"
                   type="number"
-                  placeholder="Enter number of devotees (1-20)"
+                  placeholder="Enter devotees (1-6)"
                   value={devoteeCount}
                   onChange={(e) => setDevoteeCount(e.target.value)}
                   min="1"
-                  max="20"
+                  max="6"
                   className={errors.count ? "border-red-500" : ""}
                 />
                 {errors.count && (
