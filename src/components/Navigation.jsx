@@ -20,6 +20,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 
 import { cn } from "@/lib/utils";
 import { useLanguage, languages } from "@/contexts/LanguageContext";
@@ -28,12 +36,20 @@ import { useNavigate } from "react-router-dom";
 const Navigation = ({ activeSection, onSectionChange }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
+  const [isLanguageModalOpen, setIsLanguageModalOpen] = useState(false);
+  const [langSearch, setLangSearch] = useState("");
 
   const { currentLanguage, setLanguage, t } = useLanguage();
   const navigate = useNavigate();
 
   const currentLangOption = languages.find(
     (lang) => lang.code === currentLanguage,
+  );
+
+  const filteredLanguages = languages.filter(
+    (lang) =>
+      lang.name.toLowerCase().includes(langSearch.toLowerCase()) ||
+      lang.nativeName.toLowerCase().includes(langSearch.toLowerCase()),
   );
 
   const navItems = [
@@ -158,6 +174,17 @@ const Navigation = ({ activeSection, onSectionChange }) => {
                       </span>
                     </DropdownMenuItem>
                   ))}
+                  <div className="border-t my-1" />
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setIsLangOpen(false);
+                      setIsLanguageModalOpen(true);
+                    }}
+                    className="cursor-pointer text-xs font-medium text-primary flex items-center justify-center py-1.5"
+                  >
+                    <Languages className="w-3.5 h-3.5 mr-1" />
+                    Browse All Languages ({languages.length})
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
 
@@ -231,34 +258,19 @@ const Navigation = ({ activeSection, onSectionChange }) => {
               })}
 
               <div className="pt-4 border-t border-border">
-                <DropdownMenu open={isLangOpen} onOpenChange={setIsLangOpen}>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="w-full justify-start">
-                      <Languages className="w-4 h-4 mr-2" />
-                      {t("nav.language")}: {currentLangOption?.nativeName}
-                      <ChevronDown className="w-3 h-3 ml-auto" />
-                    </Button>
-                  </DropdownMenuTrigger>
-
-                  <DropdownMenuContent className="w-64">
-                    {languages.map((language) => (
-                      <DropdownMenuItem
-                        key={language.code}
-                        onClick={() => handleLanguageChange(language.code)}
-                        className={cn(
-                          "flex items-center justify-between cursor-pointer",
-                          currentLanguage === language.code && "bg-accent",
-                        )}
-                      >
-                        <span>{language.name}</span>
-
-                        <span className="text-sm text-muted-foreground">
-                          {language.nativeName}
-                        </span>
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    className="flex-1 justify-start"
+                    onClick={() => {
+                      setIsOpen(false);
+                      setIsLanguageModalOpen(true);
+                    }}
+                  >
+                    <Languages className="w-4 h-4 mr-2 text-primary" />
+                    {t("nav.language")}: {currentLangOption?.nativeName}
+                  </Button>
+                </div>
 
                 <div className="pt-2 border-t mt-2">
                   <Button
@@ -278,6 +290,67 @@ const Navigation = ({ activeSection, onSectionChange }) => {
           </div>
         )}
       </nav>
+
+      {/* Language Selection Modal */}
+      <Dialog
+        open={isLanguageModalOpen}
+        onOpenChange={setIsLanguageModalOpen}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-lg">
+              <Languages className="w-5 h-5 text-primary" />
+              Select Devotee Language / भाषा चुनें
+            </DialogTitle>
+            <DialogDescription>
+              Choose your preferred regional language for real-time announcements, virtual tokens, and crowd maps.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 pt-2">
+            <Input
+              placeholder="Search language / भाषा खोजें..."
+              value={langSearch}
+              onChange={(e) => setLangSearch(e.target.value)}
+              className="text-sm"
+            />
+
+            <div className="grid grid-cols-2 gap-2 max-h-72 overflow-y-auto pr-1">
+              {filteredLanguages.map((language) => {
+                const isSelected = currentLanguage === language.code;
+                return (
+                  <button
+                    key={language.code}
+                    type="button"
+                    onClick={() => {
+                      handleLanguageChange(language.code);
+                      setIsLanguageModalOpen(false);
+                    }}
+                    className={cn(
+                      "flex flex-col items-start p-3 rounded-lg border text-left transition-all hover:border-primary/50 hover:bg-primary/5",
+                      isSelected
+                        ? "border-primary bg-primary/10 shadow-xs ring-1 ring-primary/40 font-semibold"
+                        : "border-border bg-card",
+                    )}
+                  >
+                    <span className="text-sm font-medium text-foreground">
+                      {language.name}
+                    </span>
+                    <span className="text-base text-primary mt-0.5">
+                      {language.nativeName}
+                    </span>
+                    {isSelected && (
+                      <span className="text-[10px] text-primary uppercase font-bold tracking-wider mt-1">
+                        Active Language
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
