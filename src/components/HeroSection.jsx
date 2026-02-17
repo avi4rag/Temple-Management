@@ -1,13 +1,47 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
-import { Users, Clock, MapPin, Shield, TrendingUp, Bell } from "lucide-react";
+import { Users, Clock, MapPin, Shield, TrendingUp, Bell, Volume2, Sparkles } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import heroImage from "@/assets/somnath-temple-hero.jpg";
+import { useState } from "react";
 
 const HeroSection = ({ onGetStarted }) => {
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const [isPlayingChime, setIsPlayingChime] = useState(false);
+
+  const playSacredBell = () => {
+    try {
+      setIsPlayingChime(true);
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const now = ctx.currentTime;
+      
+      // Resonant harmonic frequencies of a bronze sanctum bell (528 Hz Solfeggio Love frequency)
+      [528, 1056, 1584, 2112].forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(freq, now);
+        const initialGain = 0.25 / (idx + 1);
+        gain.gain.setValueAtTime(initialGain, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 3.2);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 3.2);
+      });
+
+      setTimeout(() => {
+        setIsPlayingChime(false);
+      }, 3200);
+    } catch (e) {
+      console.warn("Sacred bell audio preview unavailable", e);
+      setIsPlayingChime(false);
+    }
+  };
 
   const features = [
     {
@@ -77,6 +111,17 @@ const HeroSection = ({ onGetStarted }) => {
                 className="bg-gradient-sacred hover:bg-gradient-divine shadow-divine text-lg px-8 py-6 transition-sacred"
               >
                 {t("hero.getStarted")}
+              </Button>
+              <Button
+                onClick={playSacredBell}
+                size="lg"
+                variant="outline"
+                className={`bg-white/15 hover:bg-white/25 border-white/40 text-white backdrop-blur-sm text-base px-6 py-6 transition-all ${
+                  isPlayingChime ? "ring-2 ring-yellow-400 scale-105" : ""
+                }`}
+              >
+                <Bell className={`w-5 h-5 mr-2 ${isPlayingChime ? "animate-bounce text-yellow-300" : ""}`} />
+                {isPlayingChime ? "Chiming Sanctum Bell..." : "Ring Sacred Bell (घंटी)"}
               </Button>
               <Button
                 size="lg"
