@@ -25,12 +25,22 @@ import {
   CheckCircle2,
 } from "lucide-react";
 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { QrCode, Lock, CheckCircle } from "lucide-react";
+
 const ServicesInfo = () => {
   const { t } = useLanguage();
   const { toast } = useToast();
   const [selectedService, setSelectedService] = useState(null);
   const [activeTab, setActiveTab] = useState("accommodation");
   const [selectedSeva, setSelectedSeva] = useState(null);
+  const [lockerToken, setLockerToken] = useState(null);
 
   const poojaSevas = [
     {
@@ -769,6 +779,10 @@ const ServicesInfo = () => {
 
                   <Button
                     size="sm"
+                    onClick={() => {
+                      setLockerToken(null);
+                      setSelectedService(service);
+                    }}
                     className="w-full bg-gradient-sacred text-white text-xs"
                   >
                     <Info className="w-3 h-3 mr-1" />
@@ -780,6 +794,108 @@ const ServicesInfo = () => {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Service Details & Token Modal */}
+      <Dialog
+        open={Boolean(selectedService)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setSelectedService(null);
+            setLockerToken(null);
+          }
+        }}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <div className="flex items-center gap-3">
+              <span className="text-3xl">{selectedService?.image}</span>
+              <div>
+                <DialogTitle>{selectedService?.name}</DialogTitle>
+                <DialogDescription>
+                  {selectedService?.type} — Shree Somnath Trust
+                </DialogDescription>
+              </div>
+            </div>
+          </DialogHeader>
+
+          <div className="space-y-4 pt-2">
+            <div className="p-3 bg-muted/60 rounded-lg text-sm space-y-2">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Timings:</span>
+                <span className="font-medium text-foreground">
+                  {selectedService?.hours}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Standard Charges:</span>
+                <span className="font-semibold text-primary">
+                  {selectedService?.cost}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Counter Location:</span>
+                <span className="font-medium">Main Gate #1 Facilitation Hall</span>
+              </div>
+            </div>
+
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {selectedService?.description}. Managed by Shree Somnath Trust staff with verified security and assisted queue clearance.
+            </p>
+
+            {selectedService?.name?.includes("Locker") && (
+              <div className="border border-primary/20 bg-primary/5 p-4 rounded-lg space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Lock className="w-4 h-4 text-primary" />
+                    <span className="font-semibold text-sm">
+                      Instant Cloakroom Token
+                    </span>
+                  </div>
+                  <Badge
+                    variant="outline"
+                    className="text-xs border-primary/30 text-primary"
+                  >
+                    Gate #1 Counter
+                  </Badge>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Deposit your mobile phone, smart watch, and leather items safely before entering the sanctum.
+                </p>
+
+                {lockerToken ? (
+                  <div className="p-3 bg-background border rounded text-center space-y-1">
+                    <p className="text-xs text-muted-foreground">
+                      Your Secure Digital Locker Tag
+                    </p>
+                    <p className="text-xl font-bold font-mono tracking-widest text-primary">
+                      {lockerToken}
+                    </p>
+                    <p className="text-[10px] text-green-600 flex items-center justify-center gap-1">
+                      <CheckCircle className="w-3 h-3" /> Present this token at Cloakroom Desk #3
+                    </p>
+                  </div>
+                ) : (
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      const num = Math.floor(1000 + Math.random() * 9000);
+                      const tag = `SOM-LCK-${num}`;
+                      setLockerToken(tag);
+                      toast({
+                        title: "Locker Token Generated",
+                        description: `Assigned locker token: ${tag}`,
+                      });
+                    }}
+                    className="w-full bg-gradient-sacred text-xs"
+                  >
+                    Generate Free Locker Token
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
