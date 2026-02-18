@@ -46,6 +46,34 @@ const CrowdDashboard = ({ onNavigate }) => {
   const currentHour = new Date().getHours();
   const nextAarti = aartis.find((a) => a.hour > currentHour) || aartis[0];
 
+  const [isChiming, setIsChiming] = useState(false);
+
+  const ringAartiBell = () => {
+    try {
+      setIsChiming(true);
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const now = ctx.currentTime;
+      [528, 1056, 1584, 2112].forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(freq, now);
+        const initialGain = 0.22 / (idx + 1);
+        gain.gain.setValueAtTime(initialGain, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 3.0);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 3.0);
+      });
+      setTimeout(() => setIsChiming(false), 3000);
+    } catch (e) {
+      setIsChiming(false);
+    }
+  };
+
   const [liveOffset, setLiveOffset] = useState(0);
   const [countdown, setCountdown] = useState(20);
 
@@ -235,6 +263,15 @@ const CrowdDashboard = ({ onNavigate }) => {
               <Badge className="bg-amber-600 text-white text-xs py-1">
                 Next: {nextAarti.name} ({nextAarti.time})
               </Badge>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={ringAartiBell}
+                className="text-xs h-7 border-amber-500/40 text-amber-700 dark:text-amber-400 hover:bg-amber-500/10"
+              >
+                <Bell className={`w-3.5 h-3.5 mr-1 ${isChiming ? "animate-bounce text-amber-600" : ""}`} />
+                {isChiming ? "Chiming..." : "Aarti Chime"}
+              </Button>
               {onNavigate && (
                 <Button
                   size="sm"
