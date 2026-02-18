@@ -35,6 +35,7 @@ import {
   Search,
   Printer,
   ShieldCheck,
+  Flame,
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
@@ -110,6 +111,13 @@ const QueueSystem = () => {
       setDevotees(newDevotees);
     }
   }, [numberOfDevotees, phoneNumber]);
+
+  const getAartiTag = (time) => {
+    if (time?.includes("07:00")) return "Mangla Aarti";
+    if (time?.includes("12:00")) return "Shringar Aarti";
+    if (time?.includes("19:00")) return "Sandhya Aarti";
+    return null;
+  };
 
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
@@ -404,8 +412,19 @@ const QueueSystem = () => {
                 }
               >
                 <div className="flex justify-between items-start mb-3">
-                  <div className="font-semibold text-foreground">
-                    {slot.time}
+                  <div>
+                    <div className="font-semibold text-foreground">
+                      {slot.time}
+                    </div>
+                    {getAartiTag(slot.time) && (
+                      <Badge
+                        variant="outline"
+                        className="mt-1 border-amber-500/50 bg-amber-500/10 text-amber-700 dark:text-amber-400 text-[10px] gap-1 py-0"
+                      >
+                        <Flame className="w-2.5 h-2.5 text-amber-600" />
+                        {getAartiTag(slot.time)}
+                      </Badge>
+                    )}
                   </div>
                   <Badge className={getStatusColor(slot.status)}>
                     {slot.status}
