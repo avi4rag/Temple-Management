@@ -13,6 +13,9 @@ import {
   RefreshCw,
   Camera,
   Video,
+  Flame,
+  Bell,
+  Sparkles,
 } from "lucide-react";
 import {
   Dialog,
@@ -25,13 +28,23 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useQuery } from "@tanstack/react-query";
 import { crowdService } from "@/services/crowdService";
 
-const CrowdDashboard = () => {
+const CrowdDashboard = ({ onNavigate }) => {
   const { t } = useLanguage();
   const [selectedCameraZone, setSelectedCameraZone] = useState(null);
   const { data: crowdDataQuery, refetch, isFetching } = useQuery({
     queryKey: ["crowd"],
     queryFn: crowdService.getCrowdStatus,
   });
+
+  const aartis = [
+    { name: "Mangla Aarti", time: "07:00 AM", desc: "First dawn invocation & sacred jal abhishek", hour: 7 },
+    { name: "Shringar Darshan / Bhog", time: "12:00 PM", desc: "Midday adornment and royal prasad offering", hour: 12 },
+    { name: "Sandhya Aarti", time: "07:00 PM", desc: "Sunset deepa offering accompanied by sanctum damru", hour: 19 },
+    { name: "Shayan Aarti", time: "10:00 PM", desc: "Night rest ceremony before sanctum doors close", hour: 22 },
+  ];
+
+  const currentHour = new Date().getHours();
+  const nextAarti = aartis.find((a) => a.hour > currentHour) || aartis[0];
 
   const [liveOffset, setLiveOffset] = useState(0);
   const [countdown, setCountdown] = useState(20);
@@ -205,6 +218,73 @@ const CrowdDashboard = () => {
         </Card>
       </div>
 
+      {/* Sacred Aarti Timings & Sanctum Schedule */}
+      <Card className="border-amber-500/20 bg-gradient-to-br from-amber-500/5 via-orange-500/5 to-transparent shadow-divine">
+        <CardHeader className="pb-3">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div>
+              <CardTitle className="flex items-center text-lg text-amber-700 dark:text-amber-400">
+                <Flame className="w-5 h-5 mr-2 text-amber-600" />
+                Sacred Daily Aarti Schedule & Timings
+              </CardTitle>
+              <p className="text-xs text-muted-foreground mt-1">
+                Sanctum gates open for live darshan during auspicious aarti slots
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge className="bg-amber-600 text-white text-xs py-1">
+                Next: {nextAarti.name} ({nextAarti.time})
+              </Badge>
+              {onNavigate && (
+                <Button
+                  size="sm"
+                  onClick={() => onNavigate("queue")}
+                  className="bg-gradient-sacred text-xs h-7"
+                >
+                  Book Aarti Slot
+                </Button>
+              )}
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {aartis.map((aarti, idx) => {
+              const isUpcoming = aarti.name === nextAarti.name;
+              return (
+                <div
+                  key={idx}
+                  className={`p-3 rounded-lg border transition-all ${
+                    isUpcoming
+                      ? "border-amber-500/60 bg-amber-500/10 ring-1 ring-amber-500/30"
+                      : "border-border/60 bg-card/60"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-semibold text-sm text-foreground">
+                      {aarti.name}
+                    </span>
+                    <Badge
+                      variant={isUpcoming ? "default" : "outline"}
+                      className={`text-[10px] ${
+                        isUpcoming
+                          ? "bg-amber-600 text-white"
+                          : "text-muted-foreground"
+                      }`}
+                    >
+                      {aarti.time}
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {aarti.desc}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
+
       <Card className="shadow-divine">
         <CardHeader>
           <CardTitle className="flex items-center">
@@ -271,7 +351,12 @@ const CrowdDashboard = () => {
             <p className="text-muted-foreground mb-4">
               Interactive temple heatmap showing crowd density
             </p>
-            <Button variant="outline">View Interactive Map</Button>
+            <Button
+              variant="outline"
+              onClick={() => onNavigate && onNavigate("navigation")}
+            >
+              View Interactive Map
+            </Button>
           </div>
         </CardContent>
       </Card>

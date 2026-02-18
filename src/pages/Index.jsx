@@ -50,7 +50,7 @@ const Index = () => {
         return <HeroSection onGetStarted={handleGetStarted} />;
 
       case "dashboard":
-        return <CrowdDashboard />;
+        return <CrowdDashboard onNavigate={handleSectionChange} />;
 
       case "queue":
         return <QueueSystem />;
