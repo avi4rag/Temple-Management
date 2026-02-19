@@ -15,7 +15,18 @@ import {
   Activity,
   Users,
   Car,
+  UserX,
+  Megaphone,
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { alertService } from "@/services/alertService";
 import { useToast } from "@/hooks/use-toast";
@@ -32,6 +43,14 @@ const EmergencyAlert = () => {
   });
 
   const [showReportForm, setShowReportForm] = useState(false);
+  const [showLostPersonModal, setShowLostPersonModal] = useState(false);
+  const [lostPersonData, setLostPersonData] = useState({
+    name: "",
+    age: "",
+    lastSeen: "Sanctum Outer Queue",
+    guardianPhone: "",
+    clothing: "",
+  });
   const [formData, setFormData] = useState({
     type: "medical",
     severity: "medium",
@@ -165,13 +184,23 @@ const EmergencyAlert = () => {
             Real-time alert system and emergency response coordination
           </p>
         </div>
-        <Button
-          onClick={() => setShowReportForm(!showReportForm)}
-          className="bg-destructive hover:bg-destructive/90 text-white"
-        >
-          <AlertTriangle className="w-4 h-4 mr-2" />
-          Report Emergency
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={() => setShowLostPersonModal(true)}
+            className="border-amber-500/50 text-amber-700 dark:text-amber-400 hover:bg-amber-500/10"
+          >
+            <UserX className="w-4 h-4 mr-2 text-amber-600" />
+            Report Lost Child / Devotee
+          </Button>
+          <Button
+            onClick={() => setShowReportForm(!showReportForm)}
+            className="bg-destructive hover:bg-destructive/90 text-white"
+          >
+            <AlertTriangle className="w-4 h-4 mr-2" />
+            Report Emergency
+          </Button>
+        </div>
       </div>
 
       {showReportForm && (
@@ -484,6 +513,145 @@ const EmergencyAlert = () => {
           always call 112 (National SOS) or 108 (Gujarat Ambulance) immediately. Temple control room staff monitor all alerts 24/7.
         </AlertDescription>
       </Alert>
+
+      {/* Lost Child & Missing Devotee Modal */}
+      <Dialog
+        open={showLostPersonModal}
+        onOpenChange={setShowLostPersonModal}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-amber-700 dark:text-amber-400">
+              <Megaphone className="w-5 h-5 text-amber-600" />
+              Report Lost Child / Missing Devotee
+            </DialogTitle>
+            <DialogDescription>
+              Broadcasted immediately to Temple PA announcers, Security Patrol, and Digvijay Dwar Helpdesk.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (!lostPersonData.name || !lostPersonData.guardianPhone) {
+                toast({
+                  title: "Required Information Missing",
+                  description: "Please provide the person's name and a contact phone number.",
+                  variant: "destructive",
+                });
+                return;
+              }
+
+              reportMutation.mutate({
+                type: "lost_found",
+                severity: "high",
+                title: `MISSING PERSON: ${lostPersonData.name}`,
+                description: `Age: ${lostPersonData.age || 'N/A'}. Last seen at: ${lostPersonData.lastSeen}. Clothing/Details: ${lostPersonData.clothing || 'Not specified'}. Contact Guardian: ${lostPersonData.guardianPhone}`,
+                location: lostPersonData.lastSeen,
+                zoneId: "lost_found",
+              });
+
+              toast({
+                title: "Report Dispatched to Control Room",
+                description: "Security personnel and PA announcement booth have been alerted. Please proceed to Digvijay Dwar Information Desk.",
+              });
+
+              setShowLostPersonModal(false);
+              setLostPersonData({
+                name: "",
+                age: "",
+                lastSeen: "Sanctum Outer Queue",
+                guardianPhone: "",
+                clothing: "",
+              });
+            }}
+            className="space-y-4 pt-2"
+          >
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label htmlFor="missing-name" className="text-xs">Missing Person's Name *</Label>
+                <Input
+                  id="missing-name"
+                  placeholder="e.g. Aarav Sharma"
+                  value={lostPersonData.name}
+                  onChange={(e) => setLostPersonData({ ...lostPersonData, name: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="missing-age" className="text-xs">Approximate Age</Label>
+                <Input
+                  id="missing-age"
+                  type="number"
+                  placeholder="e.g. 7"
+                  value={lostPersonData.age}
+                  onChange={(e) => setLostPersonData({ ...lostPersonData, age: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="last-seen" className="text-xs">Last Seen Location *</Label>
+              <select
+                id="last-seen"
+                value={lostPersonData.lastSeen}
+                onChange={(e) => setLostPersonData({ ...lostPersonData, lastSeen: e.target.value })}
+                className="w-full h-10 px-3 py-2 border rounded-md bg-background text-sm"
+              >
+                <option value="Sanctum Outer Queue">Sanctum Outer Queue</option>
+                <option value="Sabha Mandapa">Sabha Mandapa</option>
+                <option value="Pradakshina Path">Pradakshina Path</option>
+                <option value="Main Entrance Gate 1">Main Entrance Gate 1</option>
+                <option value="Digvijay Dwar (Gate 2)">Digvijay Dwar (Gate 2)</option>
+                <option value="Somnath Bhojanalaya">Somnath Bhojanalaya</option>
+                <option value="Shoe Stand / Cloakroom">Shoe Stand / Cloakroom</option>
+                <option value="Seaface Promenade">Seaface Promenade</option>
+              </select>
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="guardian-phone" className="text-xs">Guardian / Contact Phone *</Label>
+              <Input
+                id="guardian-phone"
+                type="tel"
+                placeholder="10-digit mobile number"
+                value={lostPersonData.guardianPhone}
+                onChange={(e) => setLostPersonData({ ...lostPersonData, guardianPhone: e.target.value.replace(/\D/g, '').slice(0, 10) })}
+                required
+              />
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="clothing-desc" className="text-xs">Clothing & Identifying Marks</Label>
+              <Input
+                id="clothing-desc"
+                placeholder="e.g. Yellow kurta, white pyjama, red cap"
+                value={lostPersonData.clothing}
+                onChange={(e) => setLostPersonData({ ...lostPersonData, clothing: e.target.value })}
+              />
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setShowLostPersonModal(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                size="sm"
+                className="bg-amber-600 hover:bg-amber-700 text-white"
+              >
+                <Megaphone className="w-3.5 h-3.5 mr-1" />
+                Broadcast Report
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
