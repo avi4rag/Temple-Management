@@ -45,6 +45,13 @@ const AdminDashboard = () => {
   const queryClient = useQueryClient();
   const [adminUser, setAdminUser] = useState(null);
   const [previewCamera, setPreviewCamera] = useState(null);
+  const [showPushModal, setShowPushModal] = useState(false);
+  const [pushNotification, setPushNotification] = useState({
+    title: "",
+    message: "",
+    category: "general",
+  });
+  const [isBroadcasting, setIsBroadcasting] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -443,7 +450,7 @@ const AdminDashboard = () => {
               <div className="p-3 bg-muted rounded-md">
                 <div className="flex items-center text-sm">
                   <Clock className="mr-2 h-4 w-4 text-muted-foreground" />
-                  Next Aarti: 6:00 PM (45 minutes)
+                  Next Aarti: Sandhya Aarti (07:00 PM) • Sanctum Deepa Offering
                 </div>
               </div>
             </CardContent>
@@ -457,9 +464,13 @@ const AdminDashboard = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Button variant="outline" className="w-full justify-start">
+              <Button
+                variant="outline"
+                className="w-full justify-start"
+                onClick={() => setShowPushModal(true)}
+              >
                 <Send className="mr-2 h-4 w-4" />
-                Send Push Notification
+                Send Push Notification / PA Broadcast
               </Button>
               <Button
                 variant="outline"
@@ -526,6 +537,120 @@ const AdminDashboard = () => {
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Push Notification & PA Broadcast Modal */}
+      <Dialog open={showPushModal} onOpenChange={setShowPushModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Send className="w-5 h-5 text-primary" />
+              Devotee Push Notification & PA Broadcast
+            </DialogTitle>
+            <DialogDescription>
+              Dispatches an immediate alert to all pilgrim web app sessions and temple public address systems.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              if (!pushNotification.title || !pushNotification.message) {
+                toast({
+                  title: "Input required",
+                  description: "Please enter announcement title and message content",
+                  variant: "destructive",
+                });
+                return;
+              }
+
+              setIsBroadcasting(true);
+              try {
+                await alertService.reportAlert({
+                  type: "announcement",
+                  severity: "medium",
+                  title: pushNotification.title,
+                  description: pushNotification.message,
+                  location: "All Zones (Temple Broadcast)",
+                  zoneId: "broadcast",
+                });
+
+                toast({
+                  title: "Broadcast Dispatched",
+                  description: `Announcement "${pushNotification.title}" sent to active devotees.`,
+                });
+                setShowPushModal(false);
+                setPushNotification({ title: "", message: "", category: "general" });
+              } catch {
+                toast({
+                  title: "Dispatch Failed",
+                  description: "Unable to broadcast notification. Check network connection.",
+                  variant: "destructive",
+                });
+              } finally {
+                setIsBroadcasting(false);
+              }
+            }}
+            className="space-y-4 pt-2"
+          >
+            <div className="space-y-1">
+              <label className="text-xs font-medium">Broadcast Category</label>
+              <select
+                value={pushNotification.category}
+                onChange={(e) => setPushNotification({ ...pushNotification, category: e.target.value })}
+                className="w-full h-9 px-3 py-1.5 border rounded-md bg-background text-sm"
+              >
+                <option value="general">General Temple Announcement</option>
+                <option value="aarti">Aarti Commencing Alert</option>
+                <option value="crowd_diversion">Crowd Diversion / Gate Advisory</option>
+                <option value="lost_child">Lost Person / Child Found</option>
+                <option value="weather">Coastal Weather / High Tide Advisory</option>
+              </select>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-medium">Notification Title *</label>
+              <Input
+                placeholder="e.g. Mangla Aarti Darshan Lines Now Open"
+                value={pushNotification.title}
+                onChange={(e) => setPushNotification({ ...pushNotification, title: e.target.value })}
+                required
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-medium">Message Body *</label>
+              <textarea
+                placeholder="Enter detailed announcement message..."
+                value={pushNotification.message}
+                onChange={(e) => setPushNotification({ ...pushNotification, message: e.target.value })}
+                rows={3}
+                className="w-full p-2.5 border rounded-md bg-background text-sm"
+                required
+              />
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setShowPushModal(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                size="sm"
+                disabled={isBroadcasting}
+                className="bg-gradient-sacred"
+              >
+                <Send className="w-3.5 h-3.5 mr-1" />
+                {isBroadcasting ? "Broadcasting..." : "Dispatch Broadcast"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
