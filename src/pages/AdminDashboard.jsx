@@ -52,6 +52,37 @@ const AdminDashboard = () => {
     category: "general",
   });
   const [isBroadcasting, setIsBroadcasting] = useState(false);
+  const [showAccessibilityModal, setShowAccessibilityModal] = useState(false);
+  const [accessibilityFilter, setAccessibilityFilter] = useState("all");
+  const [accessibilityRequests, setAccessibilityRequests] = useState([
+    {
+      id: "REQ-901",
+      name: "Rameshwar Patel (Age 74)",
+      service: "Sanctum Wheelchair",
+      gate: "Gate #1 (Main Ramp)",
+      status: "Assigned",
+      assignedTo: "Sevak Jayesh",
+      time: "10:15 AM",
+    },
+    {
+      id: "REQ-902",
+      name: "Meenakshi Sundaram (Age 68)",
+      service: "Eco-Cart Shuttle",
+      gate: "North Parking Pick-up",
+      status: "Pending",
+      assignedTo: "Unassigned",
+      time: "10:22 AM",
+    },
+    {
+      id: "REQ-903",
+      name: "Harishankar Joshi (Divyang)",
+      service: "Ramp & Mandap Escort",
+      gate: "Digvijay Dwar (Gate 2)",
+      status: "Dispatched",
+      assignedTo: "Trust Escort Bhavesh",
+      time: "10:28 AM",
+    },
+  ]);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -466,6 +497,14 @@ const AdminDashboard = () => {
             <CardContent className="space-y-4">
               <Button
                 variant="outline"
+                className="w-full justify-start text-emerald-700 dark:text-emerald-400 font-medium"
+                onClick={() => setShowAccessibilityModal(true)}
+              >
+                <Users className="mr-2 h-4 w-4 text-emerald-600" />
+                ♿ Divyangjan & Wheelchair Queue ({accessibilityRequests.filter((r) => r.status === "Pending").length} Pending)
+              </Button>
+              <Button
+                variant="outline"
                 className="w-full justify-start"
                 onClick={() => setShowPushModal(true)}
               >
@@ -649,6 +688,139 @@ const AdminDashboard = () => {
               </Button>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Accessibility & Divyang Queue Manager Modal */}
+      <Dialog open={showAccessibilityModal} onOpenChange={setShowAccessibilityModal}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <DialogTitle className="flex items-center gap-2">
+                  <span className="text-xl">♿</span>
+                  <span>Divyangjan & Assisted Darshan Dispatch</span>
+                </DialogTitle>
+                <DialogDescription>
+                  Real-time queue of mobility assistance, ramp escorts, and eco-cart pickups
+                </DialogDescription>
+              </div>
+              <Badge variant="outline" className="text-xs">
+                {accessibilityRequests.length} active requests
+              </Badge>
+            </div>
+          </DialogHeader>
+
+          <div className="space-y-4 pt-2">
+            <div className="flex gap-2">
+              {["all", "Pending", "Assigned", "Dispatched"].map((filter) => (
+                <button
+                  key={filter}
+                  type="button"
+                  onClick={() => setAccessibilityFilter(filter)}
+                  className={`text-xs px-3 py-1 rounded-full border transition-colors ${
+                    accessibilityFilter === filter
+                      ? "bg-primary text-primary-foreground font-medium"
+                      : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  }`}
+                >
+                  {filter.charAt(0).toUpperCase() + filter.slice(1)}
+                </button>
+              ))}
+            </div>
+
+            <div className="space-y-2.5">
+              {accessibilityRequests
+                .filter(
+                  (r) =>
+                    accessibilityFilter === "all" ||
+                    r.status.toLowerCase() === accessibilityFilter.toLowerCase()
+                )
+                .map((req) => (
+                  <div
+                    key={req.id}
+                    className="p-3 rounded-lg border bg-card flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sm"
+                  >
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-foreground">{req.name}</span>
+                        <Badge variant="secondary" className="text-[10px]">
+                          {req.service}
+                        </Badge>
+                        <Badge
+                          variant={
+                            req.status === "Pending"
+                              ? "destructive"
+                              : req.status === "Assigned"
+                              ? "default"
+                              : "outline"
+                          }
+                          className="text-[10px]"
+                        >
+                          {req.status}
+                        </Badge>
+                      </div>
+                      <div className="text-xs text-muted-foreground flex flex-wrap gap-x-3">
+                        <span>📍 {req.gate}</span>
+                        <span>🕒 Requested: {req.time}</span>
+                        <span>🤝 Staff: {req.assignedTo}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      {req.status === "Pending" && (
+                        <Button
+                          size="sm"
+                          className="h-7 text-xs bg-gradient-sacred"
+                          onClick={() => {
+                            setAccessibilityRequests((prev) =>
+                              prev.map((item) =>
+                                item.id === req.id
+                                  ? { ...item, status: "Assigned", assignedTo: "Sevak Assigned" }
+                                  : item
+                              )
+                            );
+                            toast({
+                              title: "Volunteer Assigned",
+                              description: `Assigned volunteer escort to ${req.name}`,
+                            });
+                          }}
+                        >
+                          Assign Volunteer
+                        </Button>
+                      )}
+                      {req.status === "Assigned" && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-7 text-xs border-emerald-600 text-emerald-700"
+                          onClick={() => {
+                            setAccessibilityRequests((prev) =>
+                              prev.map((item) =>
+                                item.id === req.id
+                                  ? { ...item, status: "Dispatched", assignedTo: "Enroute to Gate" }
+                                  : item
+                              )
+                            );
+                            toast({
+                              title: "Dispatched",
+                              description: `Mobility cart/wheelchair dispatched to ${req.gate}`,
+                            });
+                          }}
+                        >
+                          Dispatch Cart
+                        </Button>
+                      )}
+                      {req.status === "Dispatched" && (
+                        <span className="text-xs text-emerald-600 font-medium">
+                          ✓ En Route
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
