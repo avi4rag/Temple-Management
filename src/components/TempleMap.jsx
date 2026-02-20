@@ -133,9 +133,38 @@ const TempleMap = () => {
       timings: "8:00 PM - 9:00 PM (Except monsoon)",
       facilities: ["History Show", "Multilingual", "Seating", "Audio Guide"],
     },
+    {
+      id: "divyang-ramp",
+      name: "Divyangjan Ramp & Wheelchair Hub",
+      type: "accessibility",
+      icon: Compass,
+      status: "Open 24/7",
+      crowdLevel: "Low",
+      description: "Dedicated barrier-free gentle ramp with anti-skid floor leading to Sabha Mandapa",
+      timings: "5:30 AM - 10:30 PM",
+      facilities: ["Complimentary Wheelchairs", "Sevak Escort", "Tactile Paving", "Direct Lift"],
+    },
+    {
+      id: "eco-cart-stand",
+      name: "Eco-Cart & Shuttle Station",
+      type: "parking",
+      icon: Car,
+      status: "Available",
+      crowdLevel: "Low",
+      description: "Zero-emission battery-operated buggies between Parking and Digvijay Dwar",
+      timings: "6:00 AM - 10:00 PM",
+      facilities: ["14-Seater Carts", "Priority for Elders", "Luggage Carrier"],
+    },
   ];
 
   const routes = [
+    {
+      name: "Barrier-Free Accessible Route (Seniors / Divyang)",
+      duration: "10 min",
+      stops: ["North Parking Eco-Cart", "Gate 1 Ramp Hub", "Sabha Mandapa Lift", "Sanctum Darshan"],
+      crowdLevel: "Low",
+      recommended: true,
+    },
     {
       name: "Express Darshan Route",
       duration: "15 min",
@@ -197,6 +226,8 @@ const TempleMap = () => {
         return "bg-blue-500";
       case "entertainment":
         return "bg-indigo-500";
+      case "accessibility":
+        return "bg-emerald-600";
       default:
         return "bg-muted";
     }
@@ -350,6 +381,24 @@ const TempleMap = () => {
                   >
                     <Info className="w-4 h-4" />
                   </button>
+                  <button
+                    type="button"
+                    aria-label="Divyangjan Ramp & Wheelchair Hub"
+                    title="Divyangjan Gentle Ramp (Barrier-Free)"
+                    className="absolute top-1/2 left-28 w-8 h-8 bg-emerald-300 text-emerald-950 font-bold rounded cursor-pointer hover:bg-emerald-400 flex items-center justify-center focus-visible:ring-2 focus-visible:ring-primary focus:outline-none text-xs"
+                    onClick={() => setSelectedPOI("divyang-ramp")}
+                  >
+                    ♿
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Eco-Cart Shuttle Station"
+                    title="Zero-Emission Eco Buggies"
+                    className="absolute top-12 left-6 w-8 h-8 bg-amber-300 text-amber-950 font-bold rounded cursor-pointer hover:bg-amber-400 flex items-center justify-center focus-visible:ring-2 focus-visible:ring-primary focus:outline-none text-xs"
+                    onClick={() => setSelectedPOI("eco-cart-stand")}
+                  >
+                    🛺
+                  </button>
 
                   <div
                     className="absolute top-1/2 left-8 w-3 h-3 bg-orange-500 rounded-full animate-pulse shadow-lg"
@@ -378,6 +427,10 @@ const TempleMap = () => {
                     <div className="w-3 h-3 bg-success rounded-full" />
                     <span>Low Crowd</span>
                   </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-3 h-3 bg-emerald-500 rounded-full" />
+                    <span>Barrier-Free Ramp ♿</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -405,6 +458,7 @@ const TempleMap = () => {
               {[
                 { id: "all", label: "All" },
                 { id: "temple", label: "Temple" },
+                { id: "accessibility", label: "Access ♿" },
                 { id: "parking", label: "Parking" },
                 { id: "food", label: "Prasad" },
                 { id: "medical", label: "Medical" },
