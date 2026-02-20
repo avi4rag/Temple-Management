@@ -41,6 +41,7 @@ const ServicesInfo = () => {
   const [activeTab, setActiveTab] = useState("accommodation");
   const [selectedSeva, setSelectedSeva] = useState(null);
   const [lockerToken, setLockerToken] = useState(null);
+  const [mobilityToken, setMobilityToken] = useState(null);
 
   const poojaSevas = [
     {
@@ -802,6 +803,7 @@ const ServicesInfo = () => {
           if (!open) {
             setSelectedService(null);
             setLockerToken(null);
+            setMobilityToken(null);
           }
         }}
       >
@@ -889,6 +891,58 @@ const ServicesInfo = () => {
                     className="w-full bg-gradient-sacred text-xs"
                   >
                     Generate Free Locker Token
+                  </Button>
+                )}
+              </div>
+            )}
+
+            {selectedService?.name?.includes("Wheelchair") && (
+              <div className="border border-primary/20 bg-primary/5 p-4 rounded-lg space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">♿</span>
+                    <span className="font-semibold text-sm">
+                      Divyangjan & Senior Citizen Mobility Pass
+                    </span>
+                  </div>
+                  <Badge
+                    variant="outline"
+                    className="text-xs border-primary/30 text-primary"
+                  >
+                    Ramp Entry Gate #1
+                  </Badge>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Complimentary wheelchair reservation and seva escort through barrier-free ramps to sanctum sabha mandapa.
+                </p>
+
+                {mobilityToken ? (
+                  <div className="p-3 bg-background border rounded text-center space-y-1">
+                    <p className="text-xs text-muted-foreground">
+                      Assigned Mobility Priority Pass
+                    </p>
+                    <p className="text-xl font-bold font-mono tracking-widest text-primary">
+                      {mobilityToken}
+                    </p>
+                    <p className="text-[10px] text-green-600 flex items-center justify-center gap-1">
+                      <CheckCircle className="w-3 h-3" /> Show at Divyang Facilitation Desk (Gate #1 Ramp)
+                    </p>
+                  </div>
+                ) : (
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      const num = Math.floor(1000 + Math.random() * 9000);
+                      const tag = `SOM-MOB-${num}`;
+                      setMobilityToken(tag);
+                      toast({
+                        title: "Mobility Pass Issued",
+                        description: `Priority pass assigned: ${tag}. Collect wheelchair at Gate #1 Ramp.`,
+                      });
+                    }}
+                    className="w-full bg-gradient-sacred text-xs"
+                  >
+                    Reserve Complimentary Wheelchair
                   </Button>
                 )}
               </div>
