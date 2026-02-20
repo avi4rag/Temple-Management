@@ -30,6 +30,7 @@ const DetailedBookingForm = ({ selectedSlot, onBack }) => {
   const { t, currentLanguage } = useLanguage();
   const [step, setStep] = useState(1);
   const [quotaType, setQuotaType] = useState("standard");
+  const [assistanceType, setAssistanceType] = useState("wheelchair");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [devoteeCount, setDevoteeCount] = useState("");
   const [devotees, setDevotees] = useState([]);
@@ -151,6 +152,12 @@ const DetailedBookingForm = ({ selectedSlot, onBack }) => {
     aarti_priority: "Aarti Priority Darshan",
   };
 
+  const assistanceLabels = {
+    wheelchair: "Sanctum Wheelchair (Gate #1 Assistance Desk)",
+    battery_cart: "Eco-Cart Shuttle (Parking to Temple Ramp)",
+    ramp_escort: "Trust Volunteer Escort (Sabha Mandapa)",
+  };
+
   const handleDownloadTickets = () => {
     toast({
       title: "Generating Digital Pass",
@@ -193,6 +200,15 @@ const DetailedBookingForm = ({ selectedSlot, onBack }) => {
                 </p>
               </div>
             </div>
+
+            {quotaType === "senior_divyang" && (
+              <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg flex items-center justify-between text-xs text-amber-800 dark:text-amber-300">
+                <span className="font-semibold flex items-center gap-1.5">
+                  ♿ Priority Assistance Service:
+                </span>
+                <span>{assistanceLabels[assistanceType] || "Wheelchair Access at Gate #1"}</span>
+              </div>
+            )}
 
             <div className="space-y-4">
               <h3 className="text-lg font-semibold print:text-base">Devotee Entry Passes</h3>
@@ -327,6 +343,58 @@ const DetailedBookingForm = ({ selectedSlot, onBack }) => {
                 </button>
               </div>
             </div>
+
+            {quotaType === "senior_divyang" && (
+              <div className="p-4 rounded-lg border border-primary/30 bg-primary/5 space-y-3 animate-in fade-in">
+                <Label className="text-xs font-semibold text-primary uppercase tracking-wider">
+                  Accessibility & Assisted Mobility Services (Complimentary)
+                </Label>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setAssistanceType("wheelchair")}
+                    className={`p-2.5 rounded border text-left text-xs transition-all ${
+                      assistanceType === "wheelchair"
+                        ? "border-primary bg-primary/10 font-medium ring-1 ring-primary"
+                        : "border-border bg-background"
+                    }`}
+                  >
+                    ♿ Sanctum Wheelchair
+                    <span className="block text-[10px] text-muted-foreground mt-0.5">
+                      Stationed at Gate #1
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setAssistanceType("battery_cart")}
+                    className={`p-2.5 rounded border text-left text-xs transition-all ${
+                      assistanceType === "battery_cart"
+                        ? "border-primary bg-primary/10 font-medium ring-1 ring-primary"
+                        : "border-border bg-background"
+                    }`}
+                  >
+                    🛺 Eco-Cart Shuttle
+                    <span className="block text-[10px] text-muted-foreground mt-0.5">
+                      Parking to Temple entrance
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setAssistanceType("ramp_escort")}
+                    className={`p-2.5 rounded border text-left text-xs transition-all ${
+                      assistanceType === "ramp_escort"
+                        ? "border-primary bg-primary/10 font-medium ring-1 ring-primary"
+                        : "border-border bg-background"
+                    }`}
+                  >
+                    🤝 Volunteer Escort
+                    <span className="block text-[10px] text-muted-foreground mt-0.5">
+                      Dedicated Trust Sevak escort
+                    </span>
+                  </button>
+                </div>
+              </div>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
