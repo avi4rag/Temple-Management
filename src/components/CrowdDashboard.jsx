@@ -137,12 +137,13 @@ const CrowdDashboard = ({ onNavigate }) => {
 
   const crowdData = getCrowdStatus();
   const zones = crowdDataQuery?.zones || [
-    { name: "Main Temple", count: 892, capacity: 1200, status: "Moderate" },
+    { name: "Main Temple Sanctum", count: 892, capacity: 1200, status: "Moderate" },
     { name: "Pradakshina Path", count: 654, capacity: 800, status: "High" },
-    { name: "Entry Gate", count: 423, capacity: 600, status: "Low" },
-    { name: "Prasad Counter", count: 234, capacity: 400, status: "Moderate" },
-    { name: "Parking Area", count: 567, capacity: 1000, status: "Low" },
-    { name: "Exit Gate", count: 77, capacity: 200, status: "Low" },
+    { name: "Gate 1 Divyangjan Ramp ♿", count: 42, capacity: 150, status: "Low", isAccessible: true },
+    { name: "Digvijay Dwar (Gate 2)", count: 423, capacity: 600, status: "Low" },
+    { name: "Prasad Counter Hall", count: 234, capacity: 400, status: "Moderate" },
+    { name: "North Parking Area", count: 567, capacity: 1000, status: "Low" },
+    { name: "Sea-Facing Promenade Exit", count: 77, capacity: 200, status: "Low" },
   ];
 
   return (
@@ -343,9 +344,19 @@ const CrowdDashboard = ({ onNavigate }) => {
               return (
                 <div key={index} className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <span className="font-medium text-foreground">
-                      {zone.name}
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-medium text-foreground">
+                        {zone.name}
+                      </span>
+                      {zone.isAccessible && (
+                        <Badge
+                          variant="outline"
+                          className="text-[10px] border-emerald-500/40 text-emerald-700 bg-emerald-50 dark:bg-emerald-950/40 dark:text-emerald-400"
+                        >
+                          Barrier-Free Ramp
+                        </Badge>
+                      )}
+                    </div>
                     <div className="flex items-center space-x-2">
                       <Button
                         size="sm"
