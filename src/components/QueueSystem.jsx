@@ -761,6 +761,43 @@ const QueueSystem = () => {
               </div>
             </div>
 
+            <div className="space-y-2 p-2.5 bg-muted/40 rounded-lg border text-xs">
+              <span className="font-semibold text-foreground block">Facility Ratings</span>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { key: "queue", label: "Queue Speed", icon: "⏱️" },
+                  { key: "cleanliness", label: "Cleanliness", icon: "🧹" },
+                  { key: "prasad", label: "Prasad Quality", icon: "🍬" },
+                  { key: "security", label: "Security & Sevaks", icon: "🛡️" },
+                ].map((aspect) => (
+                  <div key={aspect.key} className="flex items-center justify-between">
+                    <span className="text-[11px] text-muted-foreground">{aspect.icon} {aspect.label}</span>
+                    <div className="flex gap-0.5">
+                      {[1, 2, 3, 4, 5].map((starVal) => (
+                        <button
+                          key={starVal}
+                          type="button"
+                          onClick={() =>
+                            setFeedbackForm({
+                              ...feedbackForm,
+                              aspects: { ...feedbackForm.aspects, [aspect.key]: starVal },
+                            })
+                          }
+                          className={`text-[11px] px-1 rounded transition-colors ${
+                            starVal <= (feedbackForm.aspects?.[aspect.key] || 5)
+                              ? "text-amber-500 font-bold"
+                              : "text-muted-foreground/30"
+                          }`}
+                        >
+                          ★
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <div className="space-y-1">
               <Label htmlFor="fbComment" className="text-xs">Darshan Thoughts & Suggestions *</Label>
               <textarea
