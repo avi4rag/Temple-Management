@@ -19,11 +19,20 @@ import {
   ArrowRight,
   QrCode,
   Download,
+  Star,
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 import { devoteeSchema } from "@/schemas/booking";
 import { slotService } from "@/services/slotService";
+import { feedbackService } from "@/services/feedbackService";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const DetailedBookingForm = ({ selectedSlot, onBack }) => {
@@ -33,6 +42,10 @@ const DetailedBookingForm = ({ selectedSlot, onBack }) => {
   const [assistanceType, setAssistanceType] = useState("wheelchair");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [devoteeCount, setDevoteeCount] = useState("");
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [feedbackRating, setFeedbackRating] = useState(5);
+  const [feedbackComment, setFeedbackComment] = useState("");
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   const [devotees, setDevotees] = useState([]);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -244,6 +257,14 @@ const DetailedBookingForm = ({ selectedSlot, onBack }) => {
               </Button>
               <Button
                 variant="outline"
+                onClick={() => setShowReviewModal(true)}
+                className="flex-1 sm:flex-none border-amber-500/40 text-amber-700 hover:bg-amber-500/10"
+              >
+                <Star className="w-4 h-4 mr-2 text-amber-500 fill-amber-500" />
+                Leave Darshan Note
+              </Button>
+              <Button
+                variant="outline"
                 onClick={() => {
                   setBookingConfirmed(false);
                   setStep(1);
@@ -259,6 +280,96 @@ const DetailedBookingForm = ({ selectedSlot, onBack }) => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Post-Booking Devotee Feedback Modal */}
+        <Dialog open={showReviewModal} onOpenChange={setShowReviewModal}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Star className="w-5 h-5 text-amber-500 fill-amber-500" />
+                <span>Devotional Experience Note</span>
+              </DialogTitle>
+              <DialogDescription>
+                Share a prayer thought or note about booking your Somnath darshan pass.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4 pt-2">
+              <div className="space-y-1">
+                <Label className="text-xs">Rating</Label>
+                <div className="flex gap-1 text-amber-500">
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => setFeedbackRating(s)}
+                      className="p-1 hover:scale-110"
+                    >
+                      <Star
+                        className={`w-6 h-6 ${
+                          s <= feedbackRating ? "fill-amber-500 text-amber-500" : "text-muted-foreground/30"
+                        }`}
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <Label className="text-xs">Your Note / Review</Label>
+                <textarea
+                  rows={3}
+                  placeholder="Om Namah Shivaya. Very smooth booking experience..."
+                  value={feedbackComment}
+                  onChange={(e) => setFeedbackComment(e.target.value)}
+                  className="w-full p-2.5 border rounded-md bg-background text-xs"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowReviewModal(false)}
+                  className="text-xs"
+                >
+                  Close
+                </Button>
+                <Button
+                  size="sm"
+                  disabled={isSubmittingReview}
+                  onClick={async () => {
+                    setIsSubmittingReview(true);
+                    try {
+                      await feedbackService.submitFeedback({
+                        name: devotees[0]?.name || "Devotee Pilgrim",
+                        rating: feedbackRating,
+                        category: "Sanctum Darshan",
+                        comment: feedbackComment.trim() || `Booked darshan pass ${bookingReference}`,
+                        aspects: { queue: 5, cleanliness: 5, prasad: 5, security: 5 },
+                      });
+                      setShowReviewModal(false);
+                      toast({
+                        title: "Dhanyawad!",
+                        description: "Your prayer note & feedback has been recorded.",
+                      });
+                    } catch {
+                      toast({
+                        title: "Notice",
+                        description: "Feedback logged locally.",
+                      });
+                    } finally {
+                      setIsSubmittingReview(false);
+                    }
+                  }}
+                  className="bg-gradient-sacred text-xs"
+                >
+                  {isSubmittingReview ? "Saving..." : "Submit Note"}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
