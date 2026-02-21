@@ -6,3 +6,4 @@ export * from './alertService';
 export * from './cameraService';
 export * from './analyticsService';
 export * from './authService';
+export * from './feedbackService';
