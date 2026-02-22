@@ -33,6 +33,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { QrCode, Lock, CheckCircle } from "lucide-react";
+import { donationService } from "@/services/donationService";
 
 const ServicesInfo = () => {
   const { t } = useLanguage();
@@ -42,6 +43,18 @@ const ServicesInfo = () => {
   const [selectedSeva, setSelectedSeva] = useState(null);
   const [lockerToken, setLockerToken] = useState(null);
   const [mobilityToken, setMobilityToken] = useState(null);
+
+  const [selectedCause, setSelectedCause] = useState(null);
+  const [donationAmount, setDonationAmount] = useState(1100);
+  const [donorDetails, setDonorDetails] = useState({
+    name: "",
+    phone: "",
+    pan: "",
+    email: "",
+  });
+  const [donationReceipt, setDonationReceipt] = useState(null);
+  const [isDonating, setIsDonating] = useState(false);
+  const causes = donationService.getDonationCauses();
 
   const poojaSevas = [
     {
@@ -383,6 +396,13 @@ const ServicesInfo = () => {
           >
             <Package className="w-4 h-4" />
             <span className="hidden sm:inline ml-1">Services</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="donation"
+            className="flex items-center text-xs lg:text-sm"
+          >
+            <Heart className="w-4 h-4 text-rose-500 fill-rose-500" />
+            <span className="hidden sm:inline ml-1">E-Hundi & Daan</span>
           </TabsTrigger>
         </TabsList>
 
@@ -788,6 +808,89 @@ const ServicesInfo = () => {
                   >
                     <Info className="w-3 h-3 mr-1" />
                     Details
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="donation" className="space-y-6">
+          <Card className="border-rose-500/20 bg-gradient-to-br from-rose-500/5 via-amber-500/5 to-transparent shadow-divine">
+            <CardHeader className="pb-3">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div>
+                  <CardTitle className="text-xl flex items-center text-rose-700 dark:text-rose-400">
+                    <Heart className="w-5 h-5 mr-2 text-rose-600 fill-rose-600" />
+                    Shree Somnath Trust Digital E-Hundi & Seva Daan
+                  </CardTitle>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Every sacred contribution directly supports pilgrim annakshetra, gaumata protection, and sanctum heritage. All donations are 80G tax-exempt under IT Act 1961.
+                  </p>
+                </div>
+                <Badge variant="outline" className="border-rose-500/40 text-rose-700 bg-rose-50 dark:bg-rose-950/40 text-xs py-1 self-start sm:self-auto">
+                  80G Tax Exemption (50% Deduction)
+                </Badge>
+              </div>
+            </CardHeader>
+          </Card>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {causes.map((cause) => (
+              <Card
+                key={cause.id}
+                className="shadow-temple border-primary/10 hover:border-primary/40 transition-all flex flex-col justify-between"
+              >
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-3xl">{cause.icon}</span>
+                    <Badge variant="secondary" className="text-[10px] font-mono">
+                      80G Eligible
+                    </Badge>
+                  </div>
+                  <CardTitle className="text-base text-foreground leading-snug">
+                    {cause.title}
+                  </CardTitle>
+                  <p className="text-xs text-muted-foreground leading-relaxed pt-1">
+                    {cause.description}
+                  </p>
+                </CardHeader>
+                <CardContent className="space-y-3 pt-0">
+                  <div className="space-y-1.5">
+                    <span className="text-[11px] text-muted-foreground font-medium block">
+                      Recommended Dakshina Presets
+                    </span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {cause.presets.map((amt) => (
+                        <button
+                          key={amt}
+                          type="button"
+                          onClick={() => {
+                            setSelectedCause(cause);
+                            setDonationAmount(amt);
+                          }}
+                          className={`text-xs px-2.5 py-1 rounded border transition-all ${
+                            selectedCause?.id === cause.id && donationAmount === amt
+                              ? "bg-rose-600 text-white border-rose-600 font-semibold shadow-sm"
+                              : "bg-background border-border text-foreground hover:bg-muted"
+                          }`}
+                        >
+                          ₹{amt.toLocaleString()}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      setSelectedCause(cause);
+                      setDonationAmount(cause.suggested);
+                    }}
+                    className="w-full bg-gradient-sacred text-xs mt-2"
+                  >
+                    <Heart className="w-3.5 h-3.5 mr-1.5 fill-white" />
+                    Offer Seva (₹{cause.suggested})
                   </Button>
                 </CardContent>
               </Card>
