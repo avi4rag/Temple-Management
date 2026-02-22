@@ -1296,10 +1296,25 @@ const ServicesInfo = () => {
                   <span className="block text-[10px] text-muted-foreground mt-0.5">
                     Eligible for 50% deduction under Section 80G of the Income Tax Act, 1961
                   </span>
+                  <p className="text-[11px] font-serif text-amber-800 dark:text-amber-300 italic pt-1 border-t border-rose-200/50 mt-2">
+                    "ॐ नमः शिवाय • शुभं भवतु कल्याणं आरोग्यं धनसम्पदः"
+                  </p>
+                </div>
+
+                <div className="flex items-center justify-between p-2.5 bg-muted/30 rounded border border-dashed text-xs">
+                  <div className="space-y-0.5">
+                    <span className="text-[10px] text-muted-foreground block">Digital Verification Hash</span>
+                    <span className="font-mono text-[10px] text-primary select-all">
+                      SHA256: {donationReceipt.receiptNo}-VERIFIED-TRUST
+                    </span>
+                  </div>
+                  <div className="border border-emerald-500/40 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 rounded px-2 py-1 text-center font-serif text-[10px] font-bold">
+                    TRUST SEAL<br /><span className="text-[9px] font-normal">SHREE SOMNATH</span>
+                  </div>
                 </div>
 
                 <div className="flex justify-between items-center text-[10px] text-muted-foreground pt-1">
-                  <span>Authorized Signatory: Shree Somnath Trust</span>
+                  <span>Authorized Signatory: Chief Executive Officer, Shree Somnath Trust</span>
                   <span className="text-emerald-600 font-semibold flex items-center gap-1">
                     <CheckCircle className="w-3 h-3" /> Digitally Verified
                   </span>
