@@ -32,6 +32,7 @@ import {
   QrCode,
   ShieldCheck,
   Star,
+  Coins,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -40,6 +41,7 @@ import { alertService } from "@/services/alertService";
 import { authService } from "@/services/authService";
 import { bookingService } from "@/services/bookingService";
 import { feedbackService } from "@/services/feedbackService";
+import { donationService } from "@/services/donationService";
 import { useToast } from "@/hooks/use-toast";
 import { useSSE } from "@/hooks/useSSE";
 
@@ -47,6 +49,8 @@ const AdminDashboard = () => {
   const queryClient = useQueryClient();
   const [adminFeedbacks, setAdminFeedbacks] = useState([]);
   const [showFeedbackAdminModal, setShowFeedbackAdminModal] = useState(false);
+  const [adminDonations, setAdminDonations] = useState([]);
+  const [showDonationAdminModal, setShowDonationAdminModal] = useState(false);
   const [adminUser, setAdminUser] = useState(null);
   const [previewCamera, setPreviewCamera] = useState(null);
   const [showPushModal, setShowPushModal] = useState(false);
@@ -116,6 +120,7 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     feedbackService.getFeedbacks().then(setAdminFeedbacks).catch(() => {});
+    donationService.getRecentDonations().then(setAdminDonations).catch(() => {});
   }, []);
 
   const { data: cameras = [], isLoading: camerasLoading } = useQuery({
@@ -521,6 +526,14 @@ const AdminDashboard = () => {
               </Button>
               <Button
                 variant="outline"
+                className="w-full justify-start text-orange-700 dark:text-orange-400 font-medium"
+                onClick={() => setShowDonationAdminModal(true)}
+              >
+                <Coins className="mr-2 h-4 w-4 text-orange-500" />
+                🪙 E-Hundi & Seva Offerings ({adminDonations.length} Today)
+              </Button>
+              <Button
+                variant="outline"
                 className="w-full justify-start"
                 onClick={() => setShowPushModal(true)}
               >
@@ -908,6 +921,74 @@ const AdminDashboard = () => {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* E-Hundi & Seva Collections Dialog */}
+      <Dialog open={showDonationAdminModal} onOpenChange={setShowDonationAdminModal}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <DialogTitle className="flex items-center gap-2">
+                  <Coins className="w-5 h-5 text-orange-500" />
+                  <span>Digital E-Hundi & Annakshetra Seva Telemetry</span>
+                </DialogTitle>
+                <DialogDescription>
+                  Real-time devotional daan receipts, 80G tax certificates, and sanctum hundi collections
+                </DialogDescription>
+              </div>
+              <Badge className="bg-orange-600 text-white font-mono">
+                Trust PAN: AAATS0984E
+              </Badge>
+            </div>
+          </DialogHeader>
+
+          <div className="space-y-4 pt-2">
+            <div className="grid grid-cols-3 gap-3 p-3 bg-muted/50 rounded-lg text-center border">
+              <div>
+                <div className="text-2xl font-bold text-foreground">
+                  ₹{adminDonations.reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0).toLocaleString('en-IN')}
+                </div>
+                <div className="text-[11px] text-muted-foreground">Total Daan Today</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-emerald-600 font-mono">100%</div>
+                <div className="text-[11px] text-muted-foreground">80G Tax Certificates Issued</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-primary font-mono">{adminDonations.length}</div>
+                <div className="text-[11px] text-muted-foreground">Devotee Contributions</div>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                Recent Contributions & Seva E-Receipts
+              </h4>
+              <div className="space-y-2.5">
+                {adminDonations.map((d, idx) => (
+                  <div key={d.receiptNo || idx} className="p-3 rounded-lg border bg-card space-y-1 text-xs">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-foreground">{d.donorName}</span>
+                        <Badge variant="outline" className="text-[10px] bg-orange-50 dark:bg-orange-950/40 text-orange-700 dark:text-orange-300">
+                          {d.causeTitle || "General Daan"}
+                        </Badge>
+                      </div>
+                      <span className="font-bold text-emerald-600 text-sm">
+                        ₹{Number(d.amount).toLocaleString('en-IN')}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-1 border-t border-border/50">
+                      <span className="font-mono">{d.receiptNo}</span>
+                      <span>{new Date(d.date).toLocaleString()}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </DialogContent>
