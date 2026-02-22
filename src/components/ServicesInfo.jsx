@@ -56,6 +56,51 @@ const ServicesInfo = () => {
   const [isDonating, setIsDonating] = useState(false);
   const causes = donationService.getDonationCauses();
 
+  const handleDonate = async (e) => {
+    e.preventDefault();
+    if (!donorDetails.name.trim() || !donorDetails.phone.trim()) {
+      toast({
+        title: "Required Information",
+        description: "Please enter your name and contact phone number.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (donationAmount < 101) {
+      toast({
+        title: "Minimum Daan",
+        description: "Minimum devotional offering is ₹101.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setIsDonating(true);
+    try {
+      const receipt = await donationService.recordDonation({
+        causeId: selectedCause.id,
+        causeTitle: selectedCause.title,
+        amount: Number(donationAmount),
+        donorName: donorDetails.name.trim(),
+        donorPhone: donorDetails.phone.trim(),
+        donorPan: donorDetails.pan.trim().toUpperCase(),
+        donorEmail: donorDetails.email.trim(),
+      });
+      setDonationReceipt(receipt);
+      toast({
+        title: "Har Har Mahadev!",
+        description: `Sacred daan of ₹${Number(donationAmount).toLocaleString()} received. Receipt #${receipt.receiptNo}`,
+      });
+    } catch {
+      toast({
+        title: "Payment Error",
+        description: "Unable to process digital daan at this time.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDonating(false);
+    }
+  };
+
   const poojaSevas = [
     {
       id: "mahapuja",
@@ -1051,6 +1096,238 @@ const ServicesInfo = () => {
               </div>
             )}
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Sacred Seva & E-Hundi Donation Modal */}
+      <Dialog
+        open={Boolean(selectedCause)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setSelectedCause(null);
+            setDonationReceipt(null);
+          }
+        }}
+      >
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <div className="flex items-center gap-3">
+              <span className="text-3xl">{selectedCause?.icon}</span>
+              <div>
+                <DialogTitle className="text-lg">{selectedCause?.title}</DialogTitle>
+                <DialogDescription>
+                  Shree Somnath Trust • {selectedCause?.taxExemption}
+                </DialogDescription>
+              </div>
+            </div>
+          </DialogHeader>
+
+          {!donationReceipt ? (
+            <form onSubmit={handleDonate} className="space-y-4 pt-2">
+              <div className="space-y-2">
+                <Label className="text-xs">Select or Enter Dakshina Amount (₹)</Label>
+                <div className="flex flex-wrap gap-2">
+                  {selectedCause?.presets.map((amt) => (
+                    <button
+                      key={amt}
+                      type="button"
+                      onClick={() => setDonationAmount(amt)}
+                      className={`text-xs px-3 py-1.5 rounded border transition-all ${
+                        donationAmount === amt
+                          ? "bg-rose-600 text-white border-rose-600 font-bold"
+                          : "bg-muted text-foreground border-border hover:bg-muted/80"
+                      }`}
+                    >
+                      ₹{amt.toLocaleString()}
+                    </button>
+                  ))}
+                </div>
+                <div className="relative mt-2">
+                  <span className="absolute left-3 top-2 text-sm font-bold text-muted-foreground">₹</span>
+                  <Input
+                    type="number"
+                    min="101"
+                    placeholder="Custom amount"
+                    value={donationAmount}
+                    onChange={(e) => setDonationAmount(Number(e.target.value))}
+                    className="pl-8 text-sm font-semibold"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label htmlFor="dnName" className="text-xs">Devotee / Donor Name *</Label>
+                  <Input
+                    id="dnName"
+                    placeholder="Full name as per PAN"
+                    value={donorDetails.name}
+                    onChange={(e) => setDonorDetails({ ...donorDetails, name: e.target.value })}
+                    className="h-8 text-xs"
+                    required
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="dnPhone" className="text-xs">Mobile Number *</Label>
+                  <Input
+                    id="dnPhone"
+                    placeholder="10-digit mobile"
+                    value={donorDetails.phone}
+                    onChange={(e) => setDonorDetails({ ...donorDetails, phone: e.target.value })}
+                    className="h-8 text-xs"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="dnPan" className="text-xs">PAN Card Number</Label>
+                    <span className="text-[10px] text-rose-600 font-semibold">For 80G Tax Benefit</span>
+                  </div>
+                  <Input
+                    id="dnPan"
+                    maxLength={10}
+                    placeholder="e.g. ABCDE1234F"
+                    value={donorDetails.pan}
+                    onChange={(e) => setDonorDetails({ ...donorDetails, pan: e.target.value.toUpperCase() })}
+                    className="h-8 text-xs uppercase font-mono"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="dnEmail" className="text-xs">Email Address (Optional)</Label>
+                  <Input
+                    id="dnEmail"
+                    type="email"
+                    placeholder="For e-receipt"
+                    value={donorDetails.email}
+                    onChange={(e) => setDonorDetails({ ...donorDetails, email: e.target.value })}
+                    className="h-8 text-xs"
+                  />
+                </div>
+              </div>
+
+              <div className="p-3 bg-muted/60 rounded-lg text-xs space-y-1 border">
+                <div className="flex justify-between text-muted-foreground">
+                  <span>Offering To:</span>
+                  <span className="font-semibold text-foreground">{selectedCause?.title}</span>
+                </div>
+                <div className="flex justify-between text-muted-foreground">
+                  <span>Dakshina Offering:</span>
+                  <span className="font-bold text-rose-600 text-sm">₹{Number(donationAmount).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-muted-foreground text-[11px] pt-1 border-t">
+                  <span>Trust 80G Certificate:</span>
+                  <span className="text-emerald-600 font-medium">Auto-generated upon offering</span>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSelectedCause(null)}
+                  className="text-xs"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  size="sm"
+                  disabled={isDonating}
+                  className="bg-gradient-sacred text-xs"
+                >
+                  <Heart className="w-3.5 h-3.5 mr-1 fill-white" />
+                  {isDonating ? "Processing Daan..." : `Offer Seva ₹${Number(donationAmount).toLocaleString()}`}
+                </Button>
+              </div>
+            </form>
+          ) : (
+            <div className="space-y-4 pt-1">
+              <div className="p-4 rounded-lg border-2 border-primary/30 bg-card space-y-3">
+                <div className="text-center border-b pb-2">
+                  <h4 className="font-bold text-base text-foreground tracking-wide">
+                    SHREE SOMNATH TRUST
+                  </h4>
+                  <p className="text-[11px] text-muted-foreground">
+                    Prabhas Patan, Gir Somnath, Gujarat • Registered Public Religious Trust
+                  </p>
+                  <div className="flex justify-center gap-3 text-[10px] text-muted-foreground pt-1">
+                    <span>PAN: <strong className="font-mono text-foreground">{donationReceipt.trustPan}</strong></span>
+                    <span>80G Reg: <strong className="font-mono text-foreground">{donationReceipt.exemptionCode}</strong></span>
+                  </div>
+                </div>
+
+                <div className="text-center py-1">
+                  <Badge className="bg-emerald-600 text-white text-[10px] uppercase font-mono">
+                    Official 80G Tax Exemption Receipt
+                  </Badge>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Receipt No: <strong className="font-mono text-foreground">{donationReceipt.receiptNo}</strong>
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-xs p-2.5 bg-muted/40 rounded border">
+                  <div>
+                    <span className="text-muted-foreground block text-[10px]">Donor Name</span>
+                    <strong className="text-foreground">{donationReceipt.donorName}</strong>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground block text-[10px]">Donor PAN</span>
+                    <strong className="text-foreground font-mono">{donationReceipt.donorPan || "Not Provided"}</strong>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground block text-[10px]">Seva Cause</span>
+                    <strong className="text-foreground">{donationReceipt.causeTitle}</strong>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground block text-[10px]">Date & Time</span>
+                    <strong className="text-foreground">{new Date(donationReceipt.date).toLocaleDateString()}</strong>
+                  </div>
+                </div>
+
+                <div className="p-3 bg-rose-50 dark:bg-rose-950/30 rounded border border-rose-200 dark:border-rose-800 text-center">
+                  <span className="text-xs text-muted-foreground block">Donation Amount</span>
+                  <span className="text-2xl font-extrabold text-rose-700 dark:text-rose-400">
+                    ₹{donationReceipt.amount.toLocaleString()}
+                  </span>
+                  <span className="block text-[10px] text-muted-foreground mt-0.5">
+                    Eligible for 50% deduction under Section 80G of the Income Tax Act, 1961
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center text-[10px] text-muted-foreground pt-1">
+                  <span>Authorized Signatory: Shree Somnath Trust</span>
+                  <span className="text-emerald-600 font-semibold flex items-center gap-1">
+                    <CheckCircle className="w-3 h-3" /> Digitally Verified
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-1 print:hidden">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.print()}
+                  className="text-xs"
+                >
+                  Download / Print 80G Receipt
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    setDonationReceipt(null);
+                    setSelectedCause(null);
+                  }}
+                  className="bg-gradient-sacred text-xs"
+                >
+                  Close & Done
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
