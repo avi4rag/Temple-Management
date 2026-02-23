@@ -16,6 +16,9 @@ import {
   Flame,
   Bell,
   Sparkles,
+  Waves,
+  Wind,
+  Sun,
 } from "lucide-react";
 import {
   Dialog,
@@ -27,6 +30,7 @@ import {
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useQuery } from "@tanstack/react-query";
 import { crowdService } from "@/services/crowdService";
+import { weatherService } from "@/services/weatherService";
 
 const CrowdDashboard = ({ onNavigate }) => {
   const { t } = useLanguage();
@@ -45,6 +49,7 @@ const CrowdDashboard = ({ onNavigate }) => {
 
   const currentHour = new Date().getHours();
   const nextAarti = aartis.find((a) => a.hour > currentHour) || aartis[0];
+  const coastalWeather = weatherService.getCoastalForecast();
 
   const [isChiming, setIsChiming] = useState(false);
 
@@ -246,6 +251,52 @@ const CrowdDashboard = ({ onNavigate }) => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Arabian Sea Coastal Weather & Maritime Tide Banner */}
+      <Card className="border-sky-500/20 bg-gradient-to-r from-sky-500/10 via-blue-500/5 to-cyan-500/10 shadow-sm">
+        <CardContent className="p-4 sm:p-5">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <div className="p-2.5 rounded-full bg-sky-500/15 text-sky-600 dark:text-sky-400 shrink-0">
+                <Waves className="w-6 h-6 animate-pulse" />
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="font-semibold text-foreground text-sm sm:text-base">
+                    Arabian Sea Coastal Weather & Tide Advisory
+                  </h3>
+                  <Badge variant="outline" className={`text-xs ${coastalWeather.tide.isWarningActive ? 'bg-amber-500/10 text-amber-600 border-amber-300' : 'bg-emerald-500/10 text-emerald-600 border-emerald-300'}`}>
+                    Flag: {coastalWeather.waterSafetyFlag}
+                  </Badge>
+                  <Badge variant="secondary" className="text-xs">
+                    Tide: {coastalWeather.tide.status}
+                  </Badge>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed max-w-2xl">
+                  {coastalWeather.tide.advisory}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 text-xs shrink-0 bg-background/60 backdrop-blur px-3.5 py-2 rounded-lg border">
+              <div className="flex items-center gap-1.5 text-muted-foreground">
+                <Sun className="w-4 h-4 text-amber-500" />
+                <span>{coastalWeather.temperatureC}°C</span>
+              </div>
+              <div className="h-4 w-px bg-border" />
+              <div className="flex items-center gap-1.5 text-muted-foreground">
+                <Wind className="w-4 h-4 text-sky-500" />
+                <span>{coastalWeather.windSpeedKmh} km/h {coastalWeather.windDirection.split(' ')[0]}</span>
+              </div>
+              <div className="h-4 w-px bg-border" />
+              <div className="flex items-center gap-1.5 text-muted-foreground">
+                <Clock className="w-4 h-4 text-orange-500" />
+                <span>Sunset: {coastalWeather.sunsetTime}</span>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Sacred Aarti Timings & Sanctum Schedule */}
       <Card className="border-amber-500/20 bg-gradient-to-br from-amber-500/5 via-orange-500/5 to-transparent shadow-divine">
