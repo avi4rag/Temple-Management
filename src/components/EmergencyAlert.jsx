@@ -17,6 +17,9 @@ import {
   Car,
   UserX,
   Megaphone,
+  Waves,
+  ShieldAlert,
+  LifeBuoy,
 } from "lucide-react";
 import {
   Dialog,
@@ -29,6 +32,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { alertService } from "@/services/alertService";
+import { weatherService } from "@/services/weatherService";
 import { useToast } from "@/hooks/use-toast";
 
 const EmergencyAlert = () => {
@@ -502,6 +506,37 @@ const EmergencyAlert = () => {
               </div>
               <p className="text-xs text-muted-foreground">Exit via East Gateway. Capacity: 4,000 pilgrims. Emergency ambulance bay & police dispatch post.</p>
             </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Coastal Marine Rescue & Arabian Sea Safety Desk */}
+      <Card className="border-sky-500/30 bg-gradient-to-br from-sky-500/10 via-cyan-500/5 to-transparent shadow-sm">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base flex items-center gap-2 text-sky-800 dark:text-sky-300">
+              <LifeBuoy className="w-5 h-5 text-sky-600 dark:text-sky-400" />
+              Arabian Sea Coastal Safety & Marine Rescue Unit
+            </CardTitle>
+            <Badge variant="outline" className="text-xs bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-300">
+              Coast Guard & Marine Police
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            The Somnath sanctum is bordered by open sea waters. Marine patrols are stationed at Baan Stambh and the South Sea Promenade with high-tide alert sirens and motorized rescue skiffs.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {weatherService.getMarineSafetyHotlines().map((hl, idx) => (
+              <div key={idx} className="p-3 bg-background/80 rounded-lg border text-xs space-y-1">
+                <div className="font-semibold text-foreground flex items-center gap-1.5">
+                  <Waves className="w-3.5 h-3.5 text-sky-500" />
+                  <span>{hl.title}</span>
+                </div>
+                <div className="font-mono text-primary font-bold">{hl.phone}</div>
+              </div>
+            ))}
           </div>
         </CardContent>
       </Card>
