@@ -33,6 +33,8 @@ import {
   ShieldCheck,
   Star,
   Coins,
+  Waves,
+  Compass,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -42,6 +44,7 @@ import { authService } from "@/services/authService";
 import { bookingService } from "@/services/bookingService";
 import { feedbackService } from "@/services/feedbackService";
 import { donationService } from "@/services/donationService";
+import { weatherService } from "@/services/weatherService";
 import { useToast } from "@/hooks/use-toast";
 import { useSSE } from "@/hooks/useSSE";
 
@@ -51,6 +54,8 @@ const AdminDashboard = () => {
   const [showFeedbackAdminModal, setShowFeedbackAdminModal] = useState(false);
   const [adminDonations, setAdminDonations] = useState([]);
   const [showDonationAdminModal, setShowDonationAdminModal] = useState(false);
+  const [showWeatherModal, setShowWeatherModal] = useState(false);
+  const coastalWeather = weatherService.getCoastalForecast();
   const [adminUser, setAdminUser] = useState(null);
   const [previewCamera, setPreviewCamera] = useState(null);
   const [showPushModal, setShowPushModal] = useState(false);
@@ -534,6 +539,14 @@ const AdminDashboard = () => {
               </Button>
               <Button
                 variant="outline"
+                className="w-full justify-start text-sky-700 dark:text-sky-400 font-medium"
+                onClick={() => setShowWeatherModal(true)}
+              >
+                <Waves className="mr-2 h-4 w-4 text-sky-500" />
+                🌊 Coastal Weather & Tide Telemetry ({coastalWeather.tide.status.split(' ')[0]} Tide)
+              </Button>
+              <Button
+                variant="outline"
                 className="w-full justify-start"
                 onClick={() => setShowPushModal(true)}
               >
@@ -986,6 +999,80 @@ const AdminDashboard = () => {
                       <span className="font-mono">{d.receiptNo}</span>
                       <span>{new Date(d.date).toLocaleString()}</span>
                     </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Coastal Weather & Maritime Tide Telemetry Dialog */}
+      <Dialog open={showWeatherModal} onOpenChange={setShowWeatherModal}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <DialogTitle className="flex items-center gap-2">
+                  <Waves className="w-5 h-5 text-sky-500" />
+                  <span>Arabian Sea Coastal Telemetry & Maritime Tide Control</span>
+                </DialogTitle>
+                <DialogDescription>
+                  Prabhas Patan shoreline tide cycles, wave height telemetry, and sea safety flags
+                </DialogDescription>
+              </div>
+              <Badge className="bg-sky-600 text-white font-mono">
+                {coastalWeather.coordinates}
+              </Badge>
+            </div>
+          </DialogHeader>
+
+          <div className="space-y-4 pt-2">
+            <div className="grid grid-cols-3 gap-3 p-3 bg-muted/50 rounded-lg text-center border">
+              <div>
+                <div className="text-2xl font-bold text-foreground">
+                  {coastalWeather.tide.heightMeters}m
+                </div>
+                <div className="text-[11px] text-muted-foreground">Current Tide Level</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-sky-600 font-mono">
+                  {coastalWeather.windSpeedKmh} km/h
+                </div>
+                <div className="text-[11px] text-muted-foreground">Wind ({coastalWeather.windDirection})</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-primary font-mono">
+                  {coastalWeather.waterSafetyFlag.split(' ')[0]}
+                </div>
+                <div className="text-[11px] text-muted-foreground">Maritime Safety Flag</div>
+              </div>
+            </div>
+
+            <div className="p-3.5 rounded-lg border bg-sky-50/50 dark:bg-sky-950/20 text-xs space-y-2">
+              <div className="font-semibold text-sky-900 dark:text-sky-300 flex items-center gap-1.5">
+                <Compass className="w-4 h-4 text-sky-600" />
+                <span>Baan Stambh (Arrow Pillar) & Sea Promenade Protocol</span>
+              </div>
+              <p className="text-muted-foreground leading-relaxed">
+                {coastalWeather.tide.advisory}
+              </p>
+              <div className="flex items-center gap-4 text-[11px] text-muted-foreground pt-1 border-t border-sky-200/50 dark:border-sky-800/50">
+                <span>Next High Tide: <strong>{coastalWeather.tide.nextHighTide}</strong></span>
+                <span>Next Low Tide: <strong>{coastalWeather.tide.nextLowTide}</strong></span>
+                <span>Sunset Darshan: <strong>{coastalWeather.sunsetTime}</strong></span>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                Emergency Coastal Marine Contacts
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                {weatherService.getMarineSafetyHotlines().map((hl, idx) => (
+                  <div key={idx} className="p-2.5 rounded-lg border bg-card text-xs space-y-1">
+                    <div className="font-semibold text-foreground">{hl.title}</div>
+                    <div className="font-mono text-primary font-bold text-[11px]">{hl.phone}</div>
                   </div>
                 ))}
               </div>
