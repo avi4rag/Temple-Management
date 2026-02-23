@@ -155,9 +155,38 @@ const TempleMap = () => {
       timings: "6:00 AM - 10:00 PM",
       facilities: ["14-Seater Carts", "Priority for Elders", "Luggage Carrier"],
     },
+    {
+      id: "coastal-promenade",
+      name: "Samudra Darshan Promenade & Baan Stambh",
+      type: "coastal",
+      icon: Compass,
+      status: "Open (Observe Tide Flags)",
+      crowdLevel: "Moderate",
+      description: "Scenic seaside walkway overlooking the Arabian Sea and the sacred arrow pillar (Baan Stambh) pointing towards Antarctica.",
+      timings: "5:30 AM - 9:30 PM",
+      facilities: ["Baan Stambh Monument", "Safety Wave Barriers", "Marine Police Post", "Sunset Viewpoint", "Lifeguard Buoys"],
+    },
+    {
+      id: "sea-rescue-post",
+      name: "Coastal Marine Safety & Rescue Post",
+      type: "medical",
+      icon: ShieldAlert,
+      status: "Active 24/7",
+      crowdLevel: "Low",
+      description: "Gujarat Maritime Board and Marine Police station equipped with life jackets, high-tide alert sirens, and rescue boats.",
+      timings: "24/7",
+      facilities: ["Lifejackets & Buoys", "Coastal Siren", "First Responder Unit", "High-Tide Megaphone Warning"],
+    },
   ];
 
   const routes = [
+    {
+      name: "Arabian Sea Coastal Promenade & Baan Stambh Walk",
+      duration: "20 min",
+      stops: ["South Gate", "Baan Stambh Monument", "Sea-Facing Parikrama", "Sunset Viewpoint"],
+      crowdLevel: "Moderate",
+      recommended: true,
+    },
     {
       name: "Barrier-Free Accessible Route (Seniors / Divyang)",
       duration: "10 min",
@@ -398,6 +427,31 @@ const TempleMap = () => {
                     onClick={() => setSelectedPOI("eco-cart-stand")}
                   >
                     🛺
+                  </button>
+
+                  {/* Arabian Sea Coastal Border strip */}
+                  <div className="absolute -bottom-2 inset-x-0 h-7 bg-gradient-to-t from-sky-500/25 to-transparent border-t border-sky-400/30 flex items-center justify-between px-3 text-[10px] text-sky-800 dark:text-sky-300 font-medium">
+                    <span>🌊 Arabian Sea Coastal Promenade</span>
+                    <span className="text-[9px] opacity-75">Baan Stambh 📍</span>
+                  </div>
+
+                  <button
+                    type="button"
+                    aria-label="Samudra Darshan Coastal Promenade"
+                    title="Samudra Darshan & Baan Stambh"
+                    className="absolute bottom-1 left-28 w-8 h-8 bg-sky-300 text-sky-950 font-bold rounded cursor-pointer hover:bg-sky-400 flex items-center justify-center focus-visible:ring-2 focus-visible:ring-primary focus:outline-none text-xs z-10"
+                    onClick={() => setSelectedPOI("coastal-promenade")}
+                  >
+                    🌊
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Coastal Marine Safety Post"
+                    title="Marine Safety & Rescue Post"
+                    className="absolute bottom-1 right-28 w-8 h-8 bg-cyan-300 text-cyan-950 font-bold rounded cursor-pointer hover:bg-cyan-400 flex items-center justify-center focus-visible:ring-2 focus-visible:ring-primary focus:outline-none text-xs z-10"
+                    onClick={() => setSelectedPOI("sea-rescue-post")}
+                  >
+                    🛟
                   </button>
 
                   <div
