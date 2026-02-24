@@ -46,6 +46,15 @@ const ServicesInfo = () => {
   const [mobilityToken, setMobilityToken] = useState(null);
   const [shuttleFleet] = useState(shuttleService.getFleetStatus());
   const [selectedShuttleBus, setSelectedShuttleBus] = useState(null);
+  const [showShuttleModal, setShowShuttleModal] = useState(false);
+  const [shuttlePassData, setShuttlePassData] = useState({
+    passengerName: "",
+    passengersCount: 2,
+    trainNumber: "19218 Saurashtra Janta Exp",
+    pickupStop: "Veraval Railway Junction (PF 1 Exit)",
+    dropStop: "Shree Somnath Mandir Digvijay Dwar",
+  });
+  const [issuedShuttlePass, setIssuedShuttlePass] = useState(null);
 
   const [selectedCause, setSelectedCause] = useState(null);
   const [donationAmount, setDonationAmount] = useState(1100);
@@ -774,6 +783,23 @@ const ServicesInfo = () => {
                   Operating: 05:00 AM – 11:30 PM
                 </Badge>
               </div>
+
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+                <div className="text-xs text-muted-foreground flex items-center gap-1.5">
+                  <CheckCircle className="w-4 h-4 text-emerald-600" />
+                  <span>No ticket required. Priority boarding pass holders get reserved front seats.</span>
+                </div>
+                <Button
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs shadow-sm"
+                  onClick={() => {
+                    setIssuedShuttlePass(null);
+                    setShowShuttleModal(true);
+                  }}
+                >
+                  <Bus className="w-3.5 h-3.5 mr-1.5" />
+                  Generate Free Shuttle Boarding Pass
+                </Button>
+              </div>
             </CardContent>
           </Card>
 
@@ -1407,6 +1433,193 @@ const ServicesInfo = () => {
                   className="bg-gradient-sacred text-xs"
                 >
                   Close & Done
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Free Pilgrim Shuttle Boarding Pass Modal */}
+      <Dialog open={showShuttleModal} onOpenChange={setShowShuttleModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-emerald-800 dark:text-emerald-300">
+              <Bus className="w-5 h-5 text-emerald-600" />
+              <span>Complimentary Veraval Shuttle Boarding Pass</span>
+            </DialogTitle>
+            <DialogDescription>
+              Instant priority boarding e-pass for Shree Somnath Trust electric shuttle buses
+            </DialogDescription>
+          </DialogHeader>
+
+          {!issuedShuttlePass ? (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!shuttlePassData.passengerName.trim()) {
+                  toast({
+                    title: "Name Required",
+                    description: "Please enter the lead pilgrim's name.",
+                    variant: "destructive",
+                  });
+                  return;
+                }
+                const pass = shuttleService.generateShuttlePass(shuttlePassData);
+                setIssuedShuttlePass(pass);
+                toast({
+                  title: "Shuttle Pass Issued",
+                  description: `Pass #${pass.passNumber} generated successfully.`,
+                });
+              }}
+              className="space-y-3 pt-1 text-xs"
+            >
+              <div>
+                <label className="block font-medium mb-1 text-foreground">Lead Pilgrim Name</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Ramesh Patel"
+                  value={shuttlePassData.passengerName}
+                  onChange={(e) =>
+                    setShuttlePassData({ ...shuttlePassData, passengerName: e.target.value })
+                  }
+                  className="w-full px-3 py-2 border rounded-lg bg-background text-foreground text-xs"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block font-medium mb-1 text-foreground">Number of Devotees</label>
+                  <select
+                    value={shuttlePassData.passengersCount}
+                    onChange={(e) =>
+                      setShuttlePassData({ ...shuttlePassData, passengersCount: Number(e.target.value) })
+                    }
+                    className="w-full px-2.5 py-2 border rounded-lg bg-background text-foreground text-xs"
+                  >
+                    {[1, 2, 3, 4, 5, 6].map((n) => (
+                      <option key={n} value={n}>{n} Devotee{n > 1 ? 's' : ''}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block font-medium mb-1 text-foreground">Train / Flight Info</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Somnath Exp (19218)"
+                    value={shuttlePassData.trainNumber}
+                    onChange={(e) =>
+                      setShuttlePassData({ ...shuttlePassData, trainNumber: e.target.value })
+                    }
+                    className="w-full px-2.5 py-2 border rounded-lg bg-background text-foreground text-xs"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-medium mb-1 text-foreground">Boarding Pickup Stop</label>
+                <select
+                  value={shuttlePassData.pickupStop}
+                  onChange={(e) =>
+                    setShuttlePassData({ ...shuttlePassData, pickupStop: e.target.value })
+                  }
+                  className="w-full px-2.5 py-2 border rounded-lg bg-background text-foreground text-xs"
+                >
+                  <option value="Veraval Railway Junction (PF 1 Exit)">Veraval Railway Junction (PF 1 Exit)</option>
+                  <option value="Somnath GSRTC Bus Terminal">Somnath GSRTC Bus Terminal</option>
+                  <option value="Triveni Sangam Pilgrimage Ghat">Triveni Sangam Pilgrimage Ghat</option>
+                </select>
+              </div>
+
+              <div className="p-2.5 bg-emerald-50 dark:bg-emerald-950/30 rounded border border-emerald-200 text-[11px] text-emerald-800 dark:text-emerald-300">
+                🌱 <strong>Zero Fare & Zero Emission:</strong> Operated entirely free of charge with clean battery-electric buses by Shree Somnath Trust.
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowShuttleModal(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  size="sm"
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                >
+                  Generate E-Pass
+                </Button>
+              </div>
+            </form>
+          ) : (
+            <div className="space-y-3 pt-1 text-xs">
+              <div className="p-4 rounded-xl border-2 border-emerald-500/40 bg-gradient-to-br from-emerald-500/10 via-teal-500/5 to-transparent space-y-3">
+                <div className="flex items-center justify-between border-b pb-2">
+                  <div>
+                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">Shree Somnath Trust Transit</span>
+                    <span className="font-bold text-sm text-foreground">Free Shuttle E-Pass</span>
+                  </div>
+                  <Badge className="bg-emerald-600 text-white font-mono text-[10px]">
+                    {issuedShuttlePass.passNumber}
+                  </Badge>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-[11px]">
+                  <div>
+                    <span className="text-muted-foreground block text-[10px]">Devotee Name</span>
+                    <strong className="text-foreground">{issuedShuttlePass.passengerName}</strong>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground block text-[10px]">Devotees</span>
+                    <strong className="text-foreground">{issuedShuttlePass.passengersCount} Person(s)</strong>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground block text-[10px]">Pickup Bay</span>
+                    <strong className="text-foreground">{issuedShuttlePass.pickupStop}</strong>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground block text-[10px]">Destination</span>
+                    <strong className="text-foreground">{issuedShuttlePass.dropStop}</strong>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground block text-[10px]">Fare</span>
+                    <strong className="text-emerald-600 font-bold">₹0 (Free Seva)</strong>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground block text-[10px]">Date</span>
+                    <strong className="text-foreground">{issuedShuttlePass.validDate}</strong>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 p-2.5 bg-background/80 rounded border">
+                  <QrCode className="w-9 h-9 text-emerald-600 shrink-0" />
+                  <div className="text-[10px] text-muted-foreground">
+                    Show this pass to the shuttle conductor at <strong>Veraval Platform-1 Shuttle Bay</strong> for priority queue boarding.
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-1 print:hidden">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.print()}
+                  className="text-xs"
+                >
+                  Print / Save Pass
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    setShowShuttleModal(false);
+                    setIssuedShuttlePass(null);
+                  }}
+                  className="bg-emerald-600 text-white text-xs"
+                >
+                  Done
                 </Button>
               </div>
             </div>
