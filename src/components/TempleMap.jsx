@@ -177,9 +177,27 @@ const TempleMap = () => {
       timings: "24/7",
       facilities: ["Lifejackets & Buoys", "Coastal Siren", "First Responder Unit", "High-Tide Megaphone Warning"],
     },
+    {
+      id: "veraval-shuttle-hub",
+      name: "Veraval Railway Jn Free Shuttle Hub",
+      type: "transport",
+      icon: Car,
+      status: "Buses Departing every 15 min",
+      crowdLevel: "Low",
+      description: "Dedicated zero-fare electric bus boarding station at Platform 1. Complimentary transport direct to Digvijay Dwar.",
+      timings: "05:00 AM - 11:30 PM",
+      facilities: ["Zero Fare", "Luggage Storage", "Priority Elder Seating", "Live GPS Tracking"],
+    },
   ];
 
   const routes = [
+    {
+      name: "Veraval Railway Jn to Temple Electric Bus Transit",
+      duration: "18 min",
+      stops: ["Veraval Jn PF-1", "Bhadrakali Chowk", "Triveni Sangam", "Temple Digvijay Dwar"],
+      crowdLevel: "Low",
+      recommended: true,
+    },
     {
       name: "Arabian Sea Coastal Promenade & Baan Stambh Walk",
       duration: "20 min",
@@ -352,6 +370,15 @@ const TempleMap = () => {
                     onClick={() => setSelectedPOI("parking-north")}
                   >
                     <Car className="w-4 h-4" />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Veraval Railway Jn Free Shuttle Hub"
+                    title="Veraval Jn Free Electric Shuttle Stand"
+                    className="absolute top-4 left-18 px-2 py-1 bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 rounded border border-emerald-300 cursor-pointer hover:bg-emerald-200 flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-primary focus:outline-none text-[10px] font-semibold"
+                    onClick={() => setSelectedPOI("veraval-shuttle-hub")}
+                  >
+                    🚌 Veraval Shuttle (6km)
                   </button>
                   <button
                     type="button"
