@@ -35,6 +35,7 @@ import {
   Coins,
   Waves,
   Compass,
+  Bus,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -45,6 +46,7 @@ import { bookingService } from "@/services/bookingService";
 import { feedbackService } from "@/services/feedbackService";
 import { donationService } from "@/services/donationService";
 import { weatherService } from "@/services/weatherService";
+import { shuttleService } from "@/services/shuttleService";
 import { useToast } from "@/hooks/use-toast";
 import { useSSE } from "@/hooks/useSSE";
 
@@ -56,6 +58,8 @@ const AdminDashboard = () => {
   const [showDonationAdminModal, setShowDonationAdminModal] = useState(false);
   const [showWeatherModal, setShowWeatherModal] = useState(false);
   const coastalWeather = weatherService.getCoastalForecast();
+  const [shuttleFleet, setShuttleFleet] = useState(shuttleService.getFleetStatus());
+  const [showShuttleAdminModal, setShowShuttleAdminModal] = useState(false);
   const [adminUser, setAdminUser] = useState(null);
   const [previewCamera, setPreviewCamera] = useState(null);
   const [showPushModal, setShowPushModal] = useState(false);
@@ -544,6 +548,14 @@ const AdminDashboard = () => {
               >
                 <Waves className="mr-2 h-4 w-4 text-sky-500" />
                 🌊 Coastal Weather & Tide Telemetry ({coastalWeather.tide.status.split(' ')[0]} Tide)
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full justify-start text-emerald-700 dark:text-emerald-400 font-medium"
+                onClick={() => setShowShuttleAdminModal(true)}
+              >
+                <Bus className="mr-2 h-4 w-4 text-emerald-600" />
+                🚌 Electric Shuttle Fleet & Driver Dispatch ({shuttleFleet.filter(b => b.status === 'In Transit').length} En Route)
               </Button>
               <Button
                 variant="outline"
@@ -1076,6 +1088,105 @@ const AdminDashboard = () => {
                   </div>
                 ))}
               </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Electric Shuttle Fleet & Dispatch Dialog */}
+      <Dialog open={showShuttleAdminModal} onOpenChange={setShowShuttleAdminModal}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <DialogTitle className="flex items-center gap-2">
+                  <Bus className="w-5 h-5 text-emerald-600" />
+                  <span>Electric Shuttle Fleet Control & Live Dispatch</span>
+                </DialogTitle>
+                <DialogDescription>
+                  Veraval Junction ⇄ Shree Somnath Mandir complimentary transit management
+                </DialogDescription>
+              </div>
+              <Badge className="bg-emerald-600 text-white font-mono">
+                Fleet: 3 Buses
+              </Badge>
+            </div>
+          </DialogHeader>
+
+          <div className="space-y-4 pt-2">
+            <div className="grid grid-cols-3 gap-3 p-3 bg-muted/50 rounded-lg text-center border">
+              <div>
+                <div className="text-2xl font-bold text-foreground">1,480</div>
+                <div className="text-[11px] text-muted-foreground">Pilgrims Ferried Today</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-emerald-600 font-mono">100%</div>
+                <div className="text-[11px] text-muted-foreground">Electric EV Fleet</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-primary font-mono">15 min</div>
+                <div className="text-[11px] text-muted-foreground">Avg Dispatch Interval</div>
+              </div>
+            </div>
+
+            <div className="space-y-2.5">
+              {shuttleFleet.map((bus) => (
+                <div key={bus.id} className="p-3 rounded-lg border bg-card space-y-2 text-xs">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-foreground font-mono">{bus.plateNumber}</span>
+                      <Badge variant="outline" className={`text-[10px] ${bus.status === 'In Transit' ? 'bg-emerald-50 text-emerald-700 border-emerald-300' : 'bg-amber-50 text-amber-700 border-amber-300'}`}>
+                        {bus.status}
+                      </Badge>
+                    </div>
+                    <span className="font-medium text-emerald-600">{bus.batteryPct}% Battery</span>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] text-muted-foreground pt-1">
+                    <div>
+                      <span className="block text-[10px]">Type</span>
+                      <strong className="text-foreground">{bus.vehicleType.split(' ')[0]} {bus.vehicleType.split(' ')[1]}</strong>
+                    </div>
+                    <div>
+                      <span className="block text-[10px]">Driver</span>
+                      <strong className="text-foreground">{bus.driverName}</strong>
+                    </div>
+                    <div>
+                      <span className="block text-[10px]">Location</span>
+                      <strong className="text-foreground">{bus.currentLocation.split('(')[0]}</strong>
+                    </div>
+                    <div>
+                      <span className="block text-[10px]">Occupancy</span>
+                      <strong className="text-foreground">{bus.occupancy}</strong>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2 border-t text-[11px]">
+                    <span className="text-muted-foreground">Contact: {bus.contact}</span>
+                    {bus.status === 'Scheduled' && (
+                      <Button
+                        size="sm"
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs h-7"
+                        onClick={() => {
+                          setShuttleFleet((prev) =>
+                            prev.map((b) =>
+                              b.id === bus.id
+                                ? { ...b, status: 'In Transit', currentLocation: 'Departing North Depot for Veraval' }
+                                : b
+                            )
+                          );
+                          toast({
+                            title: "Bus Dispatched",
+                            description: `${bus.plateNumber} dispatched to Veraval Railway Junction.`,
+                          });
+                        }}
+                      >
+                        ⚡ Dispatch to Veraval Jn
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </DialogContent>
