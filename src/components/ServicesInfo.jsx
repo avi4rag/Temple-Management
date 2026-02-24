@@ -32,8 +32,9 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { QrCode, Lock, CheckCircle } from "lucide-react";
+import { QrCode, Lock, CheckCircle, BatteryCharging } from "lucide-react";
 import { donationService } from "@/services/donationService";
+import { shuttleService } from "@/services/shuttleService";
 
 const ServicesInfo = () => {
   const { t } = useLanguage();
@@ -43,6 +44,8 @@ const ServicesInfo = () => {
   const [selectedSeva, setSelectedSeva] = useState(null);
   const [lockerToken, setLockerToken] = useState(null);
   const [mobilityToken, setMobilityToken] = useState(null);
+  const [shuttleFleet] = useState(shuttleService.getFleetStatus());
+  const [selectedShuttleBus, setSelectedShuttleBus] = useState(null);
 
   const [selectedCause, setSelectedCause] = useState(null);
   const [donationAmount, setDonationAmount] = useState(1100);
@@ -709,6 +712,71 @@ const ServicesInfo = () => {
         </TabsContent>
 
         <TabsContent value="transport" className="space-y-4">
+          {/* Complimentary Veraval Junction Pilgrim Eco-Shuttle Tracker */}
+          <Card className="border-emerald-500/30 bg-gradient-to-br from-emerald-500/10 via-teal-500/5 to-transparent shadow-sm">
+            <CardHeader className="pb-3">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div>
+                  <CardTitle className="flex items-center gap-2 text-emerald-800 dark:text-emerald-300">
+                    <Bus className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                    <span>Free Pilgrim Eco-Shuttle (Veraval Jn ⇄ Shree Somnath Mandir)</span>
+                  </CardTitle>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Complimentary zero-fare electric bus service connecting Veraval Railway Station Platform-1 to Digvijay Dwar
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Badge className="bg-emerald-600 text-white font-semibold">
+                    100% Free Seva
+                  </Badge>
+                  <Badge variant="outline" className="text-xs font-mono">
+                    Every 15 Mins
+                  </Badge>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {shuttleFleet.map((bus) => (
+                  <div key={bus.id} className="p-3 bg-background/90 rounded-lg border space-y-2 text-xs">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-foreground font-mono">{bus.plateNumber}</span>
+                      <Badge variant="outline" className={`text-[10px] ${bus.status === 'In Transit' ? 'bg-emerald-50 text-emerald-700 border-emerald-300' : 'bg-amber-50 text-amber-700 border-amber-300'}`}>
+                        {bus.status}
+                      </Badge>
+                    </div>
+                    <div className="space-y-1 text-muted-foreground text-[11px]">
+                      <div>📍 <strong>Location:</strong> {bus.currentLocation}</div>
+                      <div>🎯 <strong>Next:</strong> {bus.destination} (ETA: {bus.etaMinutes}m)</div>
+                      <div className="flex items-center justify-between pt-1">
+                        <span>🔋 {bus.batteryPct}% EV</span>
+                        <span>👥 {bus.occupancy}</span>
+                      </div>
+                    </div>
+                    <div className="pt-2 border-t flex items-center justify-between text-[11px]">
+                      <span className="text-muted-foreground">Driver: {bus.driverName}</span>
+                      <a href={`tel:${bus.contact}`} className="text-primary font-medium hover:underline flex items-center gap-1">
+                        <Phone className="w-3 h-3" /> Call
+                      </a>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="p-3 bg-muted/60 rounded-lg border text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <Navigation className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span className="text-muted-foreground">
+                    <strong>Route Stops:</strong> Veraval Jn (PF 1 Exit) ➔ Bhadrakali Chowk ➔ Triveni Sangam Ghat ➔ Digvijay Dwar (Gate 2)
+                  </span>
+                </div>
+                <Badge variant="secondary" className="shrink-0 text-[11px]">
+                  Operating: 05:00 AM – 11:30 PM
+                </Badge>
+              </div>
+            </CardContent>
+          </Card>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {transportation.map((transport) => {
               const Icon = transport.icon;
