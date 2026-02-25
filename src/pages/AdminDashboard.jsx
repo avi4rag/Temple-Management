@@ -36,6 +36,7 @@ import {
   Waves,
   Compass,
   Bus,
+  Flame,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -47,6 +48,7 @@ import { feedbackService } from "@/services/feedbackService";
 import { donationService } from "@/services/donationService";
 import { weatherService } from "@/services/weatherService";
 import { shuttleService } from "@/services/shuttleService";
+import { festivalService } from "@/services/festivalService";
 import { useToast } from "@/hooks/use-toast";
 import { useSSE } from "@/hooks/useSSE";
 
@@ -60,6 +62,8 @@ const AdminDashboard = () => {
   const coastalWeather = weatherService.getCoastalForecast();
   const [shuttleFleet, setShuttleFleet] = useState(shuttleService.getFleetStatus());
   const [showShuttleAdminModal, setShowShuttleAdminModal] = useState(false);
+  const [activeFestival, setActiveFestival] = useState(festivalService.getActiveFestival());
+  const [showFestivalModal, setShowFestivalModal] = useState(false);
   const [adminUser, setAdminUser] = useState(null);
   const [previewCamera, setPreviewCamera] = useState(null);
   const [showPushModal, setShowPushModal] = useState(false);
@@ -556,6 +560,14 @@ const AdminDashboard = () => {
               >
                 <Bus className="mr-2 h-4 w-4 text-emerald-600" />
                 🚌 Electric Shuttle Fleet & Driver Dispatch ({shuttleFleet.filter(b => b.status === 'In Transit').length} En Route)
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full justify-start text-amber-700 dark:text-amber-400 font-medium"
+                onClick={() => setShowFestivalModal(true)}
+              >
+                <Flame className="mr-2 h-4 w-4 text-amber-600" />
+                🔱 Festival Protocol: {activeFestival.badge} (Cap: {activeFestival.capacity.toLocaleString()})
               </Button>
               <Button
                 variant="outline"
@@ -1188,6 +1200,87 @@ const AdminDashboard = () => {
                 </div>
               ))}
             </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Festival Surge Protocol Dialog */}
+      <Dialog open={showFestivalModal} onOpenChange={setShowFestivalModal}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <DialogTitle className="flex items-center gap-2 text-amber-700 dark:text-amber-400">
+                  <Flame className="w-5 h-5 text-amber-600" />
+                  <span>Temple Festival Surge Protocol & Capacity Mode</span>
+                </DialogTitle>
+                <DialogDescription>
+                  Switch operational modes between Normal Day, Maha Shivratri, and Shravan Maas
+                </DialogDescription>
+              </div>
+              <Badge className="bg-amber-600 text-white font-mono">
+                {activeFestival.badge}
+              </Badge>
+            </div>
+          </DialogHeader>
+
+          <div className="space-y-4 pt-2">
+            <div className="grid grid-cols-3 gap-2">
+              {Object.values(festivalService.getProfiles()).map((prof) => (
+                <button
+                  key={prof.id}
+                  type="button"
+                  onClick={() => {
+                    const updated = festivalService.setFestivalMode(prof.id);
+                    setActiveFestival(updated);
+                    toast({
+                      title: "Protocol Mode Updated",
+                      description: `Active mode set to: ${prof.name} (Max Capacity: ${prof.capacity.toLocaleString()}).`,
+                    });
+                  }}
+                  className={`p-3 rounded-lg border text-left transition-all ${
+                    activeFestival.id === prof.id
+                      ? "border-amber-500 bg-amber-500/10 shadow-sm"
+                      : "border-border bg-card hover:bg-muted/50"
+                  }`}
+                >
+                  <div className="font-semibold text-xs text-foreground mb-1">{prof.name}</div>
+                  <div className="text-[11px] text-muted-foreground">Cap: {prof.capacity.toLocaleString()}</div>
+                  <div className="text-[10px] text-primary font-medium mt-1">{prof.sanctumHours}</div>
+                </button>
+              ))}
+            </div>
+
+            <div className="p-3 bg-muted/50 rounded-lg border space-y-2 text-xs">
+              <div className="font-semibold text-foreground flex items-center justify-between">
+                <span>Active Operating Profile: {activeFestival.name}</span>
+                <Badge variant="outline" className="text-[10px] bg-emerald-50 text-emerald-700">
+                  {activeFestival.isContinuousDarshan ? "24/7 Akhand Darshan" : "Standard Timings"}
+                </Badge>
+              </div>
+              <p className="text-muted-foreground leading-relaxed">
+                {activeFestival.bannerText}
+              </p>
+            </div>
+
+            {activeFestival.prahars && (
+              <div className="space-y-2">
+                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Maha Shivratri 4 Prahar Abhishek Timeline
+                </h4>
+                <div className="space-y-2">
+                  {activeFestival.prahars.map((p, idx) => (
+                    <div key={idx} className="p-2.5 rounded-lg border bg-card text-xs flex items-center justify-between">
+                      <div>
+                        <div className="font-semibold text-foreground">{p.name}</div>
+                        <div className="text-[11px] text-muted-foreground">{p.abhishek}</div>
+                      </div>
+                      <Badge variant="secondary" className="text-[10px]">{p.crowd} Influx</Badge>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>
