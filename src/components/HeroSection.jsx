@@ -5,11 +5,13 @@ import { Users, Clock, MapPin, Shield, TrendingUp, Bell, Volume2, Sparkles } fro
 import { useLanguage } from "@/contexts/LanguageContext";
 import heroImage from "@/assets/somnath-temple-hero.jpg";
 import { useState } from "react";
+import { getActiveFestivalProtocol } from "@/services/festivalService";
 
 const HeroSection = ({ onGetStarted }) => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const [isPlayingChime, setIsPlayingChime] = useState(false);
+  const [festival] = useState(() => getActiveFestivalProtocol());
 
   const playSacredBell = () => {
     try {
@@ -93,6 +95,18 @@ const HeroSection = ({ onGetStarted }) => {
 
         <div className="relative z-10 container mx-auto px-6 h-full flex items-center justify-center">
           <div className="text-center text-white max-w-4xl">
+            {festival && festival.id !== "normal" && (
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/25 border border-amber-300/40 text-amber-200 backdrop-blur-md mb-6 animate-pulse shadow-lg text-sm">
+                <Sparkles className="w-4 h-4 text-amber-300" />
+                <span className="font-semibold">
+                  {festival.name} Active: {festival.badge} • 24hr Continuous Darshan
+                </span>
+                <span className="text-xs bg-amber-400 text-amber-950 font-bold px-2 py-0.5 rounded-full ml-1">
+                  Special Vigil Protocol
+                </span>
+              </div>
+            )}
+
             <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
               <span className="block">{t("hero.title")}</span>
               <span className="block bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text text-transparent">

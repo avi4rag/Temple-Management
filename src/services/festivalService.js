@@ -64,3 +64,5 @@ export const festivalService = {
     return festivalService.getActiveFestival();
   },
 };
+
+export const getActiveFestivalProtocol = () => festivalService.getActiveFestival();
