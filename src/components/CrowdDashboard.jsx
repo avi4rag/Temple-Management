@@ -31,6 +31,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useQuery } from "@tanstack/react-query";
 import { crowdService } from "@/services/crowdService";
 import { weatherService } from "@/services/weatherService";
+import { festivalService } from "@/services/festivalService";
 
 const CrowdDashboard = ({ onNavigate }) => {
   const { t } = useLanguage();
@@ -50,6 +51,7 @@ const CrowdDashboard = ({ onNavigate }) => {
   const currentHour = new Date().getHours();
   const nextAarti = aartis.find((a) => a.hour > currentHour) || aartis[0];
   const coastalWeather = weatherService.getCoastalForecast();
+  const activeFestival = festivalService.getActiveFestival();
 
   const [isChiming, setIsChiming] = useState(false);
 
@@ -297,6 +299,48 @@ const CrowdDashboard = ({ onNavigate }) => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Festival Surge Protocol & Akhand Darshan Notice */}
+      {activeFestival.id !== 'normal' && (
+        <Card className="border-amber-500/40 bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-yellow-500/15 shadow-sm">
+          <CardContent className="p-4 sm:p-5">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="flex items-start gap-3">
+                <div className="p-2.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400 shrink-0 text-xl">
+                  🔱
+                </div>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="font-semibold text-foreground text-sm sm:text-base">
+                      {activeFestival.name} — Akhand Darshan Active
+                    </h3>
+                    <Badge className="bg-amber-600 text-white text-xs">
+                      {activeFestival.sanctumHours}
+                    </Badge>
+                    <Badge variant="outline" className="border-amber-400 text-amber-700 dark:text-amber-300 text-xs font-mono">
+                      Cap: {activeFestival.capacity.toLocaleString()} Devotees
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed max-w-2xl">
+                    {activeFestival.bannerText}
+                  </p>
+                </div>
+              </div>
+
+              {activeFestival.prahars && (
+                <div className="flex items-center gap-2 text-xs flex-wrap shrink-0">
+                  {activeFestival.prahars.map((p, idx) => (
+                    <div key={idx} className="bg-background/80 backdrop-blur px-2.5 py-1.5 rounded-lg border text-center">
+                      <div className="font-semibold text-[11px] text-foreground">{p.name.split('(')[0]}</div>
+                      <div className="text-[10px] text-amber-600 font-mono">{p.crowd} Influx</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Sacred Aarti Timings & Sanctum Schedule */}
       <Card className="border-amber-500/20 bg-gradient-to-br from-amber-500/5 via-orange-500/5 to-transparent shadow-divine">
