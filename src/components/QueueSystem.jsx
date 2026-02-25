@@ -43,6 +43,7 @@ import { useQuery } from "@tanstack/react-query";
 import { slotService } from "@/services/slotService";
 import { bookingService } from "@/services/bookingService";
 import { feedbackService } from "@/services/feedbackService";
+import { festivalService } from "@/services/festivalService";
 import DetailedBookingForm from "./DetailedBookingForm";
 import {
   Dialog,
@@ -160,6 +161,47 @@ const QueueSystem = () => {
     queryFn: slotService.getSlots,
   });
 
+  const activeFestival = festivalService.getActiveFestival();
+
+  const nightVigilSlots = activeFestival.isContinuousDarshan
+    ? [
+        {
+          time: "23:30 - 01:00",
+          status: "filling",
+          waitTime: "25 min",
+          remaining: 48,
+          isFestivalSlot: true,
+          ritual: "Nishita Kaal / Ghrita Abhishek",
+        },
+        {
+          time: "01:00 - 02:30",
+          status: "available",
+          waitTime: "15 min",
+          remaining: 120,
+          isFestivalSlot: true,
+          ritual: "Tritiya Prahar Sugarcane Abhishek",
+        },
+        {
+          time: "03:00 - 04:30",
+          status: "available",
+          waitTime: "10 min",
+          remaining: 180,
+          isFestivalSlot: true,
+          ritual: "Chaturtha Prahar Madhu Abhishek",
+        },
+        {
+          time: "04:30 - 06:00",
+          status: "filling",
+          waitTime: "20 min",
+          remaining: 65,
+          isFestivalSlot: true,
+          ritual: "Maha Bhasma Aarti & Dawn Invocation",
+        },
+      ]
+    : [];
+
+  const allDisplaySlots = [...timeSlots, ...nightVigilSlots];
+
   useEffect(() => {
     if (numberOfDevotees > 0) {
       const newDevotees = Array.from(
@@ -177,6 +219,8 @@ const QueueSystem = () => {
   }, [numberOfDevotees, phoneNumber]);
 
   const getAartiTag = (time) => {
+    if (time?.includes("23:30") || time?.includes("00:00")) return "Nishita Kaal Vigil";
+    if (time?.includes("04:30") || time?.includes("03:00")) return "4th Prahar Bhasma";
     if (time?.includes("07:00")) return "Mangla Aarti";
     if (time?.includes("12:00")) return "Shringar Aarti";
     if (time?.includes("19:00")) return "Sandhya Aarti";
@@ -568,24 +612,41 @@ const QueueSystem = () => {
             </CardHeader>
           </Card>
 
+      {activeFestival.isContinuousDarshan && (
+        <Card className="border-amber-500/40 bg-gradient-to-r from-amber-500/10 via-orange-500/5 to-yellow-500/10 shadow-sm">
+          <CardContent className="p-3.5 flex items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2">
+              <span className="text-xl">🔱</span>
+              <div>
+                <strong className="text-foreground">{activeFestival.name}: 24-Hour Akhand Darshan</strong>
+                <p className="text-muted-foreground text-[11px]">Night vigil & 4 Prahar Abhishek special slots enabled below</p>
+              </div>
+            </div>
+            <Badge className="bg-amber-600 text-white shrink-0">Akhand Darshan</Badge>
+          </CardContent>
+        </Card>
+      )}
+
       <Card className="shadow-temple">
         <CardHeader>
           <CardTitle className="flex items-center">
             <Calendar className="w-5 h-5 mr-2" />
-            Today's Available Slots
+            Today's Available Slots {activeFestival.isContinuousDarshan ? "(Including Night Vigil)" : ""}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {timeSlots.map((slot, index) => (
+            {allDisplaySlots.map((slot, index) => (
               <div
                 key={index}
                 className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
                   selectedSlot === slot.time
                     ? "border-primary bg-primary/5"
-                    : slot.status === "full"
-                      ? "border-muted bg-muted/20 cursor-not-allowed opacity-60"
-                      : "border-border hover:border-primary/50 hover:bg-primary/5"
+                    : slot.isFestivalSlot
+                      ? "border-amber-500/50 bg-amber-500/5 hover:border-amber-500"
+                      : slot.status === "full"
+                        ? "border-muted bg-muted/20 cursor-not-allowed opacity-60"
+                        : "border-border hover:border-primary/50 hover:bg-primary/5"
                 }`}
                 onClick={() =>
                   slot.status !== "full" && setSelectedSlot(slot.time)
@@ -596,6 +657,11 @@ const QueueSystem = () => {
                     <div className="font-semibold text-foreground">
                       {slot.time}
                     </div>
+                    {slot.ritual && (
+                      <div className="text-[10px] text-amber-700 dark:text-amber-300 font-medium mt-0.5">
+                        🔱 {slot.ritual}
+                      </div>
+                    )}
                     {getAartiTag(slot.time) && (
                       <Badge
                         variant="outline"
