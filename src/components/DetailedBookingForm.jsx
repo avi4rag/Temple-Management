@@ -20,6 +20,7 @@ import {
   QrCode,
   Download,
   Star,
+  Shirt,
 } from "lucide-react";
 import {
   Dialog,
@@ -42,6 +43,7 @@ const DetailedBookingForm = ({ selectedSlot, onBack }) => {
   const [assistanceType, setAssistanceType] = useState("wheelchair");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [devoteeCount, setDevoteeCount] = useState("");
+  const [dressCodeAccepted, setDressCodeAccepted] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [feedbackRating, setFeedbackRating] = useState(5);
   const [feedbackComment, setFeedbackComment] = useState("");
@@ -124,6 +126,15 @@ const DetailedBookingForm = ({ selectedSlot, onBack }) => {
       toast({
         title: "Validation Error",
         description: "Please fix the errors in the form before submitting.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!dressCodeAccepted) {
+      toast({
+        title: "Sanctum Dress Code Compliance",
+        description: "Please acknowledge the traditional sanctum dress code & prohibited items policy to confirm your booking.",
         variant: "destructive",
       });
       return;
@@ -705,6 +716,26 @@ const DetailedBookingForm = ({ selectedSlot, onBack }) => {
                 entrance.
               </AlertDescription>
             </Alert>
+
+            {/* Sanctum Dress Code & Security Declaration */}
+            <div className="p-4 rounded-lg border bg-amber-500/10 border-amber-500/30 space-y-2">
+              <div className="flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  id="dressCodeCheck"
+                  checked={dressCodeAccepted}
+                  onChange={(e) => setDressCodeAccepted(e.target.checked)}
+                  className="mt-1 h-4 w-4 rounded border-amber-400 text-amber-600 focus:ring-amber-500 cursor-pointer"
+                />
+                <label htmlFor="dressCodeCheck" className="text-xs text-foreground cursor-pointer leading-relaxed">
+                  <span className="block font-semibold text-amber-900 dark:text-amber-200 mb-1 flex items-center gap-1.5">
+                    <Shirt className="w-3.5 h-3.5 text-amber-600" />
+                    Mandatory Sanctum Dress Code & Security Acknowledgment
+                  </span>
+                  I confirm that all devotees ({devotees.length}) will wear traditional attire (Men: Dhoti/Kurta; Women: Saree/Salwar Kameez with Dupatta). I agree to deposit mobile phones, smartwatches, leather belts, and cameras at the Free Cloakroom prior to sanctum frisking.
+                </label>
+              </div>
+            </div>
 
             <div className="flex justify-between">
               <Button variant="outline" onClick={() => setStep(1)}>
