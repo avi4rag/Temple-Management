@@ -37,6 +37,8 @@ import {
   Compass,
   Bus,
   Flame,
+  Shirt,
+  Ban,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -49,6 +51,7 @@ import { donationService } from "@/services/donationService";
 import { weatherService } from "@/services/weatherService";
 import { shuttleService } from "@/services/shuttleService";
 import { festivalService } from "@/services/festivalService";
+import { dressCodeService } from "@/services/dressCodeService";
 import { useToast } from "@/hooks/use-toast";
 import { useSSE } from "@/hooks/useSSE";
 
@@ -104,6 +107,15 @@ const AdminDashboard = () => {
       time: "10:28 AM",
     },
   ]);
+  const [showDressCodeAdminModal, setShowDressCodeAdminModal] = useState(false);
+  const [inspectionLogs, setInspectionLogs] = useState([
+    { id: 1, gate: "Gate 1 (Main Promenade)", issue: "Leather belt detected", action: "Redirected to Free Locker #1", time: "10:15 AM", guard: "Constable Rathod" },
+    { id: 2, gate: "Gate 2 (VIP & Senior)", issue: "Mobile phone in pocket", action: "Deposited in Electronic Locker #24", time: "10:42 AM", guard: "Trust Guard Mahendra" },
+    { id: 3, gate: "Gate 1 (Main Promenade)", issue: "Shorts worn (western wear)", action: "Provided traditional Dhoti wrap at Trust Counter", time: "11:05 AM", guard: "Trust Sevak Ramesh" },
+  ]);
+  const [newLogGate, setNewLogGate] = useState("Gate 1 (Main Promenade)");
+  const [newLogIssue, setNewLogIssue] = useState("Leather belt / wallet");
+  const [newLogAction, setNewLogAction] = useState("Redirected to Free Cloakroom Counter 1");
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -568,6 +580,14 @@ const AdminDashboard = () => {
               >
                 <Flame className="mr-2 h-4 w-4 text-amber-600" />
                 🔱 Festival Protocol: {activeFestival.badge} (Cap: {activeFestival.capacity.toLocaleString()})
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full justify-start text-indigo-700 dark:text-indigo-400 font-medium"
+                onClick={() => setShowDressCodeAdminModal(true)}
+              >
+                <Shirt className="mr-2 h-4 w-4 text-indigo-600" />
+                🥋 Sanctum Dress Code & Frisking Inspection Desk ({inspectionLogs.length} Logged Interventions)
               </Button>
               <Button
                 variant="outline"
@@ -1281,6 +1301,130 @@ const AdminDashboard = () => {
                 </div>
               </div>
             )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Sanctum Dress Code & Gate Frisking Inspection Modal */}
+      <Dialog open={showDressCodeAdminModal} onOpenChange={setShowDressCodeAdminModal}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Shirt className="w-5 h-5 text-indigo-600" />
+              <span>Sanctum Dress Code & Gate Frisking Security Desk</span>
+            </DialogTitle>
+            <DialogDescription>
+              Security checkpoint compliance management and pilgrim cloakroom redirection tracking across temple gates.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 pt-2 text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="p-3 bg-muted/50 rounded-lg border">
+                <span className="text-[11px] text-muted-foreground block">Gate 1 (Main Promenade)</span>
+                <span className="font-bold text-foreground text-sm">4 Frisking Booths</span>
+                <span className="text-[10px] text-emerald-600 block mt-1">Free Cloakroom Adjacent</span>
+              </div>
+              <div className="p-3 bg-muted/50 rounded-lg border">
+                <span className="text-[11px] text-muted-foreground block">Gate 2 (Digvijay Dwar)</span>
+                <span className="font-bold text-foreground text-sm">VIP & Senior Ramp</span>
+                <span className="text-[10px] text-indigo-600 block mt-1">Wheelchair & Locker Desk</span>
+              </div>
+              <div className="p-3 bg-muted/50 rounded-lg border">
+                <span className="text-[11px] text-muted-foreground block">Sanctum Sanctity Rules</span>
+                <span className="font-bold text-foreground text-sm">100% Traditional Only</span>
+                <span className="text-[10px] text-amber-600 block mt-1">No Leather / Mobiles</span>
+              </div>
+            </div>
+
+            <div className="p-3 rounded-lg border bg-amber-500/5 border-amber-500/20 space-y-1">
+              <span className="font-semibold text-foreground block">
+                👮 Security Guard Frisking Standing Order
+              </span>
+              <p className="text-muted-foreground leading-relaxed">
+                If devotees arrive wearing western casuals (denim, shorts, sleeveless) or carry prohibited items (leather belts, cellphones), politely escort them to <strong>Free Cloakroom Counter 1</strong> for mobile token deposit or offer complimentary traditional dhoti cloth before queue entry.
+              </p>
+            </div>
+
+            {/* Quick Log Form */}
+            <div className="p-3 rounded-lg border bg-card space-y-2">
+              <span className="font-semibold text-foreground block">
+                Log New Gate Redirection / Compliance Intervention
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <select
+                  value={newLogGate}
+                  onChange={(e) => setNewLogGate(e.target.value)}
+                  className="h-8 px-2 border rounded bg-background text-xs"
+                >
+                  <option value="Gate 1 (Main Promenade)">Gate 1 (Main Promenade)</option>
+                  <option value="Gate 2 (VIP & Senior)">Gate 2 (VIP & Senior)</option>
+                  <option value="Gate 3 (Samudra Path)">Gate 3 (Samudra Path)</option>
+                </select>
+                <select
+                  value={newLogIssue}
+                  onChange={(e) => setNewLogIssue(e.target.value)}
+                  className="h-8 px-2 border rounded bg-background text-xs"
+                >
+                  <option value="Leather belt / wallet">Leather belt / wallet</option>
+                  <option value="Mobile phone detected">Mobile phone detected</option>
+                  <option value="Western shorts / casuals">Western shorts / casuals</option>
+                  <option value="Camera / electronic watch">Camera / electronic watch</option>
+                  <option value="Tobacco / matchbox">Tobacco / matchbox</option>
+                </select>
+                <Input
+                  value={newLogAction}
+                  onChange={(e) => setNewLogAction(e.target.value)}
+                  placeholder="Action taken..."
+                  className="h-8 text-xs"
+                />
+              </div>
+              <div className="flex justify-end pt-1">
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    if (!newLogAction.trim()) return;
+                    const newEntry = {
+                      id: Date.now(),
+                      gate: newLogGate,
+                      issue: newLogIssue,
+                      action: newLogAction,
+                      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                      guard: adminUser?.full_name || "On-duty Officer",
+                    };
+                    setInspectionLogs([newEntry, ...inspectionLogs]);
+                    toast({
+                      title: "Intervention Logged",
+                      description: `Logged for ${newLogGate}: ${newLogIssue}`,
+                    });
+                  }}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white h-7 text-xs"
+                >
+                  Record Guard Log Entry
+                </Button>
+              </div>
+            </div>
+
+            {/* Interventions History */}
+            <div className="space-y-2">
+              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                Today's Frisking & Cloakroom Redirections ({inspectionLogs.length})
+              </h4>
+              <div className="space-y-1.5 max-h-48 overflow-y-auto">
+                {inspectionLogs.map((log) => (
+                  <div key={log.id} className="p-2.5 rounded border bg-card flex items-center justify-between text-xs">
+                    <div>
+                      <div className="font-semibold text-foreground">{log.issue}</div>
+                      <div className="text-[11px] text-muted-foreground">{log.gate} • Action: {log.action}</div>
+                    </div>
+                    <div className="text-right">
+                      <Badge variant="outline" className="text-[10px]">{log.time}</Badge>
+                      <span className="text-[10px] text-muted-foreground block">{log.guard}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
