@@ -909,6 +909,61 @@ const ServicesInfo = () => {
         </TabsContent>
 
         <TabsContent value="services" className="space-y-4">
+          {/* Complimentary Cloakroom & Locker Advisory */}
+          <Card className="border-amber-500/20 bg-gradient-to-r from-amber-500/5 via-primary/5 to-transparent shadow-sm">
+            <CardHeader className="pb-2">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Lock className="w-5 h-5 text-amber-600" />
+                  <span>Free Cloakroom, Footwear Stand & Electronic Lockers</span>
+                </CardTitle>
+                <Badge className="bg-emerald-600 text-white text-[11px] self-start sm:self-auto">
+                  100% Free Trust Facility
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-xs text-muted-foreground">
+                In strict adherence to Gujarat Police and Temple Security Protocols, mobile phones, cameras, leather belts, and outside luggage are not permitted beyond security frisking booths.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                <div className="p-3 bg-background rounded-lg border space-y-1">
+                  <strong className="text-foreground block flex items-center gap-1.5">
+                    <span>📱 Counter 1 (Main Promenade)</span>
+                  </strong>
+                  <p className="text-muted-foreground text-[11px]">
+                    Fast-track mobile phone lockers with biometric pin & digital token slips.
+                  </p>
+                  <span className="text-[10px] text-emerald-600 font-semibold block pt-1">
+                    Capacity: 4,000 digital lockers
+                  </span>
+                </div>
+                <div className="p-3 bg-background rounded-lg border space-y-1">
+                  <strong className="text-foreground block flex items-center gap-1.5">
+                    <span>🧳 Counter 2 (Heavy Luggage)</span>
+                  </strong>
+                  <p className="text-muted-foreground text-[11px]">
+                    Spacious lockers for travel bags, backpacks, and pilgrim luggage.
+                  </p>
+                  <span className="text-[10px] text-emerald-600 font-semibold block pt-1">
+                    Operating 05:30 AM – 10:30 PM
+                  </span>
+                </div>
+                <div className="p-3 bg-background rounded-lg border space-y-1">
+                  <strong className="text-foreground block flex items-center gap-1.5">
+                    <span>👟 Footwear Counter</span>
+                  </strong>
+                  <p className="text-muted-foreground text-[11px]">
+                    Tokenized shoe stand with carpeted pathways leading directly to Gate 1.
+                  </p>
+                  <span className="text-[10px] text-primary font-semibold block pt-1">
+                    Free tokens with sanitized shoe racks
+                  </span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {services.map((service) => (
               <Card
