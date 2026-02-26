@@ -36,6 +36,10 @@ import {
   Printer,
   ShieldCheck,
   Flame,
+  Shirt,
+  Ban,
+  Smartphone,
+  Check,
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
@@ -44,6 +48,7 @@ import { slotService } from "@/services/slotService";
 import { bookingService } from "@/services/bookingService";
 import { feedbackService } from "@/services/feedbackService";
 import { festivalService } from "@/services/festivalService";
+import { dressCodeService } from "@/services/dressCodeService";
 import DetailedBookingForm from "./DetailedBookingForm";
 import {
   Dialog,
@@ -56,6 +61,7 @@ import { Star, MessageSquare } from "lucide-react";
 
 const QueueSystem = () => {
   const [selectedSlot, setSelectedSlot] = useState(null);
+  const [showDressCodeModal, setShowDressCodeModal] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [numberOfDevotees, setNumberOfDevotees] = useState(1);
   const [hasBooking, setHasBooking] = useState(false);
@@ -627,6 +633,31 @@ const QueueSystem = () => {
         </Card>
       )}
 
+      <Card className="border-border/60 bg-muted/40 shadow-sm">
+        <CardContent className="p-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 bg-amber-500/10 text-amber-600 rounded-md">
+              <Shirt className="w-4 h-4" />
+            </div>
+            <div>
+              <strong className="text-foreground">Sanctum Dress Code & Security Protocol</strong>
+              <p className="text-muted-foreground text-[11px]">
+                Traditional attire mandatory for sanctum entry. Mobiles & leather items prohibited.
+              </p>
+            </div>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setShowDressCodeModal(true)}
+            className="h-7 text-xs border-amber-500/40 text-amber-800 dark:text-amber-200 hover:bg-amber-500/10 shrink-0"
+          >
+            View Dress Code & Checklist
+          </Button>
+        </CardContent>
+      </Card>
+
       <Card className="shadow-temple">
         <CardHeader>
           <CardTitle className="flex items-center">
@@ -897,6 +928,130 @@ const QueueSystem = () => {
               </Button>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Sanctum Dress Code & Prohibited Items Dialog */}
+      <Dialog open={showDressCodeModal} onOpenChange={setShowDressCodeModal}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-lg">
+              <Shirt className="w-5 h-5 text-amber-600" />
+              <span>Garbhagriha Dress Code & Security Checklist</span>
+            </DialogTitle>
+            <DialogDescription>
+              Preserving Vedic sanctity and discipline at Shree Somnath Jyotirlinga Temple
+            </DialogDescription>
+          </DialogHeader>
+
+          {(() => {
+            const rules = dressCodeService.getDressCodeRules();
+            return (
+              <div className="space-y-4 text-xs pt-1">
+                {/* Male Devotees */}
+                <div className="p-3 rounded-lg border bg-amber-500/5 border-amber-500/20 space-y-2">
+                  <div className="font-semibold text-foreground flex items-center gap-1.5 text-sm">
+                    <span>🥻 Male Attire Guidelines</span>
+                  </div>
+                  <div>
+                    <div className="text-[11px] font-medium text-emerald-700 dark:text-emerald-400 mb-1">
+                      ✓ Permitted & Recommended:
+                    </div>
+                    <ul className="list-disc pl-4 space-y-0.5 text-muted-foreground">
+                      {rules.male.permitted.map((item, idx) => (
+                        <li key={idx}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div>
+                    <div className="text-[11px] font-medium text-destructive mb-1">
+                      ✗ Strictly Prohibited in Sanctum:
+                    </div>
+                    <ul className="list-disc pl-4 space-y-0.5 text-muted-foreground">
+                      {rules.male.strictlyProhibited.map((item, idx) => (
+                        <li key={idx}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="text-[11px] text-amber-800 dark:text-amber-300 font-medium bg-amber-500/10 p-2 rounded">
+                    📌 {rules.male.recommendation}
+                  </div>
+                </div>
+
+                {/* Female Devotees */}
+                <div className="p-3 rounded-lg border bg-orange-500/5 border-orange-500/20 space-y-2">
+                  <div className="font-semibold text-foreground flex items-center gap-1.5 text-sm">
+                    <span>🌸 Female Attire Guidelines</span>
+                  </div>
+                  <div>
+                    <div className="text-[11px] font-medium text-emerald-700 dark:text-emerald-400 mb-1">
+                      ✓ Permitted & Recommended:
+                    </div>
+                    <ul className="list-disc pl-4 space-y-0.5 text-muted-foreground">
+                      {rules.female.permitted.map((item, idx) => (
+                        <li key={idx}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div>
+                    <div className="text-[11px] font-medium text-destructive mb-1">
+                      ✗ Strictly Prohibited in Sanctum:
+                    </div>
+                    <ul className="list-disc pl-4 space-y-0.5 text-muted-foreground">
+                      {rules.female.strictlyProhibited.map((item, idx) => (
+                        <li key={idx}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="text-[11px] text-amber-800 dark:text-amber-300 font-medium bg-amber-500/10 p-2 rounded">
+                    📌 {rules.female.recommendation}
+                  </div>
+                </div>
+
+                {/* Prohibited items */}
+                <div className="p-3 rounded-lg border bg-destructive/5 border-destructive/20 space-y-2">
+                  <div className="font-semibold text-destructive flex items-center gap-1.5 text-sm">
+                    <Ban className="w-4 h-4 text-destructive" />
+                    <span>Prohibited Articles Inside Temple Compound</span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                    {rules.prohibitedItems.map((item, idx) => (
+                      <div key={idx} className="flex items-start gap-2 p-2 bg-background rounded border text-[11px]">
+                        <span className="text-destructive font-bold text-xs">⛔</span>
+                        <div>
+                          <strong className="text-foreground block">{item.name}</strong>
+                          <span className="text-muted-foreground">{item.penalty}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Free Cloakroom advisory */}
+                <div className="p-3 rounded-lg border bg-muted/60 space-y-1 text-muted-foreground text-[11px]">
+                  <strong className="text-foreground block text-xs">
+                    Free Cloakroom & Electronic Lockers
+                  </strong>
+                  <p>• {rules.cloakroomFacilities.gate1}</p>
+                  <p>• {rules.cloakroomFacilities.gate2}</p>
+                  <p className="font-medium text-emerald-600 dark:text-emerald-400">
+                    • {rules.cloakroomFacilities.cost} | Operating {rules.cloakroomFacilities.timings}
+                  </p>
+                </div>
+
+                <div className="flex justify-end pt-2">
+                  <Button
+                    type="button"
+                    onClick={() => setShowDressCodeModal(false)}
+                    className="bg-gradient-sacred text-xs"
+                    size="sm"
+                  >
+                    I Understand & Acknowledge
+                  </Button>
+                </div>
+              </div>
+            );
+          })()}
         </DialogContent>
       </Dialog>
     </div>
