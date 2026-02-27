@@ -32,9 +32,10 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { QrCode, Lock, CheckCircle, BatteryCharging } from "lucide-react";
+import { QrCode, Lock, CheckCircle, BatteryCharging, BookOpen, Volume2 } from "lucide-react";
 import { donationService } from "@/services/donationService";
 import { shuttleService } from "@/services/shuttleService";
+import { audioTourService } from "@/services/audioTourService";
 
 const ServicesInfo = () => {
   const { t } = useLanguage();
@@ -43,6 +44,8 @@ const ServicesInfo = () => {
   const [activeTab, setActiveTab] = useState("accommodation");
   const [selectedSeva, setSelectedSeva] = useState(null);
   const [lockerToken, setLockerToken] = useState(null);
+  const [showJyotirlingaModal, setShowJyotirlingaModal] = useState(false);
+  const [selectedJyotirlinga, setSelectedJyotirlinga] = useState(null);
   const [mobilityToken, setMobilityToken] = useState(null);
   const [shuttleFleet] = useState(shuttleService.getFleetStatus());
   const [selectedShuttleBus, setSelectedShuttleBus] = useState(null);
@@ -673,6 +676,38 @@ const ServicesInfo = () => {
         </TabsContent>
 
         <TabsContent value="attractions" className="space-y-4">
+          {/* Sacred 12 Jyotirlingas Chronicle Card */}
+          <Card className="border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-orange-500/5 to-yellow-500/10 shadow-sm">
+            <CardHeader className="pb-2">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">🔱</span>
+                  <div>
+                    <CardTitle className="text-base text-foreground">
+                      The Sacred Chronicle of 12 Jyotirlingas (द्वादश ज्योतिर्लिंग)
+                    </CardTitle>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Shree Somnath is revered as the first (Adya) cosmic pillar of light among the twelve.
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  onClick={() => setShowJyotirlingaModal(true)}
+                  className="bg-gradient-sacred text-xs shrink-0"
+                  size="sm"
+                >
+                  <BookOpen className="w-3.5 h-3.5 mr-1.5" />
+                  Explore All 12 Shrines
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="p-2.5 bg-background/80 rounded-lg border text-xs italic text-amber-900 dark:text-amber-200 text-center font-serif">
+                "सौराष्ट्रे सोमनाथं च श्रीशैले मल्लिकार्जुनम् | उज्जयिन्यां महाकालमोङ्कारममलेश्वरम् ||"
+              </div>
+            </CardContent>
+          </Card>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {attractions.map((attraction) => (
               <Card
@@ -1679,6 +1714,83 @@ const ServicesInfo = () => {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* 12 Jyotirlinga Chronicle Dialog */}
+      <Dialog open={showJyotirlingaModal} onOpenChange={setShowJyotirlingaModal}>
+        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-lg">
+              <span className="text-xl">🔱</span>
+              <span>The 12 Sacred Jyotirlingas of Bharat (द्वादश ज्योतिर्लिंग)</span>
+            </DialogTitle>
+            <DialogDescription>
+              Cosmic manifestations of the infinite pillar of light (Lingodbhava) spanning the sacred geography of India
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 pt-2 text-xs">
+            <div className="p-3 rounded-lg border bg-amber-500/10 border-amber-500/30 text-center font-serif space-y-1">
+              <div className="text-amber-900 dark:text-amber-200 font-medium text-xs leading-relaxed">
+                सौराष्ट्रे सोमनाथं च श्रीशैले मल्लिकार्जुनम् । उज्जयिन्यां महाकालमोङ्कारममलेश्वरम् ॥<br />
+                परल्यां वैद्यनाथं च डाकिन्यां भीमशङ्करम् । सेतुबन्धे तु रामेशं नागेशं दारुकावने ॥<br />
+                वाराणस्यां तु विश्वेशं त्र्यम्बकं गौतमीतटे । हिमालये तु केदारं घुश्मेशं च शिवालये ॥
+              </div>
+              <div className="text-[11px] text-muted-foreground italic pt-1">
+                — Dwadasha Jyotirlinga Stotram (Adi Shankaracharya)
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+              {audioTourService.getJyotirlingas().map((jyo) => (
+                <div
+                  key={jyo.rank}
+                  className={`p-3 rounded-lg border transition-all ${
+                    jyo.rank === 1
+                      ? "border-amber-500 bg-amber-500/10 shadow-sm ring-1 ring-amber-400"
+                      : "border-border/60 bg-card hover:bg-muted/40"
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-2 mb-1">
+                    <div className="flex items-center gap-2">
+                      <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold ${
+                        jyo.rank === 1 ? "bg-amber-500 text-amber-950" : "bg-muted text-foreground"
+                      }`}>
+                        {jyo.rank}
+                      </span>
+                      <strong className="text-foreground text-sm">{jyo.name}</strong>
+                    </div>
+                    {jyo.rank === 1 ? (
+                      <Badge className="bg-amber-600 text-white text-[10px]">
+                        ★ Adya (First) Jyotirlinga
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="text-[10px]">
+                        {jyo.state}
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="text-[11px] text-muted-foreground mb-1">
+                    📍 {jyo.city}, {jyo.state}
+                  </div>
+                  <p className="text-[11px] text-foreground/80 leading-relaxed">
+                    {jyo.significance}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <Button
+                size="sm"
+                onClick={() => setShowJyotirlingaModal(false)}
+                className="bg-gradient-sacred text-xs"
+              >
+                Close Chronicle
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
