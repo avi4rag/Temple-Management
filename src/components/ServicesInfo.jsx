@@ -32,7 +32,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { QrCode, Lock, CheckCircle, BatteryCharging, BookOpen, Volume2 } from "lucide-react";
+import { QrCode, Lock, CheckCircle, BatteryCharging, BookOpen, Volume2, Play, Pause, Headphones } from "lucide-react";
 import { donationService } from "@/services/donationService";
 import { shuttleService } from "@/services/shuttleService";
 import { audioTourService } from "@/services/audioTourService";
@@ -46,6 +46,68 @@ const ServicesInfo = () => {
   const [lockerToken, setLockerToken] = useState(null);
   const [showJyotirlingaModal, setShowJyotirlingaModal] = useState(false);
   const [selectedJyotirlinga, setSelectedJyotirlinga] = useState(null);
+  const [tourLanguage, setTourLanguage] = useState("en");
+  const [playingChapterId, setPlayingChapterId] = useState(null);
+  const [tourAudioPlaying, setTourAudioPlaying] = useState(false);
+
+  const stopTourAudio = () => {
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+    if (window._divyaSetuAudioOsc) {
+      try {
+        window._divyaSetuAudioOsc.stop();
+        window._divyaSetuAudioOsc.disconnect();
+      } catch {}
+      window._divyaSetuAudioOsc = null;
+    }
+    setTourAudioPlaying(false);
+    setPlayingChapterId(null);
+  };
+
+  const togglePlayTourChapter = (chapter) => {
+    if (playingChapterId === chapter.id && tourAudioPlaying) {
+      stopTourAudio();
+      return;
+    }
+
+    stopTourAudio();
+    setPlayingChapterId(chapter.id);
+    setTourAudioPlaying(true);
+
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) {
+        const ctx = new AudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(chapter.bgFrequency || 136.1, ctx.currentTime);
+        gain.gain.setValueAtTime(0.03, ctx.currentTime);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        window._divyaSetuAudioOsc = osc;
+      }
+    } catch (e) {
+      console.warn("Audio drone error", e);
+    }
+
+    if ("speechSynthesis" in window) {
+      const title = chapter.title[tourLanguage] || chapter.title.en;
+      const text = chapter.summary[tourLanguage] || chapter.summary.en;
+      const utterance = new SpeechSynthesisUtterance(`${title}. ${text}`);
+      utterance.rate = 0.92;
+      utterance.pitch = 1.0;
+      if (tourLanguage === "hi") utterance.lang = "hi-IN";
+      else if (tourLanguage === "gu") utterance.lang = "gu-IN";
+      else utterance.lang = "en-IN";
+
+      utterance.onend = () => stopTourAudio();
+      utterance.onerror = () => stopTourAudio();
+      window.speechSynthesis.speak(utterance);
+    }
+  };
   const [mobilityToken, setMobilityToken] = useState(null);
   const [shuttleFleet] = useState(shuttleService.getFleetStatus());
   const [selectedShuttleBus, setSelectedShuttleBus] = useState(null);
@@ -704,6 +766,125 @@ const ServicesInfo = () => {
             <CardContent>
               <div className="p-2.5 bg-background/80 rounded-lg border text-xs italic text-amber-900 dark:text-amber-200 text-center font-serif">
                 "सौराष्ट्रे सोमनाथं च श्रीशैले मल्लिकार्जुनम् | उज्जयिन्यां महाकालमोङ्कारममलेश्वरम् ||"
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Sacred Historical Audio Tour Player */}
+          <Card className="border-primary/20 bg-gradient-to-br from-primary/5 via-amber-500/5 to-transparent shadow-sm">
+            <CardHeader className="pb-3">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 rounded-full bg-primary/10 text-primary">
+                    <Headphones className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-base text-foreground flex items-center gap-2">
+                      <span>Divya Setu Sacred Audio Tour</span>
+                      {tourAudioPlaying && (
+                        <Badge className="bg-emerald-600 text-white text-[10px] animate-pulse">
+                          Playing Audio Narration
+                        </Badge>
+                      )}
+                    </CardTitle>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Listen to 5 consecrated audio chapters covering Somnath history, architecture, and sacred mysteries.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Language switcher */}
+                <div className="flex items-center gap-1.5 p-1 bg-muted rounded-md shrink-0">
+                  <button
+                    onClick={() => {
+                      setTourLanguage("en");
+                      if (tourAudioPlaying) stopTourAudio();
+                    }}
+                    className={`px-2.5 py-1 rounded text-xs font-medium transition-all ${
+                      tourLanguage === "en" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    English
+                  </button>
+                  <button
+                    onClick={() => {
+                      setTourLanguage("hi");
+                      if (tourAudioPlaying) stopTourAudio();
+                    }}
+                    className={`px-2.5 py-1 rounded text-xs font-medium transition-all ${
+                      tourLanguage === "hi" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    हिंदी
+                  </button>
+                  <button
+                    onClick={() => {
+                      setTourLanguage("gu");
+                      if (tourAudioPlaying) stopTourAudio();
+                    }}
+                    className={`px-2.5 py-1 rounded text-xs font-medium transition-all ${
+                      tourLanguage === "gu" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    ગુજરાતી
+                  </button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="space-y-2">
+                {audioTourService.getChapters().map((ch) => {
+                  const isCurrent = playingChapterId === ch.id;
+                  return (
+                    <div
+                      key={ch.id}
+                      className={`p-3 rounded-lg border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                        isCurrent
+                          ? "border-primary bg-primary/10 shadow-sm"
+                          : "border-border/60 bg-card hover:bg-muted/40"
+                      }`}
+                    >
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <strong className="text-foreground text-xs">
+                            {ch.title[tourLanguage] || ch.title.en}
+                          </strong>
+                          <Badge variant="outline" className="text-[10px] py-0">
+                            {ch.duration}
+                          </Badge>
+                        </div>
+                        <p className="text-[11px] text-muted-foreground leading-relaxed">
+                          {ch.summary[tourLanguage] || ch.summary.en}
+                        </p>
+                        <div className="text-[10px] text-primary/80 font-medium">
+                          📍 Landmark: {ch.landmark}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                        <Button
+                          size="sm"
+                          onClick={() => togglePlayTourChapter(ch)}
+                          className={`h-8 text-xs ${
+                            isCurrent && tourAudioPlaying
+                              ? "bg-destructive text-destructive-foreground"
+                              : "bg-gradient-sacred text-white"
+                          }`}
+                        >
+                          {isCurrent && tourAudioPlaying ? (
+                            <>
+                              <Pause className="w-3.5 h-3.5 mr-1" /> Pause
+                            </>
+                          ) : (
+                            <>
+                              <Play className="w-3.5 h-3.5 mr-1" /> Listen
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
