@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
-import { Users, Clock, MapPin, Shield, TrendingUp, Bell, Volume2, Sparkles } from "lucide-react";
+import { Users, Clock, MapPin, Shield, TrendingUp, Bell, Volume2, Sparkles, Headphones } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import heroImage from "@/assets/somnath-temple-hero.jpg";
 import { useState } from "react";
@@ -11,7 +11,30 @@ const HeroSection = ({ onGetStarted }) => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const [isPlayingChime, setIsPlayingChime] = useState(false);
+  const [isPlayingAudioTour, setIsPlayingAudioTour] = useState(false);
   const [festival] = useState(() => getActiveFestivalProtocol());
+
+  const toggleHeroAudioTour = () => {
+    if (isPlayingAudioTour) {
+      if (window.speechSynthesis) window.speechSynthesis.cancel();
+      setIsPlayingAudioTour(false);
+      return;
+    }
+
+    setIsPlayingAudioTour(true);
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      const narration =
+        "Welcome to Shree Somnath Jyotirlinga, the first of the twelve sacred cosmic pillars of light. Consecrated by Chandra Deva on the shores of the Arabian Sea, Somnath stands as a testament to eternal spiritual devotion and divine grace.";
+      const utterance = new SpeechSynthesisUtterance(narration);
+      utterance.rate = 0.95;
+      utterance.onend = () => setIsPlayingAudioTour(false);
+      utterance.onerror = () => setIsPlayingAudioTour(false);
+      window.speechSynthesis.speak(utterance);
+    } else {
+      setTimeout(() => setIsPlayingAudioTour(false), 5000);
+    }
+  };
 
   const playSacredBell = () => {
     try {
@@ -136,6 +159,17 @@ const HeroSection = ({ onGetStarted }) => {
               >
                 <Bell className={`w-5 h-5 mr-2 ${isPlayingChime ? "animate-bounce text-yellow-300" : ""}`} />
                 {isPlayingChime ? "Chiming Sanctum Bell..." : "Ring Sacred Bell (घंटी)"}
+              </Button>
+              <Button
+                onClick={toggleHeroAudioTour}
+                size="lg"
+                variant="outline"
+                className={`bg-white/15 hover:bg-white/25 border-white/40 text-white backdrop-blur-sm text-base px-6 py-6 transition-all ${
+                  isPlayingAudioTour ? "ring-2 ring-amber-400 bg-amber-500/20 scale-105" : ""
+                }`}
+              >
+                <Headphones className={`w-5 h-5 mr-2 ${isPlayingAudioTour ? "animate-pulse text-amber-300" : ""}`} />
+                {isPlayingAudioTour ? "Playing Audio Guide..." : "Sacred Audio Guide (गाइड)"}
               </Button>
               <Button
                 size="lg"
