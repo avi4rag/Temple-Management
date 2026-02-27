@@ -23,7 +23,10 @@ import {
   ArrowRight,
   ShieldAlert,
   LifeBuoy,
+  Headphones,
+  Volume2,
 } from "lucide-react";
+import { audioTourService } from "@/services/audioTourService";
 
 const TempleMap = () => {
   const { t } = useLanguage();
@@ -34,6 +37,32 @@ const TempleMap = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [activeDirectionsPoi, setActiveDirectionsPoi] = useState(null);
   const [startingGate] = useState("Gate 2 (Digvijay Dwar)");
+  const [playingMapAudioId, setPlayingMapAudioId] = useState(null);
+
+  const toggleMapAudioTour = (chapterId) => {
+    if (playingMapAudioId === chapterId) {
+      if (window.speechSynthesis) window.speechSynthesis.cancel();
+      setPlayingMapAudioId(null);
+      return;
+    }
+    const chapter = audioTourService.getChapters().find((c) => c.id === chapterId);
+    if (!chapter) return;
+
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    setPlayingMapAudioId(chapterId);
+
+    if ("speechSynthesis" in window) {
+      const utterance = new SpeechSynthesisUtterance(`${chapter.title.en}. ${chapter.summary.en}`);
+      utterance.rate = 0.95;
+      utterance.onend = () => setPlayingMapAudioId(null);
+      utterance.onerror = () => setPlayingMapAudioId(null);
+      window.speechSynthesis.speak(utterance);
+    }
+    toast({
+      title: `🎧 Playing Audio Guide: ${chapter.title.en}`,
+      description: "Audio narration active. Tap again to stop.",
+    });
+  };
 
   const pointsOfInterest = [
     {
@@ -52,6 +81,19 @@ const TempleMap = () => {
         "Golf Carts",
         "Lift",
       ],
+      audioTourId: "chandra-tapasya",
+    },
+    {
+      id: "baan-stambh",
+      name: "Baan Stambh (Arrow Pillar)",
+      type: "heritage",
+      icon: Compass,
+      status: "Open",
+      crowdLevel: "Low",
+      description: "Historic arrow pillar on sea wall pointing straight to South Pole with zero landmass",
+      timings: "Open 24 Hours",
+      facilities: ["Ocean Viewpoint", "Sanskrit Plaque", "Audio Guide"],
+      audioTourId: "baan-stambh",
     },
     {
       id: "parking-north",
@@ -633,6 +675,26 @@ const TempleMap = () => {
                           </div>
 
                           <div className="pt-2 border-t mt-3">
+                            {poi.audioTourId && (
+                              <Button
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toggleMapAudioTour(poi.audioTourId);
+                                }}
+                                className={`w-full text-xs flex items-center justify-center mb-2 ${
+                                  playingMapAudioId === poi.audioTourId
+                                    ? "bg-destructive text-destructive-foreground animate-pulse"
+                                    : "bg-amber-600 hover:bg-amber-700 text-white"
+                                }`}
+                              >
+                                <Headphones className="w-3.5 h-3.5 mr-1.5" />
+                                {playingMapAudioId === poi.audioTourId
+                                  ? "Stop Audio Guide"
+                                  : "Play Sacred Audio Chronicle"}
+                              </Button>
+                            )}
+
                             <Button
                               size="sm"
                               variant={activeDirectionsPoi === poi.id ? "default" : "outline"}
