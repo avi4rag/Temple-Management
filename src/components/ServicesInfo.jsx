@@ -1351,6 +1351,40 @@ const ServicesInfo = () => {
                 />
               </div>
 
+              {/* Quick Popular Topics */}
+              <div className="flex items-center gap-1.5 flex-wrap text-xs text-muted-foreground">
+                <span className="text-[11px] font-semibold text-foreground">Trending:</span>
+                {[
+                  { label: "⚡ Senior Citizen Entry", query: "senior" },
+                  { label: "🕒 Aarti Timings", query: "aarti" },
+                  { label: "🔒 Phone & Bag Lockers", query: "locker" },
+                  { label: "👗 Dhoti Dress Code", query: "dress" },
+                  { label: "🪪 ID Proof Rules", query: "aadhaar" },
+                  { label: "♿ Free Wheelchair", query: "wheelchair" },
+                ].map((item) => (
+                  <button
+                    key={item.label}
+                    type="button"
+                    onClick={() => {
+                      setFaqSearch(item.query);
+                      setFaqCategory("all");
+                    }}
+                    className="text-[11px] px-2 py-0.5 rounded-full border border-border/70 bg-card hover:bg-primary/10 hover:border-primary/40 text-foreground/80 hover:text-primary transition-colors"
+                  >
+                    {item.label}
+                  </button>
+                ))}
+                {faqSearch && (
+                  <button
+                    type="button"
+                    onClick={() => setFaqSearch("")}
+                    className="text-[11px] px-1.5 py-0.5 text-rose-500 hover:underline font-medium"
+                  >
+                    Clear Filter ✕
+                  </button>
+                )}
+              </div>
+
               {/* Category Filter Chips */}
               <div className="flex flex-wrap gap-1.5">
                 {faqService.getCategories().map((cat) => (
