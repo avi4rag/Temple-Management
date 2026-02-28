@@ -32,14 +32,20 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { QrCode, Lock, CheckCircle, BatteryCharging, BookOpen, Volume2, Play, Pause, Headphones } from "lucide-react";
+import { QrCode, Lock, CheckCircle, BatteryCharging, BookOpen, Volume2, Play, Pause, Headphones, HelpCircle, ChevronDown, ChevronUp, Search } from "lucide-react";
 import { donationService } from "@/services/donationService";
 import { shuttleService } from "@/services/shuttleService";
 import { audioTourService } from "@/services/audioTourService";
+import { faqService } from "@/services/faqService";
 
 const ServicesInfo = () => {
   const { t } = useLanguage();
   const { toast } = useToast();
+  const [faqSearch, setFaqSearch] = useState("");
+  const [faqCategory, setFaqCategory] = useState("all");
+  const [expandedFaqId, setExpandedFaqId] = useState(null);
+  const [unresolvedQueryText, setUnresolvedQueryText] = useState("");
+  const [unresolvedPhone, setUnresolvedPhone] = useState("");
   const [selectedService, setSelectedService] = useState(null);
   const [activeTab, setActiveTab] = useState("accommodation");
   const [selectedSeva, setSelectedSeva] = useState(null);
@@ -525,6 +531,13 @@ const ServicesInfo = () => {
           >
             <Heart className="w-4 h-4 text-rose-500 fill-rose-500" />
             <span className="hidden sm:inline ml-1">E-Hundi & Daan</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="faq"
+            className="flex items-center text-xs lg:text-sm"
+          >
+            <HelpCircle className="w-4 h-4 text-amber-600" />
+            <span className="hidden sm:inline ml-1">FAQ & Help</span>
           </TabsTrigger>
         </TabsList>
 
@@ -1306,6 +1319,155 @@ const ServicesInfo = () => {
               </Card>
             ))}
           </div>
+        </TabsContent>
+
+        <TabsContent value="faq" className="space-y-4">
+          <Card className="border-amber-500/20 bg-gradient-to-r from-amber-500/5 via-primary/5 to-transparent shadow-sm">
+            <CardHeader className="pb-3">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div>
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <HelpCircle className="w-5 h-5 text-amber-600" />
+                    <span>Pilgrim Help Desk & Frequently Asked Questions</span>
+                  </CardTitle>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Official guidance from Shree Somnath Trust for a smooth, sacred darshan experience.
+                  </p>
+                </div>
+                <Badge variant="outline" className="border-amber-500/40 text-amber-800 dark:text-amber-300 text-xs self-start sm:self-auto">
+                  Help Desk 24x7: 02876-231200
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Search Bar */}
+              <div className="relative">
+                <Search className="w-4 h-4 absolute left-3 top-2.5 text-muted-foreground" />
+                <Input
+                  placeholder="Search questions (darshan, aarti, dress code, lockers, wheelchair, prasad)..."
+                  value={faqSearch}
+                  onChange={(e) => setFaqSearch(e.target.value)}
+                  className="pl-9 text-xs"
+                />
+              </div>
+
+              {/* Category Filter Chips */}
+              <div className="flex flex-wrap gap-1.5">
+                {faqService.getCategories().map((cat) => (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => setFaqCategory(cat.id)}
+                    className={`text-xs px-2.5 py-1 rounded-full transition-all ${
+                      faqCategory === cat.id
+                        ? "bg-primary text-primary-foreground font-semibold shadow-sm"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                    }`}
+                  >
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Accordion FAQ List */}
+              <div className="space-y-2 pt-1">
+                {faqService
+                  .getFAQs()
+                  .filter((item) => {
+                    const matchesCategory = faqCategory === "all" || item.category === faqCategory;
+                    const matchesSearch =
+                      !faqSearch.trim() ||
+                      item.question.toLowerCase().includes(faqSearch.toLowerCase()) ||
+                      item.answer.toLowerCase().includes(faqSearch.toLowerCase());
+                    return matchesCategory && matchesSearch;
+                  })
+                  .map((item) => {
+                    const isExpanded = expandedFaqId === item.id;
+                    return (
+                      <div
+                        key={item.id}
+                        className="rounded-lg border bg-card overflow-hidden transition-all"
+                      >
+                        <button
+                          type="button"
+                          onClick={() => setExpandedFaqId(isExpanded ? null : item.id)}
+                          className="w-full p-3.5 text-left flex items-center justify-between gap-3 text-xs font-semibold text-foreground hover:bg-muted/40 transition-colors"
+                        >
+                          <span className="flex items-center gap-2">
+                            <span className="text-amber-600 font-bold">Q.</span>
+                            {item.question}
+                          </span>
+                          {isExpanded ? (
+                            <ChevronUp className="w-4 h-4 text-muted-foreground shrink-0" />
+                          ) : (
+                            <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
+                          )}
+                        </button>
+                        {isExpanded && (
+                          <div className="p-3.5 pt-0 text-xs text-muted-foreground leading-relaxed border-t bg-muted/20">
+                            {item.answer}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+              </div>
+
+              {/* Still have questions / Ask Help Desk */}
+              <div className="p-4 bg-muted/50 rounded-lg border space-y-3 pt-3">
+                <div className="flex items-center justify-between">
+                  <strong className="text-xs text-foreground block">
+                    Have an Unanswered Question?
+                  </strong>
+                  <span className="text-[10px] text-muted-foreground">
+                    Trust Seva Response Desk
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                  <Input
+                    placeholder="Enter your question..."
+                    value={unresolvedQueryText}
+                    onChange={(e) => setUnresolvedQueryText(e.target.value)}
+                    className="h-8 text-xs"
+                  />
+                  <Input
+                    placeholder="Your 10-digit mobile number"
+                    value={unresolvedPhone}
+                    onChange={(e) => setUnresolvedPhone(e.target.value.slice(0, 10))}
+                    className="h-8 text-xs"
+                  />
+                </div>
+                <div className="flex justify-end">
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      if (!unresolvedQueryText.trim() || !unresolvedPhone.trim()) {
+                        toast({
+                          title: "Query Details Required",
+                          description: "Please enter your query and contact mobile number.",
+                          variant: "destructive",
+                        });
+                        return;
+                      }
+                      faqService.submitUnresolvedQuery({
+                        question: unresolvedQueryText,
+                        phone: unresolvedPhone,
+                      });
+                      toast({
+                        title: "Query Submitted to Help Desk",
+                        description: "Shree Somnath Trust Facilitation Officer will respond via SMS.",
+                      });
+                      setUnresolvedQueryText("");
+                      setUnresolvedPhone("");
+                    }}
+                    className="bg-gradient-sacred text-xs h-7"
+                  >
+                    Submit Question to Trust Desk
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
 
