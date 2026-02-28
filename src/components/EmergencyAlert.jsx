@@ -20,6 +20,9 @@ import {
   Waves,
   ShieldAlert,
   LifeBuoy,
+  HelpCircle,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import {
   Dialog,
@@ -60,6 +63,7 @@ const EmergencyAlert = () => {
     severity: "medium",
     description: "",
   });
+  const [expandedFaq, setExpandedFaq] = useState(null);
 
   const reportMutation = useMutation({
     mutationFn: (newAlert) => alertService.reportAlert(newAlert),
@@ -319,6 +323,78 @@ const EmergencyAlert = () => {
           </Card>
         ))}
       </div>
+
+      {/* Quick Emergency Assistance & Protocol FAQ */}
+      <Card className="border-border/70 shadow-sm bg-gradient-to-r from-amber-500/5 via-primary/5 to-transparent">
+        <CardHeader className="pb-2 pt-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <HelpCircle className="w-4 h-4 text-amber-600" />
+              <span>Pilgrim Assistance & Incident Protocols</span>
+            </CardTitle>
+            <Badge variant="outline" className="text-[10px]">
+              Trust Standard Operating Procedures
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-2 pb-3">
+          {[
+            {
+              id: "med",
+              q: "Where is the nearest Medical First Aid & Doctor Post?",
+              a: "Shree Somnath Trust Free 24x7 Medical Dispensary is located right beside Digvijay Dwar (Gate 2) with on-duty physicians, emergency oxygen, and 108 ICU ambulance bay.",
+              action: "Gate 2 (Digvijay Dwar)",
+            },
+            {
+              id: "lost",
+              q: "What to do if a child or elderly relative gets separated?",
+              a: "Immediately inform the North Gate Central Security Control. A high-priority PA system announcement will be broadcast across all 6 zones in Gujarati, Hindi, and English, and camera tracking activated.",
+              action: "Report via 'Report Missing Person' button above",
+            },
+            {
+              id: "items",
+              q: "Where to deposit mobile phones and leather items?",
+              a: "Free electronic lockers and cloakrooms are operational outside Gate 1 and Gate 2. DEVOTEES MUST NOT carry mobile phones inside the queue complex.",
+              action: "Free Cloakroom Counters 1-8",
+            },
+            {
+              id: "wheelchair",
+              q: "Are wheelchairs or battery carts available for disabled devotees?",
+              a: "Yes! Complimentary wheelchairs and electric golf-carts are parked at Digvijay Dwar and can be requested from Sevaks free of charge for senior citizens (65+) and Divyang devotees.",
+              action: "Request at Information Booth",
+            },
+          ].map((faq) => {
+            const isOpen = expandedFaq === faq.id;
+            return (
+              <div key={faq.id} className="border rounded-md bg-card overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setExpandedFaq(isOpen ? null : faq.id)}
+                  className="w-full p-2.5 text-left flex items-center justify-between gap-2 text-xs font-medium text-foreground hover:bg-muted/40 transition-colors"
+                >
+                  <span className="flex items-center gap-2">
+                    <span className="text-amber-600 font-bold">ℹ</span>
+                    {faq.q}
+                  </span>
+                  {isOpen ? (
+                    <ChevronUp className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                  ) : (
+                    <ChevronDown className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                  )}
+                </button>
+                {isOpen && (
+                  <div className="p-2.5 pt-0 text-[11px] text-muted-foreground border-t bg-muted/20 space-y-1">
+                    <p>{faq.a}</p>
+                    <div className="text-[10px] font-semibold text-primary pt-0.5">
+                      📍 Location / Action: {faq.action}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </CardContent>
+      </Card>
 
       {activeAlerts.length > 0 && (
         <Card className="border-2 border-destructive shadow-md bg-red-50/50">
