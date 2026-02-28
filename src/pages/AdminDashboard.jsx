@@ -39,6 +39,8 @@ import {
   Flame,
   Shirt,
   Ban,
+  HelpCircle,
+  MessageSquare,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -52,6 +54,7 @@ import { weatherService } from "@/services/weatherService";
 import { shuttleService } from "@/services/shuttleService";
 import { festivalService } from "@/services/festivalService";
 import { dressCodeService } from "@/services/dressCodeService";
+import { faqService } from "@/services/faqService";
 import { useToast } from "@/hooks/use-toast";
 import { useSSE } from "@/hooks/useSSE";
 
@@ -116,6 +119,9 @@ const AdminDashboard = () => {
   const [newLogGate, setNewLogGate] = useState("Gate 1 (Main Promenade)");
   const [newLogIssue, setNewLogIssue] = useState("Leather belt / wallet");
   const [newLogAction, setNewLogAction] = useState("Redirected to Free Cloakroom Counter 1");
+  const [showFaqAdminModal, setShowFaqAdminModal] = useState(false);
+  const [unresolvedFaqs, setUnresolvedFaqs] = useState(faqService.getUnresolvedQueries());
+  const [faqAnswerInput, setFaqAnswerInput] = useState({});
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -588,6 +594,17 @@ const AdminDashboard = () => {
               >
                 <Shirt className="mr-2 h-4 w-4 text-indigo-600" />
                 🥋 Sanctum Dress Code & Frisking Inspection Desk ({inspectionLogs.length} Logged Interventions)
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full justify-start text-teal-700 dark:text-teal-400 font-medium"
+                onClick={() => {
+                  setUnresolvedFaqs(faqService.getUnresolvedQueries());
+                  setShowFaqAdminModal(true);
+                }}
+              >
+                <HelpCircle className="mr-2 h-4 w-4 text-teal-600" />
+                ❓ Pilgrim Help Desk & Unresolved Queries ({unresolvedFaqs.filter(q => q.status === "pending").length} Pending)
               </Button>
               <Button
                 variant="outline"
@@ -1424,6 +1441,141 @@ const AdminDashboard = () => {
                   </div>
                 ))}
               </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Pilgrim Help Desk & Unresolved Inquiries Modal */}
+      <Dialog open={showFaqAdminModal} onOpenChange={setShowFaqAdminModal}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-teal-800 dark:text-teal-300">
+              <HelpCircle className="w-5 h-5 text-teal-600" />
+              <span>Pilgrim Help Desk & Unresolved Devotee Queries</span>
+            </DialogTitle>
+            <DialogDescription>
+              Review devotee inquiries submitted at the Trust Help Desk and dispatch SMS / WhatsApp resolutions
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 pt-2 text-xs">
+            {/* KPI Cards */}
+            <div className="grid grid-cols-3 gap-3">
+              <div className="p-3 rounded-lg border bg-teal-500/10 border-teal-500/20 text-center">
+                <span className="text-[10px] text-muted-foreground block">Active Knowledge FAQs</span>
+                <strong className="text-base text-teal-700 dark:text-teal-300">{faqService.getFAQs().length} Articles</strong>
+              </div>
+              <div className="p-3 rounded-lg border bg-amber-500/10 border-amber-500/20 text-center">
+                <span className="text-[10px] text-muted-foreground block">Pending Inquiries</span>
+                <strong className="text-base text-amber-600">
+                  {unresolvedFaqs.filter((q) => q.status === "pending").length} Devotees
+                </strong>
+              </div>
+              <div className="p-3 rounded-lg border bg-emerald-500/10 border-emerald-500/20 text-center">
+                <span className="text-[10px] text-muted-foreground block">Resolved & SMS Dispatched</span>
+                <strong className="text-base text-emerald-600">
+                  {unresolvedFaqs.filter((q) => q.status === "resolved").length}
+                </strong>
+              </div>
+            </div>
+
+            {/* Inquiries List */}
+            <div className="space-y-3">
+              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                Devotee Inquiry Inbox ({unresolvedFaqs.length})
+              </h4>
+
+              {unresolvedFaqs.length === 0 ? (
+                <div className="p-6 text-center text-muted-foreground border rounded-lg">
+                  No inquiries in queue. All pilgrim questions have been answered.
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {unresolvedFaqs.map((inquiry) => (
+                    <div
+                      key={inquiry.id}
+                      className={`p-3.5 rounded-lg border transition-all ${
+                        inquiry.status === "pending"
+                          ? "border-amber-500/40 bg-amber-500/5 shadow-sm"
+                          : "border-border/60 bg-muted/20 opacity-80"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2 mb-1.5">
+                        <div className="flex items-center gap-2">
+                          <MessageSquare className="w-4 h-4 text-teal-600 shrink-0" />
+                          <span className="font-semibold text-foreground text-xs">
+                            {inquiry.question}
+                          </span>
+                        </div>
+                        <Badge
+                          variant={inquiry.status === "pending" ? "default" : "outline"}
+                          className={`text-[10px] shrink-0 ${
+                            inquiry.status === "pending"
+                              ? "bg-amber-600 hover:bg-amber-700 text-white"
+                              : "text-emerald-600 border-emerald-500/40"
+                          }`}
+                        >
+                          {inquiry.status === "pending" ? "Needs Response" : "Answered"}
+                        </Badge>
+                      </div>
+
+                      <div className="flex items-center gap-4 text-[11px] text-muted-foreground mb-2">
+                        <span>📞 Devotee Mobile: <strong>+91-{inquiry.phone}</strong></span>
+                        <span>🕒 Logged: {inquiry.timestamp}</span>
+                      </div>
+
+                      {inquiry.resolutionNote && (
+                        <div className="p-2 rounded bg-emerald-500/10 border border-emerald-500/30 text-[11px] text-emerald-800 dark:text-emerald-300 mb-2">
+                          ✓ Officer Response: {inquiry.resolutionNote}
+                        </div>
+                      )}
+
+                      {inquiry.status === "pending" && (
+                        <div className="flex flex-col sm:flex-row gap-2 pt-1 border-t border-border/50">
+                          <Input
+                            placeholder="Type officer resolution advice / guidance..."
+                            value={faqAnswerInput[inquiry.id] || ""}
+                            onChange={(e) =>
+                              setFaqAnswerInput({
+                                ...faqAnswerInput,
+                                [inquiry.id]: e.target.value,
+                              })
+                            }
+                            className="h-8 text-xs flex-1"
+                          />
+                          <Button
+                            size="sm"
+                            onClick={() => {
+                              const note = faqAnswerInput[inquiry.id] || "Assistance provided via Help Desk telephone.";
+                              faqService.resolveQuery(inquiry.id, note);
+                              setUnresolvedFaqs(faqService.getUnresolvedQueries());
+                              toast({
+                                title: "Inquiry Resolved",
+                                description: `Resolution SMS dispatched to +91-${inquiry.phone}`,
+                              });
+                            }}
+                            className="bg-teal-600 hover:bg-teal-700 text-white h-8 text-xs shrink-0"
+                          >
+                            Resolve & SMS Pilgrim
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setShowFaqAdminModal(false)}
+                className="text-xs"
+              >
+                Close Help Desk
+              </Button>
             </div>
           </div>
         </DialogContent>
