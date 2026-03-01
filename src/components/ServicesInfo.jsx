@@ -32,11 +32,12 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { QrCode, Lock, CheckCircle, BatteryCharging, BookOpen, Volume2, Play, Pause, Headphones, HelpCircle, ChevronDown, ChevronUp, Search } from "lucide-react";
+import { QrCode, Lock, CheckCircle, BatteryCharging, BookOpen, Volume2, Play, Pause, Headphones, HelpCircle, ChevronDown, ChevronUp, Search, Gift, Truck } from "lucide-react";
 import { donationService } from "@/services/donationService";
 import { shuttleService } from "@/services/shuttleService";
 import { audioTourService } from "@/services/audioTourService";
 import { faqService } from "@/services/faqService";
+import { prasadService } from "@/services/prasadService";
 
 const ServicesInfo = () => {
   const { t } = useLanguage();
@@ -181,6 +182,35 @@ const ServicesInfo = () => {
       });
     } finally {
       setIsDonating(false);
+    }
+  };
+
+  const [selectedPostalPrasad, setSelectedPostalPrasad] = useState(null);
+  const [postalPrasadForm, setPostalPrasadForm] = useState({
+    recipientName: "",
+    phone: "",
+    address: "",
+    city: "",
+    state: "",
+    pincode: "",
+    quantity: 1,
+  });
+  const [pincodeValidation, setPincodeValidation] = useState(null);
+  const [confirmedPrasadOrder, setConfirmedPrasadOrder] = useState(null);
+  const [isOrderingPrasad, setIsOrderingPrasad] = useState(false);
+  const [showPrasadOrderModal, setShowPrasadOrderModal] = useState(false);
+
+  const handlePincodeChange = (pin) => {
+    const val = pin.replace(/\D/g, "").slice(0, 6);
+    setPostalPrasadForm((prev) => ({ ...prev, pincode: val }));
+    if (val.length === 6) {
+      const res = prasadService.validatePincode(val);
+      setPincodeValidation(res);
+      if (res.valid) {
+        setPostalPrasadForm((prev) => ({ ...prev, state: res.state }));
+      }
+    } else {
+      setPincodeValidation(null);
     }
   };
 
@@ -538,6 +568,13 @@ const ServicesInfo = () => {
           >
             <HelpCircle className="w-4 h-4 text-amber-600" />
             <span className="hidden sm:inline ml-1">FAQ & Help</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="postal-prasad"
+            className="flex items-center text-xs lg:text-sm"
+          >
+            <Gift className="w-4 h-4 text-orange-600" />
+            <span className="hidden sm:inline ml-1">Speed Post Prasad</span>
           </TabsTrigger>
         </TabsList>
 
@@ -1503,6 +1540,120 @@ const ServicesInfo = () => {
             </CardContent>
           </Card>
         </TabsContent>
+
+        <TabsContent value="postal-prasad" className="space-y-4">
+          <Card className="border-orange-500/20 bg-gradient-to-r from-orange-500/5 via-amber-500/5 to-transparent shadow-sm">
+            <CardHeader className="pb-3">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div>
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Gift className="w-5 h-5 text-orange-600" />
+                    <span>Home Postal Prasad Delivery (Speed Post Seva)</span>
+                  </CardTitle>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Consecrated at Shree Somnath Jyotirlinga altar and dispatched directly to your doorstep across India.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="border-orange-500/40 text-orange-800 dark:text-orange-300 text-xs">
+                    🚚 India Post Official Speed Post Partner
+                  </Badge>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {prasadService.getCatalog().map((pkg) => (
+                  <Card
+                    key={pkg.id}
+                    className="border-primary/20 shadow-sm flex flex-col justify-between hover:border-orange-500/50 transition-all bg-card"
+                  >
+                    <CardHeader className="pb-2">
+                      <div className="flex items-start justify-between gap-2 mb-1">
+                        <Badge className="bg-orange-600 text-white text-[10px]">
+                          {pkg.badge}
+                        </Badge>
+                        <span className="text-base font-bold font-mono text-primary">
+                          ₹{pkg.price}
+                        </span>
+                      </div>
+                      <CardTitle className="text-sm font-semibold text-foreground">
+                        {pkg.name}
+                      </CardTitle>
+                      <div className="flex items-center gap-2 text-[11px] text-muted-foreground pt-1">
+                        <span>⚖️ {pkg.weight}</span>
+                        <span>•</span>
+                        <span>⏳ Shelf Life: {pkg.shelfLife}</span>
+                      </div>
+                    </CardHeader>
+
+                    <CardContent className="space-y-3 pt-0 flex-1 flex flex-col justify-between text-xs">
+                      <div>
+                        <p className="text-[11px] text-muted-foreground mb-2.5 leading-relaxed">
+                          {pkg.description}
+                        </p>
+                        <div className="space-y-1.5 p-2.5 bg-muted/40 rounded border border-border/50 text-[11px]">
+                          <strong className="text-[10px] uppercase tracking-wider text-muted-foreground block">
+                            Sacred Box Contents:
+                          </strong>
+                          {pkg.contents.map((item, idx) => (
+                            <div key={idx} className="flex items-center gap-1.5 text-foreground/80">
+                              <span className="text-orange-500 font-bold">✓</span>
+                              <span>{item}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="pt-3 border-t border-border/50">
+                        <div className="text-[10px] text-muted-foreground mb-2 flex items-center justify-between">
+                          <span>📦 Transit: {pkg.deliveryDays}</span>
+                          <span className="text-emerald-600 font-semibold">Free Shipping Seva</span>
+                        </div>
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            setSelectedPostalPrasad(pkg);
+                            setShowPrasadOrderModal(true);
+                          }}
+                          className="w-full bg-gradient-sacred text-xs"
+                        >
+                          <Gift className="w-3.5 h-3.5 mr-1.5" />
+                          Order Holy Prasad Box
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              {/* Quality & Consecration Promise */}
+              <div className="p-3 bg-muted/30 rounded-lg border text-xs grid grid-cols-1 sm:grid-cols-3 gap-3 text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">🌿</span>
+                  <div>
+                    <strong className="text-foreground block text-[11px]">Pure Desi Ghee</strong>
+                    Prepared fresh daily with FSSAI hygiene standards.
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">📦</span>
+                  <div>
+                    <strong className="text-foreground block text-[11px]">Vacuum Sealed Pack</strong>
+                    Nitrogen-flushed multi-layer box prevents moisture.
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">🇮🇳</span>
+                  <div>
+                    <strong className="text-foreground block text-[11px]">Speed Post Dispatched</strong>
+                    Track consignment in real time via India Post.
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
 
       {/* Service Details & Token Modal */}
@@ -2168,6 +2319,320 @@ const ServicesInfo = () => {
               </Button>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Postal Prasad Dispatch & Speed Post Modal */}
+      <Dialog
+        open={showPrasadOrderModal}
+        onOpenChange={(open) => {
+          setShowPrasadOrderModal(open);
+          if (!open) {
+            setConfirmedPrasadOrder(null);
+          }
+        }}
+      >
+        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-orange-800 dark:text-orange-300">
+              <Gift className="w-5 h-5 text-orange-600" />
+              <span>Speed Post Consecrated Prasad Dispatch</span>
+            </DialogTitle>
+            <DialogDescription>
+              Official home courier service operated by Shree Somnath Trust via India Post Speed Post
+            </DialogDescription>
+          </DialogHeader>
+
+          {!confirmedPrasadOrder ? (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!postalPrasadForm.recipientName.trim() || !postalPrasadForm.phone.trim()) {
+                  toast({
+                    title: "Missing Recipient Details",
+                    description: "Please enter your full name and 10-digit mobile number.",
+                    variant: "destructive",
+                  });
+                  return;
+                }
+                if (!postalPrasadForm.address.trim() || !postalPrasadForm.city.trim()) {
+                  toast({
+                    title: "Incomplete Address",
+                    description: "Please enter your complete street address and city.",
+                    variant: "destructive",
+                  });
+                  return;
+                }
+                if (!pincodeValidation || !pincodeValidation.valid) {
+                  toast({
+                    title: "Invalid PIN Code",
+                    description: "Please enter a valid 6-digit Indian Postal PIN code.",
+                    variant: "destructive",
+                  });
+                  return;
+                }
+
+                setIsOrderingPrasad(true);
+                try {
+                  const order = prasadService.createOrder({
+                    prasadId: selectedPostalPrasad?.id || "prasad-standard",
+                    recipientName: postalPrasadForm.recipientName.trim(),
+                    phone: postalPrasadForm.phone.trim(),
+                    address: postalPrasadForm.address.trim(),
+                    city: postalPrasadForm.city.trim(),
+                    state: postalPrasadForm.state.trim() || pincodeValidation.state,
+                    pincode: postalPrasadForm.pincode.trim(),
+                    quantity: Number(postalPrasadForm.quantity) || 1,
+                  });
+
+                  setConfirmedPrasadOrder(order);
+                  toast({
+                    title: "Prasad Order Confirmed!",
+                    description: `Speed Post Consignment #${order.consignmentNumber} generated.`,
+                  });
+                } finally {
+                  setIsOrderingPrasad(false);
+                }
+              }}
+              className="space-y-3 pt-1 text-xs"
+            >
+              {selectedPostalPrasad && (
+                <div className="p-3 rounded-lg border bg-orange-500/10 border-orange-500/30 flex items-center justify-between">
+                  <div>
+                    <strong className="text-foreground text-xs block">{selectedPostalPrasad.name}</strong>
+                    <span className="text-[11px] text-muted-foreground">
+                      Weight: {selectedPostalPrasad.weight} • Shelf Life: {selectedPostalPrasad.shelfLife}
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <span className="font-bold text-sm text-primary">₹{selectedPostalPrasad.price}</span>
+                    <span className="text-[10px] text-muted-foreground block">per box</span>
+                  </div>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div>
+                  <label className="block font-medium mb-1 text-foreground">Recipient Pilgrim Name *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Rameshwar Joshi"
+                    value={postalPrasadForm.recipientName}
+                    onChange={(e) =>
+                      setPostalPrasadForm({ ...postalPrasadForm, recipientName: e.target.value })
+                    }
+                    className="w-full px-2.5 py-1.5 border rounded-md bg-background text-foreground text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="block font-medium mb-1 text-foreground">Mobile Number (SMS alerts) *</label>
+                  <input
+                    type="tel"
+                    required
+                    maxLength={10}
+                    placeholder="10-digit mobile"
+                    value={postalPrasadForm.phone}
+                    onChange={(e) =>
+                      setPostalPrasadForm({
+                        ...postalPrasadForm,
+                        phone: e.target.value.replace(/\D/g, "").slice(0, 10),
+                      })
+                    }
+                    className="w-full px-2.5 py-1.5 border rounded-md bg-background text-foreground text-xs font-mono"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-medium mb-1 text-foreground">Complete Doorstep Address *</label>
+                <textarea
+                  required
+                  rows={2}
+                  placeholder="Flat / House No, Building, Street, Landmark"
+                  value={postalPrasadForm.address}
+                  onChange={(e) =>
+                    setPostalPrasadForm({ ...postalPrasadForm, address: e.target.value })
+                  }
+                  className="w-full px-2.5 py-1.5 border rounded-md bg-background text-foreground text-xs"
+                />
+              </div>
+
+              <div className="grid grid-cols-3 gap-2">
+                <div>
+                  <label className="block font-medium mb-1 text-foreground">Postal PIN Code *</label>
+                  <input
+                    type="text"
+                    required
+                    maxLength={6}
+                    placeholder="e.g. 360001"
+                    value={postalPrasadForm.pincode}
+                    onChange={(e) => handlePincodeChange(e.target.value)}
+                    className="w-full px-2.5 py-1.5 border rounded-md bg-background text-foreground text-xs font-mono font-bold"
+                  />
+                </div>
+                <div>
+                  <label className="block font-medium mb-1 text-foreground">City / District *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Rajkot"
+                    value={postalPrasadForm.city}
+                    onChange={(e) =>
+                      setPostalPrasadForm({ ...postalPrasadForm, city: e.target.value })
+                    }
+                    className="w-full px-2.5 py-1.5 border rounded-md bg-background text-foreground text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="block font-medium mb-1 text-foreground">Quantity</label>
+                  <select
+                    value={postalPrasadForm.quantity}
+                    onChange={(e) =>
+                      setPostalPrasadForm({ ...postalPrasadForm, quantity: Number(e.target.value) })
+                    }
+                    className="w-full px-2.5 py-1.5 border rounded-md bg-background text-foreground text-xs"
+                  >
+                    {[1, 2, 3, 4, 5].map((n) => (
+                      <option key={n} value={n}>
+                        {n} Box{n > 1 ? "es" : ""}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* PIN Code Serviceability Banner */}
+              {pincodeValidation && (
+                <div
+                  className={`p-2.5 rounded border text-[11px] ${
+                    pincodeValidation.valid
+                      ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-800 dark:text-emerald-300"
+                      : "bg-destructive/10 border-destructive/30 text-destructive"
+                  }`}
+                >
+                  {pincodeValidation.valid ? (
+                    <div className="flex items-center justify-between">
+                      <span>✓ Speed Post Serviceable: <strong>{pincodeValidation.state}</strong></span>
+                      <span>Estimated Transit: <strong>{pincodeValidation.estDays} business days</strong></span>
+                    </div>
+                  ) : (
+                    <span>⚠️ {pincodeValidation.message}</span>
+                  )}
+                </div>
+              )}
+
+              {/* Total Calculation */}
+              <div className="p-3 bg-muted/40 rounded-lg border flex items-center justify-between text-xs">
+                <div>
+                  <span className="text-muted-foreground block text-[10px]">Total Devotional Offering:</span>
+                  <span className="font-bold text-sm text-foreground">
+                    ₹{((selectedPostalPrasad?.price || 251) * (postalPrasadForm.quantity || 1)).toLocaleString()}
+                  </span>
+                </div>
+                <div className="text-right">
+                  <span className="text-[10px] text-emerald-600 font-semibold block">🚚 Speed Post: FREE SEVA</span>
+                  <span className="text-[10px] text-muted-foreground">Complimentary by Trust</span>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-1">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowPrasadOrderModal(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  size="sm"
+                  disabled={isOrderingPrasad}
+                  className="bg-gradient-sacred"
+                >
+                  {isOrderingPrasad ? "Booking Dispatch..." : "Confirm & Order Mahaprasad"}
+                </Button>
+              </div>
+            </form>
+          ) : (
+            <div className="space-y-3 pt-1 text-xs">
+              <div className="p-4 rounded-xl border-2 border-orange-500/40 bg-gradient-to-br from-orange-500/10 via-amber-500/5 to-transparent space-y-3">
+                <div className="flex items-center justify-between border-b pb-2">
+                  <div>
+                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">
+                      Shree Somnath Trust • Postal Seva
+                    </span>
+                    <span className="font-bold text-sm text-foreground">Holy Prasad Dispatch Slip</span>
+                  </div>
+                  <Badge className="bg-orange-600 text-white font-mono text-[10px]">
+                    {confirmedPrasadOrder.id}
+                  </Badge>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-[11px]">
+                  <div>
+                    <span className="text-muted-foreground block text-[10px]">Recipient</span>
+                    <strong className="text-foreground">{confirmedPrasadOrder.recipientName}</strong>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground block text-[10px]">Quantity</span>
+                    <strong className="text-foreground">{confirmedPrasadOrder.quantity} Box(es)</strong>
+                  </div>
+                  <div className="col-span-2">
+                    <span className="text-muted-foreground block text-[10px]">Delivery Address</span>
+                    <span className="text-foreground">
+                      {confirmedPrasadOrder.address}, {confirmedPrasadOrder.city}, {confirmedPrasadOrder.state} - {confirmedPrasadOrder.pincode}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground block text-[10px]">Courier Partner</span>
+                    <strong className="text-foreground">{confirmedPrasadOrder.courierPartner}</strong>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground block text-[10px]">Estimated Delivery</span>
+                    <strong className="text-emerald-600">{confirmedPrasadOrder.estDeliveryDate}</strong>
+                  </div>
+                </div>
+
+                {/* Speed Post Tracking Number Box */}
+                <div className="p-3 rounded-lg border bg-background/90 flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">
+                      India Post Speed Post Tracking (Consignment No)
+                    </span>
+                    <strong className="font-mono text-sm text-primary tracking-wider">
+                      {confirmedPrasadOrder.consignmentNumber}
+                    </strong>
+                  </div>
+                  <Badge variant="outline" className="text-[10px] border-emerald-500/40 text-emerald-600">
+                    Active Consignment
+                  </Badge>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-1 print:hidden">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.print()}
+                  className="text-xs"
+                >
+                  Print Dispatch Slip
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    setShowPrasadOrderModal(false);
+                    setConfirmedPrasadOrder(null);
+                  }}
+                  className="bg-gradient-sacred text-xs"
+                >
+                  Done
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
