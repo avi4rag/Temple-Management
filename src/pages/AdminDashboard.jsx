@@ -41,6 +41,8 @@ import {
   Ban,
   HelpCircle,
   MessageSquare,
+  Gift,
+  Truck,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -55,6 +57,7 @@ import { shuttleService } from "@/services/shuttleService";
 import { festivalService } from "@/services/festivalService";
 import { dressCodeService } from "@/services/dressCodeService";
 import { faqService } from "@/services/faqService";
+import { prasadService } from "@/services/prasadService";
 import { useToast } from "@/hooks/use-toast";
 import { useSSE } from "@/hooks/useSSE";
 
@@ -122,6 +125,8 @@ const AdminDashboard = () => {
   const [showFaqAdminModal, setShowFaqAdminModal] = useState(false);
   const [unresolvedFaqs, setUnresolvedFaqs] = useState(faqService.getUnresolvedQueries());
   const [faqAnswerInput, setFaqAnswerInput] = useState({});
+  const [showPrasadAdminModal, setShowPrasadAdminModal] = useState(false);
+  const [postalOrders, setPostalOrders] = useState(prasadService.getOrders());
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -605,6 +610,17 @@ const AdminDashboard = () => {
               >
                 <HelpCircle className="mr-2 h-4 w-4 text-teal-600" />
                 ❓ Pilgrim Help Desk & Unresolved Queries ({unresolvedFaqs.filter(q => q.status === "pending").length} Pending)
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full justify-start text-orange-700 dark:text-orange-400 font-medium"
+                onClick={() => {
+                  setPostalOrders(prasadService.getOrders());
+                  setShowPrasadAdminModal(true);
+                }}
+              >
+                <Gift className="mr-2 h-4 w-4 text-orange-600" />
+                📦 Postal Prasad Dispatch Cell ({postalOrders.filter(o => !o.status.includes("Dispatched")).length} Pending Packaging)
               </Button>
               <Button
                 variant="outline"
@@ -1575,6 +1591,164 @@ const AdminDashboard = () => {
                 className="text-xs"
               >
                 Close Help Desk
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Postal Prasad Dispatch Queue Modal */}
+      <Dialog open={showPrasadAdminModal} onOpenChange={setShowPrasadAdminModal}>
+        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-orange-800 dark:text-orange-300">
+              <Gift className="w-5 h-5 text-orange-600" />
+              <span>Shree Somnath Trust Postal Prasad Dispatch Cell</span>
+            </DialogTitle>
+            <DialogDescription>
+              India Post Speed Post consignment manifests, sacred vacuum packing station, and parcel fulfillment queue
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 pt-2 text-xs">
+            {/* KPI Cards */}
+            <div className="grid grid-cols-3 gap-3">
+              <div className="p-3 rounded-lg border bg-orange-500/10 border-orange-500/20 text-center">
+                <span className="text-[10px] text-muted-foreground block">Active Orders in Queue</span>
+                <strong className="text-base text-orange-600 font-bold">{postalOrders.length} Consignments</strong>
+              </div>
+              <div className="p-3 rounded-lg border bg-amber-500/10 border-amber-500/20 text-center">
+                <span className="text-[10px] text-muted-foreground block">Awaiting Packing / Sealing</span>
+                <strong className="text-base text-amber-600 font-bold">
+                  {postalOrders.filter((o) => !o.status.includes("Dispatched")).length} Boxes
+                </strong>
+              </div>
+              <div className="p-3 rounded-lg border bg-emerald-500/10 border-emerald-500/20 text-center">
+                <span className="text-[10px] text-muted-foreground block">Speed Post En Route</span>
+                <strong className="text-base text-emerald-600 font-bold">
+                  {postalOrders.filter((o) => o.status.includes("Dispatched")).length} Parcels
+                </strong>
+              </div>
+            </div>
+
+            {/* Consignments List */}
+            <div className="space-y-3">
+              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                India Post Manifest & Packaging Pipeline ({postalOrders.length})
+              </h4>
+
+              {postalOrders.length === 0 ? (
+                <div className="p-6 text-center text-muted-foreground border rounded-lg">
+                  No pending postal prasad orders in queue.
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {postalOrders.map((ord) => (
+                    <div
+                      key={ord.id}
+                      className={`p-3.5 rounded-lg border transition-all ${
+                        ord.status.includes("Dispatched")
+                          ? "border-emerald-500/30 bg-emerald-500/5"
+                          : "border-orange-500/40 bg-card shadow-sm"
+                      }`}
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2 pb-2 border-b border-border/50">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <strong className="text-sm font-semibold text-foreground">
+                              {ord.prasadName}
+                            </strong>
+                            <Badge variant="outline" className="font-mono text-[10px]">
+                              Qty: {ord.quantity}
+                            </Badge>
+                          </div>
+                          <span className="text-[11px] text-muted-foreground">
+                            Order #{ord.id} • Date: {ord.orderDate} • Amount: ₹{ord.totalAmount}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 self-start sm:self-auto">
+                          <Badge
+                            className={`text-[10px] font-mono ${
+                              ord.status.includes("Dispatched")
+                                ? "bg-emerald-600 text-white"
+                                : "bg-orange-600 text-white"
+                            }`}
+                          >
+                            {ord.status}
+                          </Badge>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] mb-3">
+                        <div className="p-2 bg-muted/40 rounded border border-border/40">
+                          <span className="text-muted-foreground block text-[10px] uppercase tracking-wider">
+                            Recipient & Address:
+                          </span>
+                          <strong className="text-foreground">{ord.recipientName}</strong> (📞 +91-{ord.phone})<br />
+                          <span className="text-foreground/80">{ord.address}, {ord.city}, {ord.state} - <strong>{ord.pincode}</strong></span>
+                        </div>
+                        <div className="p-2 bg-muted/40 rounded border border-border/40">
+                          <span className="text-muted-foreground block text-[10px] uppercase tracking-wider">
+                            Speed Post Consignment:
+                          </span>
+                          <span className="font-mono font-bold text-primary text-xs block">{ord.consignmentNumber}</span>
+                          <span className="text-muted-foreground text-[10px]">
+                            Partner: {ord.courierPartner || "India Post Speed Post"} • Est. Delivery: {ord.estDeliveryDate}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap items-center justify-end gap-2 pt-1 border-t border-border/40">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            toast({
+                              title: "India Post Shipping Label Ready",
+                              description: `Address slip generated for Consignment ${ord.consignmentNumber}`,
+                            });
+                            window.print();
+                          }}
+                          className="text-xs h-7"
+                        >
+                          Print Shipping Label
+                        </Button>
+                        {!ord.status.includes("Dispatched") && (
+                          <Button
+                            size="sm"
+                            onClick={() => {
+                              const updated = prasadService.updateOrderStatus(
+                                ord.id,
+                                "Dispatched via India Post Speed Post",
+                                "Veraval Head Post Office (RMS)"
+                              );
+                              setPostalOrders(updated);
+                              toast({
+                                title: "Consignment Dispatched",
+                                description: `Order #${ord.id} handed to India Post Mail Van.`,
+                              });
+                            }}
+                            className="bg-orange-600 hover:bg-orange-700 text-white text-xs h-7"
+                          >
+                            <Truck className="w-3.5 h-3.5 mr-1" />
+                            Dispatch Speed Post
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setShowPrasadAdminModal(false)}
+                className="text-xs"
+              >
+                Close Dispatch Desk
               </Button>
             </div>
           </div>
