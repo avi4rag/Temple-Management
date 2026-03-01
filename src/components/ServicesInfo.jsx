@@ -199,6 +199,36 @@ const ServicesInfo = () => {
   const [confirmedPrasadOrder, setConfirmedPrasadOrder] = useState(null);
   const [isOrderingPrasad, setIsOrderingPrasad] = useState(false);
   const [showPrasadOrderModal, setShowPrasadOrderModal] = useState(false);
+  const [prasadTrackQuery, setPrasadTrackQuery] = useState("");
+  const [prasadTrackResult, setPrasadTrackResult] = useState(null);
+
+  const handleTrackPrasad = () => {
+    const q = prasadTrackQuery.trim().toUpperCase();
+    if (!q) {
+      toast({
+        title: "Query Required",
+        description: "Please enter Consignment Number (e.g. EM82910482IN) or Phone Number.",
+        variant: "destructive",
+      });
+      return;
+    }
+    const orders = prasadService.getOrders();
+    const found = orders.find(
+      (o) =>
+        (o.consignmentNumber && o.consignmentNumber.toUpperCase().includes(q)) ||
+        (o.phone && o.phone.includes(q)) ||
+        (o.id && o.id.toUpperCase().includes(q))
+    );
+    if (found) {
+      setPrasadTrackResult(found);
+      toast({
+        title: "Consignment Located",
+        description: `Tracking status: ${found.status}`,
+      });
+    } else {
+      setPrasadTrackResult({ notFound: true, query: q });
+    }
+  };
 
   const handlePincodeChange = (pin) => {
     const val = pin.replace(/\D/g, "").slice(0, 6);
@@ -1650,6 +1680,133 @@ const ServicesInfo = () => {
                     Track consignment in real time via India Post.
                   </div>
                 </div>
+              </div>
+
+              {/* Speed Post Tracking Search Section */}
+              <div className="p-4 rounded-xl border bg-card shadow-sm space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <div>
+                    <strong className="text-xs text-foreground flex items-center gap-1.5">
+                      <Truck className="w-4 h-4 text-primary" />
+                      Track Existing India Post Consignment
+                    </strong>
+                    <span className="text-[11px] text-muted-foreground">
+                      Enter your 13-digit Speed Post number (e.g. EM82910482IN) or 10-digit mobile number
+                    </span>
+                  </div>
+                  <Badge variant="outline" className="text-[10px] border-primary/30 text-primary self-start sm:self-auto">
+                    Live Speed Post Telemetry
+                  </Badge>
+                </div>
+
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <Search className="w-4 h-4 absolute left-3 top-2.5 text-muted-foreground" />
+                    <Input
+                      placeholder="Enter Consignment Number (EM...IN) or registered Phone..."
+                      value={prasadTrackQuery}
+                      onChange={(e) => setPrasadTrackQuery(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && handleTrackPrasad()}
+                      className="pl-9 text-xs font-mono"
+                    />
+                  </div>
+                  <Button
+                    size="sm"
+                    onClick={handleTrackPrasad}
+                    className="bg-primary text-primary-foreground text-xs shrink-0"
+                  >
+                    Track Parcel
+                  </Button>
+                </div>
+
+                {/* Tracking Result Display */}
+                {prasadTrackResult && (
+                  <div className="pt-2">
+                    {prasadTrackResult.notFound ? (
+                      <div className="p-3 rounded-lg border border-destructive/30 bg-destructive/5 text-xs text-destructive flex items-center justify-between">
+                        <span>No Speed Post record found for <strong>{prasadTrackResult.query}</strong>. Please check the consignment number or contact the Trust dispatch cell.</span>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setPrasadTrackResult(null)}
+                          className="h-6 text-[10px] text-destructive hover:bg-destructive/10"
+                        >
+                          ✕ Clear
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="p-3.5 rounded-xl border border-primary/30 bg-primary/5 space-y-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-primary/20 pb-2">
+                          <div>
+                            <span className="text-[10px] text-muted-foreground block uppercase tracking-wider">
+                              Speed Post Consignment Number
+                            </span>
+                            <span className="font-mono font-bold text-sm text-primary">
+                              {prasadTrackResult.consignmentNumber}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge className="bg-emerald-600 text-white text-[10px]">
+                              {prasadTrackResult.status}
+                            </Badge>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => setPrasadTrackResult(null)}
+                              className="h-6 px-1.5 text-xs text-muted-foreground"
+                            >
+                              ✕
+                            </Button>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px]">
+                          <div>
+                            <span className="text-muted-foreground block text-[10px]">Recipient</span>
+                            <strong className="text-foreground">{prasadTrackResult.recipientName}</strong>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground block text-[10px]">Destination</span>
+                            <strong className="text-foreground">{prasadTrackResult.city}, {prasadTrackResult.state}</strong>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground block text-[10px]">Holy Prasad Box</span>
+                            <strong className="text-foreground">{prasadTrackResult.prasadName}</strong>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground block text-[10px]">Est. Delivery</span>
+                            <strong className="text-emerald-600">{prasadTrackResult.estDeliveryDate}</strong>
+                          </div>
+                        </div>
+
+                        {/* Tracking Milestone Pipeline */}
+                        <div className="p-2.5 rounded-lg bg-background/80 border text-[10px] space-y-2">
+                          <strong className="text-muted-foreground block uppercase tracking-wider">
+                            Postal Journey Milestones:
+                          </strong>
+                          <div className="grid grid-cols-1 sm:grid-cols-4 gap-1.5">
+                            <div className="p-2 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300">
+                              <div className="font-semibold">1. Consecrated</div>
+                              <div>Somnath Sanctum Altar</div>
+                            </div>
+                            <div className="p-2 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300">
+                              <div className="font-semibold">2. Dispatched</div>
+                              <div>Trust Dispatch Cell</div>
+                            </div>
+                            <div className="p-2 rounded bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-300">
+                              <div className="font-semibold">3. Sorting Hub</div>
+                              <div>Veraval Head Post Office (RMS)</div>
+                            </div>
+                            <div className="p-2 rounded bg-muted text-muted-foreground border">
+                              <div className="font-semibold">4. Doorstep Delivery</div>
+                              <div>Destination Postman</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
