@@ -199,6 +199,7 @@ const ServicesInfo = () => {
   const [confirmedPrasadOrder, setConfirmedPrasadOrder] = useState(null);
   const [isOrderingPrasad, setIsOrderingPrasad] = useState(false);
   const [showPrasadOrderModal, setShowPrasadOrderModal] = useState(false);
+  const [showSatvikPurityModal, setShowSatvikPurityModal] = useState(false);
   const [prasadTrackQuery, setPrasadTrackQuery] = useState("");
   const [prasadTrackResult, setPrasadTrackResult] = useState(null);
 
@@ -1584,10 +1585,18 @@ const ServicesInfo = () => {
                     Consecrated at Shree Somnath Jyotirlinga altar and dispatched directly to your doorstep across India.
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <Badge variant="outline" className="border-orange-500/40 text-orange-800 dark:text-orange-300 text-xs">
-                    🚚 India Post Official Speed Post Partner
+                    🚚 India Post Speed Post Partner
                   </Badge>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setShowSatvikPurityModal(true)}
+                    className="h-7 text-xs border-amber-500/40 text-amber-800 dark:text-amber-300 hover:bg-amber-500/10"
+                  >
+                    🌿 Satvik Purity Specs & FSSAI
+                  </Button>
                 </div>
               </div>
             </CardHeader>
@@ -2790,6 +2799,90 @@ const ServicesInfo = () => {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Satvik Purity Specs & FSSAI Certification Modal */}
+      <Dialog open={showSatvikPurityModal} onOpenChange={setShowSatvikPurityModal}>
+        <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-amber-800 dark:text-amber-300">
+              <span className="text-xl">🌿</span>
+              <span>Satvik Purity Standards & Ingredients</span>
+            </DialogTitle>
+            <DialogDescription>
+              Consecration protocols and food safety compliance of Shree Somnath Trust Prasadalaya
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3.5 pt-1 text-xs">
+            <div className="p-3 rounded-lg border bg-amber-500/10 border-amber-500/30 space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-foreground">FSSAI Central Food Safety License</span>
+                <Badge variant="outline" className="text-[10px] border-amber-600 text-amber-800 dark:text-amber-200 font-mono">
+                  Lic: 10721021000142
+                </Badge>
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                Certified Annakshetra & Prasadalaya Kitchen adhering to Schedule 4 sanitary requirements.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                Vedic Purity & Consecration Guarantees:
+              </h4>
+              <div className="grid grid-cols-1 gap-2">
+                <div className="p-2.5 rounded border bg-card flex items-start gap-2.5">
+                  <span className="text-base shrink-0">🐄</span>
+                  <div>
+                    <strong className="text-foreground text-[11px] block">A2 Gir Cow Desi Ghee</strong>
+                    <span className="text-muted-foreground text-[10px]">
+                      Sourced exclusively from Shree Somnath Trust Goushala, Prabhas Patan.
+                    </span>
+                  </div>
+                </div>
+                <div className="p-2.5 rounded border bg-card flex items-start gap-2.5">
+                  <span className="text-base shrink-0">🪷</span>
+                  <div>
+                    <strong className="text-foreground text-[11px] block">100% Satvik Vedic Kitchen</strong>
+                    <span className="text-muted-foreground text-[10px]">
+                      Prepared with continuous Mahamrityunjaya chanting. Zero onion, garlic, or chemical preservatives.
+                    </span>
+                  </div>
+                </div>
+                <div className="p-2.5 rounded border bg-card flex items-start gap-2.5">
+                  <span className="text-base shrink-0">🔬</span>
+                  <div>
+                    <strong className="text-foreground text-[11px] block">Nitrogen-Flushed Barrier Foil</strong>
+                    <span className="text-muted-foreground text-[10px]">
+                      3-ply vacuum seal preserves sacred aroma, crunch, and freshness for 45-60 days.
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-3 rounded-lg border bg-muted/40 space-y-1.5 text-[11px]">
+              <strong className="text-foreground block font-semibold">Ingredients Declaration (Ladoo & Sweets):</strong>
+              <p className="text-muted-foreground leading-relaxed">
+                Bengal Gram Flour (Chana Besan), Pure Desi Cow Ghee, Pure Cane Sugar (Khand), Cashews (Kaju), California Almonds (Badam), Irani Pistachios (Pista), Green Cardamom (Elaichi), Kashmir Saffron (Kesar).
+              </p>
+              <div className="pt-1 text-[10px] text-amber-700 dark:text-amber-400 font-medium">
+                ⚠️ Allergen Advisory: Contains Tree Nuts and Legumes. Naturally Gluten-free recipe.
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-1">
+              <Button
+                size="sm"
+                onClick={() => setShowSatvikPurityModal(false)}
+                className="bg-gradient-sacred text-xs"
+              >
+                Close Specs
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
