@@ -23,6 +23,8 @@ import {
   HelpCircle,
   ChevronDown,
   ChevronUp,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import {
   Dialog,
@@ -64,6 +66,62 @@ const EmergencyAlert = () => {
     description: "",
   });
   const [expandedFaq, setExpandedFaq] = useState(null);
+  const [sirenPlaying, setSirenPlaying] = useState(false);
+
+  const stopEmergencySiren = () => {
+    if (window._divyaSetuEmergencySiren) {
+      try {
+        window._divyaSetuEmergencySiren.osc.stop();
+        window._divyaSetuEmergencySiren.osc.disconnect();
+        window._divyaSetuEmergencySiren.lfo.stop();
+        window._divyaSetuEmergencySiren.lfo.disconnect();
+        window._divyaSetuEmergencySiren.ctx.close();
+      } catch {}
+      window._divyaSetuEmergencySiren = null;
+    }
+    setSirenPlaying(false);
+  };
+
+  const playEmergencySiren = (mode = "evacuation") => {
+    if (sirenPlaying) {
+      stopEmergencySiren();
+      return;
+    }
+
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const lfo = ctx.createOscillator();
+      const lfoGain = ctx.createGain();
+
+      osc.type = "sawtooth";
+      osc.frequency.setValueAtTime(650, ctx.currentTime);
+
+      lfo.type = "sine";
+      lfo.frequency.setValueAtTime(mode === "evacuation" ? 0.6 : 1.2, ctx.currentTime);
+      lfoGain.gain.setValueAtTime(mode === "evacuation" ? 220 : 150, ctx.currentTime);
+
+      lfo.connect(osc.frequency);
+      gain.gain.setValueAtTime(0.08, ctx.currentTime);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start();
+      lfo.start();
+
+      window._divyaSetuEmergencySiren = { ctx, osc, lfo };
+      setSirenPlaying(true);
+
+      setTimeout(() => {
+        stopEmergencySiren();
+      }, 8000);
+    } catch {
+      // AudioContext policy
+    }
+  };
 
   const reportMutation = useMutation({
     mutationFn: (newAlert) => alertService.reportAlert(newAlert),
@@ -193,6 +251,25 @@ const EmergencyAlert = () => {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={() => playEmergencySiren("evacuation")}
+            className={`border-destructive/40 text-xs ${
+              sirenPlaying ? "bg-destructive text-white animate-pulse" : "text-destructive hover:bg-destructive/10"
+            }`}
+          >
+            {sirenPlaying ? (
+              <>
+                <VolumeX className="w-4 h-4 mr-1.5" />
+                Stop Siren
+              </>
+            ) : (
+              <>
+                <Volume2 className="w-4 h-4 mr-1.5" />
+                PA Evacuation Siren
+              </>
+            )}
+          </Button>
           <Button
             variant="outline"
             onClick={() => setShowLostPersonModal(true)}
