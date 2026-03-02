@@ -33,6 +33,7 @@ const TempleMap = () => {
   const { toast } = useToast();
   const [selectedPOI, setSelectedPOI] = useState(null);
   const [showRoutes, setShowRoutes] = useState(false);
+  const [showEvacuationRoutes, setShowEvacuationRoutes] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [activeDirectionsPoi, setActiveDirectionsPoi] = useState(null);
@@ -248,6 +249,15 @@ const TempleMap = () => {
       recommended: true,
     },
     {
+      name: "🚨 Emergency Evacuation & Safe Assembly Route",
+      duration: "3-5 min (Urgent)",
+      stops: ["Sanctum Exit", "Sabha Mandapa Wide Flank", "Emergency Gate 3 (Sea Gate)", "North Lawn Assembly Point A"],
+      crowdLevel: "Cleared Corridor",
+      recommended: false,
+      isEmergency: true,
+      description: "Priority escape pathway demarcated with glow-in-the-dark floor arrows leading away from oceanfront to high ground.",
+    },
+    {
       name: "Barrier-Free Accessible Route (Seniors / Divyang)",
       duration: "10 min",
       stops: ["North Parking Eco-Cart", "Gate 1 Ramp Hub", "Sabha Mandapa Lift", "Sanctum Darshan"],
@@ -345,13 +355,31 @@ const TempleMap = () => {
             Interactive map with optimized routes and real-time updates
           </p>
         </div>
-        <Button
-          onClick={() => setShowRoutes(!showRoutes)}
-          className="bg-gradient-temple"
-        >
-          <Navigation className="w-4 h-4 mr-2" />
-          {showRoutes ? "Hide Routes" : "Show Routes"}
-        </Button>
+        <div className="flex items-center gap-2 flex-wrap">
+          <Button
+            variant="outline"
+            onClick={() => {
+              const next = !showEvacuationRoutes;
+              setShowEvacuationRoutes(next);
+              if (next) setShowRoutes(true);
+            }}
+            className={`text-xs ${
+              showEvacuationRoutes
+                ? "bg-destructive text-white border-destructive shadow-md ring-2 ring-destructive/40 animate-pulse"
+                : "border-destructive/40 text-destructive hover:bg-destructive/10"
+            }`}
+          >
+            <ShieldAlert className="w-4 h-4 mr-1.5" />
+            {showEvacuationRoutes ? "Hide Evacuation Routes" : "🚨 Evacuation & Assembly Exits"}
+          </Button>
+          <Button
+            onClick={() => setShowRoutes(!showRoutes)}
+            className="bg-gradient-temple text-xs"
+          >
+            <Navigation className="w-4 h-4 mr-2" />
+            {showRoutes ? "Hide Routes" : "Show Routes"}
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -535,6 +563,53 @@ const TempleMap = () => {
                     className="absolute bottom-1/4 left-1/2 w-3 h-3 bg-warning rounded-full animate-pulse shadow-lg"
                     title="Moderate Crowd Area"
                   />
+
+                  {/* Emergency Evacuation Overlays */}
+                  {showEvacuationRoutes && (
+                    <>
+                      {/* Emergency Exit Corridor Arrows */}
+                      <svg className="absolute inset-0 w-full h-full pointer-events-none z-20">
+                        <defs>
+                          <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                            <path d="M 0 0 L 10 5 L 0 10 z" fill="#ef4444" />
+                          </marker>
+                        </defs>
+                        {/* Evacuation Route from Sanctum to North-West Exit 3 */}
+                        <line x1="50%" y1="50%" x2="25%" y2="20%" stroke="#ef4444" strokeWidth="3" strokeDasharray="6,4" markerEnd="url(#arrow)" />
+                        {/* Evacuation Route from Mandapa to East Exit 4 */}
+                        <line x1="50%" y1="40%" x2="80%" y2="30%" stroke="#ef4444" strokeWidth="3" strokeDasharray="6,4" markerEnd="url(#arrow)" />
+                        {/* High Ground Route away from Sea */}
+                        <line x1="50%" y1="75%" x2="20%" y2="85%" stroke="#ef4444" strokeWidth="3" strokeDasharray="6,4" markerEnd="url(#arrow)" />
+                      </svg>
+
+                      {/* Assembly Point A Badge (North Lawn) */}
+                      <div className="absolute top-4 left-6 z-30 bg-emerald-700 text-white px-2 py-1 rounded shadow-lg border border-emerald-300 text-[10px] font-bold animate-bounce flex items-center gap-1">
+                        <span>🟢 ASSEMBLY POINT A</span>
+                        <span className="text-[9px] opacity-80">(Cap: 5k)</span>
+                      </div>
+
+                      {/* Assembly Point B Badge (High Ground Helipad) */}
+                      <div className="absolute top-4 right-6 z-30 bg-emerald-700 text-white px-2 py-1 rounded shadow-lg border border-emerald-300 text-[10px] font-bold animate-bounce flex items-center gap-1">
+                        <span>🟢 ASSEMBLY POINT B</span>
+                        <span className="text-[9px] opacity-80">(Cap: 8k)</span>
+                      </div>
+
+                      {/* Emergency Gate 3 Tag */}
+                      <div className="absolute top-1/4 left-2 z-30 bg-red-600 text-white px-1.5 py-0.5 rounded text-[9px] font-bold">
+                        EMERGENCY EXIT 3 ➔
+                      </div>
+
+                      {/* Emergency Gate 4 Tag */}
+                      <div className="absolute top-1/3 right-2 z-30 bg-red-600 text-white px-1.5 py-0.5 rounded text-[9px] font-bold">
+                        EMERGENCY EXIT 4 ➔
+                      </div>
+
+                      {/* Emergency Header Banner */}
+                      <div className="absolute top-2 inset-x-12 z-20 bg-red-600/90 text-white text-center py-0.5 px-2 rounded-full text-[10px] font-bold tracking-wide shadow-md">
+                        ⚠️ EMERGENCY EVACUATION CORRIDORS ACTIVE • PROCEED CALMLY TO ASSEMBLY POINTS
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 <div className="absolute bottom-2 right-2 bg-background/90 backdrop-blur-sm p-2 rounded text-xs space-y-1">
