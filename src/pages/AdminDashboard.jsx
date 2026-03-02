@@ -45,6 +45,7 @@ import {
   Truck,
   Volume2,
   VolumeX,
+  ShieldAlert,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -130,6 +131,9 @@ const AdminDashboard = () => {
   const [showPrasadAdminModal, setShowPrasadAdminModal] = useState(false);
   const [postalOrders, setPostalOrders] = useState(prasadService.getOrders());
   const [adminSirenActive, setAdminSirenActive] = useState(false);
+  const [showEvacuationCommandModal, setShowEvacuationCommandModal] = useState(false);
+  const [evacuationLevel, setEvacuationLevel] = useState("Level 2");
+  const [evacuationBroadcastZone, setEvacuationBroadcastZone] = useState("all");
 
   const toggleAdminSiren = () => {
     if (adminSirenActive) {
@@ -680,6 +684,14 @@ const AdminDashboard = () => {
               >
                 <Gift className="mr-2 h-4 w-4 text-orange-600" />
                 📦 Postal Prasad Dispatch Cell ({postalOrders.filter(o => !o.status.includes("Dispatched")).length} Pending Packaging)
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full justify-start text-red-700 dark:text-red-400 font-medium"
+                onClick={() => setShowEvacuationCommandModal(true)}
+              >
+                <ShieldAlert className="mr-2 h-4 w-4 text-red-600" />
+                🚨 Crisis Command & Evacuation Protocol (Emergency Mustering)
               </Button>
               <Button
                 variant="outline"
@@ -1844,6 +1856,137 @@ const AdminDashboard = () => {
                 className="text-xs"
               >
                 Close Dispatch Desk
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Temple Crisis Command & Evacuation Protocol Modal */}
+      <Dialog open={showEvacuationCommandModal} onOpenChange={setShowEvacuationCommandModal}>
+        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive">
+              <ShieldAlert className="w-5 h-5 text-destructive" />
+              <span>Temple Crisis Command & Evacuation Protocol</span>
+            </DialogTitle>
+            <DialogDescription>
+              Emergency mustering authorization, automated gate magnetic unlatching, and multi-zone PA loudspeaker broadcast
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 pt-2 text-xs">
+            {/* Crisis Level Selector */}
+            <div className="p-3 rounded-lg border border-destructive/30 bg-destructive/5 space-y-2">
+              <span className="font-semibold text-destructive block uppercase tracking-wider text-[11px]">
+                1. Select Emergency Threat Level:
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                {[
+                  { id: "Level 1", name: "Level 1: Gate Diversion", desc: "Sea gate shut; queues diverted to Gate 1" },
+                  { id: "Level 2", name: "Level 2: Queue Evacuation", desc: "Sanctum cleared to North Lawn Assembly A" },
+                  { id: "Level 3", name: "Level 3: Full Complex SOS", desc: "Tsunami / Cyclone high-ground mustering" },
+                ].map((lvl) => (
+                  <button
+                    key={lvl.id}
+                    type="button"
+                    onClick={() => setEvacuationLevel(lvl.id)}
+                    className={`p-2.5 rounded-lg border text-left transition-all ${
+                      evacuationLevel === lvl.id
+                        ? "border-destructive bg-destructive text-white shadow-md font-bold"
+                        : "border-border bg-card hover:bg-muted text-foreground"
+                    }`}
+                  >
+                    <div className="text-xs font-semibold">{lvl.name}</div>
+                    <div className={`text-[10px] mt-0.5 ${evacuationLevel === lvl.id ? "text-white/90" : "text-muted-foreground"}`}>
+                      {lvl.desc}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Gate Override Matrix */}
+            <div className="space-y-2">
+              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                2. Automated Gate Status Overrides:
+              </h4>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px]">
+                <div className="p-2.5 rounded border bg-emerald-500/10 border-emerald-500/30 text-emerald-800 dark:text-emerald-300">
+                  <strong className="block text-foreground">Gate 1 (Main)</strong>
+                  <span>OUTFLOW ONLY</span>
+                  <Badge className="bg-emerald-600 text-white text-[9px] mt-1 block w-fit">Turnstiles Open</Badge>
+                </div>
+                <div className="p-2.5 rounded border bg-emerald-500/10 border-emerald-500/30 text-emerald-800 dark:text-emerald-300">
+                  <strong className="block text-foreground">Gate 2 (Digvijay)</strong>
+                  <span>108 Ambulance Bay</span>
+                  <Badge className="bg-emerald-600 text-white text-[9px] mt-1 block w-fit">Clear Corridor</Badge>
+                </div>
+                <div className="p-2.5 rounded border bg-destructive/10 border-destructive/30 text-destructive">
+                  <strong className="block text-foreground">Emergency Gate 3</strong>
+                  <span>Sea Wall Exit</span>
+                  <Badge variant="destructive" className="text-[9px] mt-1 block w-fit">Magnetic Unlatch</Badge>
+                </div>
+                <div className="p-2.5 rounded border bg-destructive/10 border-destructive/30 text-destructive">
+                  <strong className="block text-foreground">Emergency Gate 4</strong>
+                  <span>East Flank Exit</span>
+                  <Badge variant="destructive" className="text-[9px] mt-1 block w-fit">Magnetic Unlatch</Badge>
+                </div>
+              </div>
+            </div>
+
+            {/* Broadcast PA Message Template */}
+            <div className="p-3 bg-muted/40 rounded-lg border space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-foreground text-xs">
+                  3. Automated Tri-Lingual PA Loudspeaker Broadcast (Gujarati, Hindi, English):
+                </span>
+                <Badge variant="outline" className="text-[10px]">
+                  All 12 Zone Loudspeakers
+                </Badge>
+              </div>
+              <p className="p-2.5 rounded bg-background border font-mono text-[11px] text-muted-foreground leading-relaxed">
+                "ધ્યાન આપો: કટોકટી પ્રોટોકોલ હેઠળ તમામ દર્શનાર્થીઓ લીલા રંગના ઇમરજન્સી એક્ઝિટ તરફ શાંતિપૂર્વક આગળ વધો. / कृपया ध्यान दें: सुरक्षा प्रोटोकॉल के तहत सभी श्रद्धालु निकटतम आपातकालीन निकास की ओर बढ़ें। / Attention devotees: Please proceed calmly towards green illuminated emergency exits."
+              </p>
+            </div>
+
+            {/* Command Trigger Buttons */}
+            <div className="p-3 rounded-lg border bg-amber-500/10 border-amber-500/30 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="text-[11px] text-amber-900 dark:text-amber-200">
+                ⚠️ Authorizing this command triggers immediate siren synthesizer, SMS alert dispatch to 45 on-duty guards, and push notifications to all pilgrims inside the campus.
+              </div>
+              <Button
+                size="sm"
+                onClick={() => {
+                  toggleAdminSiren();
+                  alertService.reportAlert({
+                    title: `EMERGENCY EVACUATION INITIATED (${evacuationLevel})`,
+                    type: "safety",
+                    severity: "high",
+                    description: `Trust Administrator triggered ${evacuationLevel} evacuation. All emergency gates unlatched. Proceed to Assembly Points A & B.`,
+                    location: "All Temple Sectors",
+                  });
+                  toast({
+                    title: "🚨 EVACUATION PROTOCOL BROADCAST DISPATCHED",
+                    description: `Level: ${evacuationLevel}. Siren and PA broadcast active across all 12 zones.`,
+                    variant: "destructive",
+                  });
+                }}
+                className="bg-destructive hover:bg-destructive/90 text-white text-xs shrink-0"
+              >
+                <ShieldAlert className="w-4 h-4 mr-1.5" />
+                Authorize & Broadcast Evacuation
+              </Button>
+            </div>
+
+            <div className="flex justify-end pt-1">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setShowEvacuationCommandModal(false)}
+                className="text-xs"
+              >
+                Close Crisis Command
               </Button>
             </div>
           </div>
