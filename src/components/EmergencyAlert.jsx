@@ -25,6 +25,7 @@ import {
   ChevronUp,
   Volume2,
   VolumeX,
+  HeartPulse,
 } from "lucide-react";
 import {
   Dialog,
@@ -67,6 +68,17 @@ const EmergencyAlert = () => {
   });
   const [expandedFaq, setExpandedFaq] = useState(null);
   const [sirenPlaying, setSirenPlaying] = useState(false);
+  const [showMedicalDispatchModal, setShowMedicalDispatchModal] = useState(false);
+  const [medicalRequest, setMedicalRequest] = useState({
+    triageCategory: "fainting",
+    patientName: "",
+    ageGroup: "elderly",
+    location: "Sanctum Inner Queue",
+    contactPhone: "",
+    symptoms: "",
+    needsStretcher: true,
+  });
+  const [activeMedicalTicket, setActiveMedicalTicket] = useState(null);
 
   const stopEmergencySiren = () => {
     if (window._divyaSetuEmergencySiren) {
@@ -269,6 +281,14 @@ const EmergencyAlert = () => {
                 PA Evacuation Siren
               </>
             )}
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => setShowMedicalDispatchModal(true)}
+            className="border-red-500/50 text-red-700 dark:text-red-400 hover:bg-red-500/10 text-xs"
+          >
+            <HeartPulse className="w-4 h-4 mr-1.5 text-red-600" />
+            Medical First Aid SOS
           </Button>
           <Button
             variant="outline"
@@ -838,6 +858,215 @@ const EmergencyAlert = () => {
               </Button>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Medical First Aid Triage Station Dispatch Modal */}
+      <Dialog
+        open={showMedicalDispatchModal}
+        onOpenChange={(open) => {
+          setShowMedicalDispatchModal(open);
+          if (!open) {
+            setActiveMedicalTicket(null);
+          }
+        }}
+      >
+        <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive">
+              <HeartPulse className="w-5 h-5 text-destructive" />
+              <span>Medical Emergency & First Aid Triage Dispatch</span>
+            </DialogTitle>
+            <DialogDescription>
+              Direct priority dispatch to Shree Somnath Trust Medical Dispensary & 108 ICU Ambulance Base
+            </DialogDescription>
+          </DialogHeader>
+
+          {!activeMedicalTicket ? (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!medicalRequest.contactPhone.trim()) {
+                  toast({
+                    title: "Mobile Number Required",
+                    description: "Please provide a contact phone number for the attending doctor.",
+                    variant: "destructive",
+                  });
+                  return;
+                }
+                const ticketId = `MED-${Math.floor(1000 + Math.random() * 9000)}`;
+                const ticket = {
+                  id: ticketId,
+                  triageCategory: medicalRequest.triageCategory,
+                  patientName: medicalRequest.patientName || "Devotee Pilgrim",
+                  location: medicalRequest.location,
+                  responders: "Dr. K. Mehta + 2 Paramedics (Gate 2 Medical Post)",
+                  eta: "2-3 Minutes",
+                  equipment: medicalRequest.needsStretcher ? "Stretcher + Portable O2 + AED" : "First Aid Kit",
+                  timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                };
+                setActiveMedicalTicket(ticket);
+                toast({
+                  title: "🚑 Paramedic Team Dispatched!",
+                  description: `Responders en route to ${ticket.location}. ETA: 2-3 mins.`,
+                });
+              }}
+              className="space-y-3 pt-1 text-xs"
+            >
+              <div>
+                <label className="block font-medium mb-1 text-foreground">Emergency Condition *</label>
+                <select
+                  value={medicalRequest.triageCategory}
+                  onChange={(e) => setMedicalRequest({ ...medicalRequest, triageCategory: e.target.value })}
+                  className="w-full px-2.5 py-1.5 border rounded-md bg-background text-foreground text-xs"
+                >
+                  <option value="fainting">Heatstroke / Dehydration / Fainting in Queue</option>
+                  <option value="cardiac">Chest Pain / Cardiac Distress / Breathlessness (Code Blue)</option>
+                  <option value="fall">Slip / Fall / Ankle Sprain / Mobility Trauma</option>
+                  <option value="asthma">Severe Asthma / Hyperventilation</option>
+                  <option value="diabetic">Diabetic Low-Sugar / Dizziness</option>
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block font-medium mb-1 text-foreground">Pilgrim Name (Optional)</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Ramesh Patel"
+                    value={medicalRequest.patientName}
+                    onChange={(e) => setMedicalRequest({ ...medicalRequest, patientName: e.target.value })}
+                    className="w-full px-2.5 py-1.5 border rounded-md bg-background text-foreground text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="block font-medium mb-1 text-foreground">Contact Mobile *</label>
+                  <input
+                    type="tel"
+                    required
+                    maxLength={10}
+                    placeholder="10-digit mobile"
+                    value={medicalRequest.contactPhone}
+                    onChange={(e) => setMedicalRequest({ ...medicalRequest, contactPhone: e.target.value })}
+                    className="w-full px-2.5 py-1.5 border rounded-md bg-background text-foreground text-xs font-mono"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-medium mb-1 text-foreground">Exact Temple Location *</label>
+                <select
+                  value={medicalRequest.location}
+                  onChange={(e) => setMedicalRequest({ ...medicalRequest, location: e.target.value })}
+                  className="w-full px-2.5 py-1.5 border rounded-md bg-background text-foreground text-xs font-semibold"
+                >
+                  <option value="Sanctum Inner Queue">Sanctum Inner Queue (Garbagriha Passage)</option>
+                  <option value="Sabha Mandapa (Main Pillar Hall)">Sabha Mandapa (Main Pillar Hall)</option>
+                  <option value="Digvijay Dwar (Gate 2)">Digvijay Dwar (Gate 2 Ramp)</option>
+                  <option value="North Promenade Footwear Counter">North Promenade Footwear Counter</option>
+                  <option value="Baan Stambh Sea Wall Promenade">Baan Stambh Sea Wall Promenade</option>
+                  <option value="Prasad Counter Complex">Prasad Counter Complex</option>
+                </select>
+              </div>
+
+              <div className="flex items-center gap-2 p-2 bg-red-500/10 rounded border border-red-500/20 text-red-800 dark:text-red-300">
+                <input
+                  type="checkbox"
+                  id="needsStretcher"
+                  checked={medicalRequest.needsStretcher}
+                  onChange={(e) => setMedicalRequest({ ...medicalRequest, needsStretcher: e.target.checked })}
+                  className="rounded text-destructive"
+                />
+                <label htmlFor="needsStretcher" className="text-[11px] font-medium cursor-pointer">
+                  Request Wheelchair Stretcher + Oxygen Cylinder dispatch
+                </label>
+              </div>
+
+              <div className="p-2.5 bg-muted/40 rounded border text-[11px] text-muted-foreground space-y-1">
+                <div className="flex items-center justify-between">
+                  <span>🏥 <strong>Trust 24x7 Dispensary:</strong> Gate 2 Base</span>
+                  <span className="text-emerald-600 font-semibold">Doctors on Duty: 3</span>
+                </div>
+                <div>🚑 <strong>108 ICU Ambulance:</strong> Stationed on continuous standby at Digvijay Dwar</div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-1">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowMedicalDispatchModal(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  size="sm"
+                  className="bg-destructive hover:bg-destructive/90 text-white"
+                >
+                  <HeartPulse className="w-3.5 h-3.5 mr-1" />
+                  Dispatch Emergency Medical Team
+                </Button>
+              </div>
+            </form>
+          ) : (
+            <div className="space-y-3 pt-1 text-xs">
+              <div className="p-4 rounded-xl border-2 border-red-500/40 bg-gradient-to-br from-red-500/10 via-orange-500/5 to-transparent space-y-3">
+                <div className="flex items-center justify-between border-b border-red-500/20 pb-2">
+                  <div>
+                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">
+                      Emergency Medical Dispatch Ticket
+                    </span>
+                    <strong className="text-sm text-destructive">{activeMedicalTicket.id}</strong>
+                  </div>
+                  <Badge className="bg-destructive text-white animate-pulse text-[10px]">
+                    DISPATCHED • EN ROUTE
+                  </Badge>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-[11px]">
+                  <div>
+                    <span className="text-muted-foreground block text-[10px]">Location</span>
+                    <strong className="text-foreground">{activeMedicalTicket.location}</strong>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground block text-[10px]">ETA</span>
+                    <strong className="text-destructive font-bold">{activeMedicalTicket.eta}</strong>
+                  </div>
+                  <div className="col-span-2">
+                    <span className="text-muted-foreground block text-[10px]">Medical Team Dispatched</span>
+                    <strong className="text-foreground">{activeMedicalTicket.responders}</strong>
+                  </div>
+                  <div className="col-span-2">
+                    <span className="text-muted-foreground block text-[10px]">Equipment Deployed</span>
+                    <span className="text-foreground">{activeMedicalTicket.equipment}</span>
+                  </div>
+                </div>
+
+                <div className="p-2.5 rounded bg-background/90 border border-red-500/30 text-[11px] text-foreground space-y-1">
+                  <strong className="text-destructive block">First Aid Advice While Waiting:</strong>
+                  <ul className="list-disc list-inside space-y-0.5 text-muted-foreground text-[10px]">
+                    <li>Loosen tight clothing and ensure fresh air around the devotee.</li>
+                    <li>Do not crowd around; create an open 5-foot perimeter for the stretcher.</li>
+                    <li>Do not administer water if the pilgrim is semi-conscious.</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-1">
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    setShowMedicalDispatchModal(false);
+                    setActiveMedicalTicket(null);
+                  }}
+                  className="bg-destructive text-white text-xs"
+                >
+                  Close & Monitor Patient
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
