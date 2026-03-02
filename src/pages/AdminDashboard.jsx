@@ -43,6 +43,8 @@ import {
   MessageSquare,
   Gift,
   Truck,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -127,6 +129,63 @@ const AdminDashboard = () => {
   const [faqAnswerInput, setFaqAnswerInput] = useState({});
   const [showPrasadAdminModal, setShowPrasadAdminModal] = useState(false);
   const [postalOrders, setPostalOrders] = useState(prasadService.getOrders());
+  const [adminSirenActive, setAdminSirenActive] = useState(false);
+
+  const toggleAdminSiren = () => {
+    if (adminSirenActive) {
+      if (window._divyaSetuAdminSiren) {
+        try {
+          window._divyaSetuAdminSiren.osc.stop();
+          window._divyaSetuAdminSiren.lfo.stop();
+          window._divyaSetuAdminSiren.ctx.close();
+        } catch {}
+        window._divyaSetuAdminSiren = null;
+      }
+      setAdminSirenActive(false);
+      return;
+    }
+
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const lfo = ctx.createOscillator();
+      const lfoGain = ctx.createGain();
+
+      osc.type = "sawtooth";
+      osc.frequency.setValueAtTime(650, ctx.currentTime);
+
+      lfo.type = "sine";
+      lfo.frequency.setValueAtTime(0.7, ctx.currentTime);
+      lfoGain.gain.setValueAtTime(240, ctx.currentTime);
+
+      lfo.connect(osc.frequency);
+      gain.gain.setValueAtTime(0.08, ctx.currentTime);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start();
+      lfo.start();
+
+      window._divyaSetuAdminSiren = { ctx, osc, lfo };
+      setAdminSirenActive(true);
+
+      setTimeout(() => {
+        if (window._divyaSetuAdminSiren) {
+          try {
+            window._divyaSetuAdminSiren.osc.stop();
+            window._divyaSetuAdminSiren.lfo.stop();
+            window._divyaSetuAdminSiren.ctx.close();
+          } catch {}
+          window._divyaSetuAdminSiren = null;
+        }
+        setAdminSirenActive(false);
+      }, 7000);
+    } catch {}
+  };
+
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -762,7 +821,43 @@ const AdminDashboard = () => {
                 <option value="crowd_diversion">Crowd Diversion / Gate Advisory</option>
                 <option value="lost_child">Lost Person / Child Found</option>
                 <option value="weather">Coastal Weather / High Tide Advisory</option>
+                <option value="emergency_evacuation">🚨 Emergency Evacuation & PA Siren</option>
               </select>
+            </div>
+
+            {/* PA Siren Audio Test Control */}
+            <div className="p-3 rounded-lg border bg-destructive/10 border-destructive/30 space-y-1.5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-semibold text-destructive block">
+                    Temple PA Siren Synthesizer Test
+                  </span>
+                  <span className="text-[11px] text-muted-foreground">
+                    Simulate loudspeaker acoustic alarm before emergency broadcast
+                  </span>
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={toggleAdminSiren}
+                  className={`text-xs h-7 border-destructive/50 ${
+                    adminSirenActive ? "bg-destructive text-white animate-pulse" : "text-destructive hover:bg-destructive/10"
+                  }`}
+                >
+                  {adminSirenActive ? (
+                    <>
+                      <VolumeX className="w-3.5 h-3.5 mr-1" />
+                      Stop Siren Audio
+                    </>
+                  ) : (
+                    <>
+                      <Volume2 className="w-3.5 h-3.5 mr-1" />
+                      Test Siren Tone (7s)
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
 
             <div className="space-y-1">
