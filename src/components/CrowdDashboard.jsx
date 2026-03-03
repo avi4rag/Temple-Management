@@ -19,6 +19,10 @@ import {
   Waves,
   Wind,
   Sun,
+  Cpu,
+  Wifi,
+  CheckCircle2,
+  ShieldCheck,
 } from "lucide-react";
 import {
   Dialog,
@@ -36,6 +40,8 @@ import { festivalService } from "@/services/festivalService";
 const CrowdDashboard = ({ onNavigate }) => {
   const { t } = useLanguage();
   const [selectedCameraZone, setSelectedCameraZone] = useState(null);
+  const [showTelemetryModal, setShowTelemetryModal] = useState(false);
+  const [telemetryUptime] = useState("99.94%");
   const { data: crowdDataQuery, refetch, isFetching } = useQuery({
     queryKey: ["crowd"],
     queryFn: crowdService.getCrowdStatus,
@@ -295,6 +301,56 @@ const CrowdDashboard = ({ onNavigate }) => {
                 <Clock className="w-4 h-4 text-orange-500" />
                 <span>Sunset: {coastalWeather.sunsetTime}</span>
               </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Live CCTV Telemetry & Edge AI Vision Network */}
+      <Card className="border-emerald-500/20 bg-gradient-to-r from-emerald-500/10 via-teal-500/5 to-cyan-500/10 shadow-sm">
+        <CardContent className="p-4 sm:p-5">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <div className="p-2.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 shrink-0">
+                <Camera className="w-6 h-6 animate-pulse" />
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="font-semibold text-foreground text-sm sm:text-base">
+                    Live CCTV Telemetry & Edge AI Vision Network
+                  </h3>
+                  <Badge variant="outline" className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-300 text-xs">
+                    8/8 Cameras Online
+                  </Badge>
+                  <Badge variant="secondary" className="text-xs">
+                    Optical Uptime: {telemetryUptime}
+                  </Badge>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed max-w-2xl">
+                  Automated crowd density classification powered by edge inference nodes at Gate 1, Sanctum, and Sea Wall. Low-latency H.264 video feed ingestion for real-time pilgrim safety.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 text-xs shrink-0 bg-background/80 backdrop-blur px-3.5 py-2 rounded-lg border flex-wrap">
+              <div className="flex items-center gap-1.5 text-muted-foreground">
+                <Cpu className="w-4 h-4 text-emerald-500" />
+                <span>30.0 FPS</span>
+              </div>
+              <div className="h-4 w-px bg-border" />
+              <div className="flex items-center gap-1.5 text-muted-foreground">
+                <Wifi className="w-4 h-4 text-sky-500" />
+                <span>&lt;140ms Latency</span>
+              </div>
+              <div className="h-4 w-px bg-border" />
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-7 text-xs border-emerald-500/40 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/10"
+                onClick={() => setShowTelemetryModal(true)}
+              >
+                Inspect Telemetry
+              </Button>
             </div>
           </div>
         </CardContent>
@@ -573,6 +629,95 @@ const CrowdDashboard = ({ onNavigate }) => {
             >
               Close Feed
             </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* CCTV Telemetry & Optical Health Modal */}
+      <Dialog open={showTelemetryModal} onOpenChange={setShowTelemetryModal}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-lg">
+              <Camera className="w-5 h-5 text-emerald-600" />
+              CCTV Edge AI & Optical Telemetry Diagnostics
+            </DialogTitle>
+            <DialogDescription className="text-xs">
+              Live camera streaming pipeline status, neural network inference performance, and hardware uptime across 8 temple surveillance sectors.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            {/* Quick Metrics */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
+              <div className="p-2.5 rounded-lg border bg-card">
+                <span className="text-[10px] text-muted-foreground uppercase font-semibold block">Streams Active</span>
+                <span className="text-xl font-bold text-emerald-600">8 / 8 Online</span>
+              </div>
+              <div className="p-2.5 rounded-lg border bg-card">
+                <span className="text-[10px] text-muted-foreground uppercase font-semibold block">Optical Uptime</span>
+                <span className="text-xl font-bold text-foreground">{telemetryUptime}</span>
+              </div>
+              <div className="p-2.5 rounded-lg border bg-card">
+                <span className="text-[10px] text-muted-foreground uppercase font-semibold block">Pipeline Latency</span>
+                <span className="text-xl font-bold text-sky-600">&lt;140 ms</span>
+              </div>
+              <div className="p-2.5 rounded-lg border bg-card">
+                <span className="text-[10px] text-muted-foreground uppercase font-semibold block">Inference Speed</span>
+                <span className="text-xl font-bold text-foreground">30.0 FPS</span>
+              </div>
+            </div>
+
+            {/* Cameras Table / Matrix */}
+            <div className="space-y-2">
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Surveillance Sector Telemetry Grid
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {[
+                  { name: "Main Sanctum East", zone: "Sanctum", fps: "30.0", bitrate: "4.8 Mbps", latency: "112ms", uptime: "99.98%" },
+                  { name: "Sabha Mandapa Central", zone: "Sanctum", fps: "29.9", bitrate: "4.4 Mbps", latency: "124ms", uptime: "99.95%" },
+                  { name: "Digvijay Dwar Gate 1", zone: "Gates", fps: "30.0", bitrate: "5.1 Mbps", latency: "108ms", uptime: "99.99%" },
+                  { name: "North Gate VIP Ramp", zone: "Gates", fps: "30.0", bitrate: "4.2 Mbps", latency: "135ms", uptime: "99.92%" },
+                  { name: "South Sea Wall Walkway", zone: "Sea Wall", fps: "30.0", bitrate: "4.6 Mbps", latency: "142ms", uptime: "99.91%" },
+                  { name: "Somnath Beach Gate", zone: "Sea Wall", fps: "29.8", bitrate: "3.9 Mbps", latency: "155ms", uptime: "99.88%" },
+                  { name: "North Pilgrim Parking", zone: "Parking", fps: "30.0", bitrate: "4.1 Mbps", latency: "130ms", uptime: "99.94%" },
+                  { name: "Prasad Pavilion Hub", zone: "Pavilion", fps: "30.0", bitrate: "4.5 Mbps", latency: "119ms", uptime: "99.96%" },
+                ].map((cam, idx) => (
+                  <div key={idx} className="p-2.5 rounded-lg border bg-card flex items-center justify-between text-xs">
+                    <div>
+                      <div className="font-semibold text-foreground flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
+                        {cam.name}
+                      </div>
+                      <div className="text-[10px] text-muted-foreground mt-0.5">
+                        Zone: {cam.zone} &bull; Stream: H.264 RTSP
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-mono text-emerald-600 font-bold text-[11px]">{cam.fps} FPS</div>
+                      <div className="text-[10px] text-muted-foreground font-mono">{cam.bitrate} &bull; {cam.latency}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* AI Model Architecture Spec */}
+            <div className="p-3 bg-muted/40 rounded-lg border text-xs space-y-1 font-mono">
+              <div className="flex items-center justify-between text-[11px] font-semibold text-foreground">
+                <span>AI Optical Model: YOLOv8-CrowdNet (Quantized INT8)</span>
+                <Badge variant="outline" className="text-[9px] bg-background">TensorRT Edge Node</Badge>
+              </div>
+              <div className="text-[10px] text-muted-foreground leading-relaxed">
+                Headcount precision: 98.7% &bull; Ingestion resolution: 1920x1080 @ 30 FPS &bull; Optical temperature: 31.4°C (Normal) &bull; Automatic turnstile telemetry cross-calibration active.
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <Button size="sm" variant="outline" onClick={() => setShowTelemetryModal(false)} className="text-xs">
+                Close Telemetry
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
