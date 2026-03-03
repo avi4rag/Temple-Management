@@ -370,6 +370,78 @@ const AdminDashboard = () => {
     );
   };
 
+  const exportSecurityReportCSV = () => {
+    const headers = [
+      "Incident_ID",
+      "Timestamp",
+      "Location",
+      "Category",
+      "Severity",
+      "Status",
+      "Guard_Name",
+      "Guard_ID",
+      "Action_Notes"
+    ];
+
+    const incidentRows = securityIncidents.map((inc) => [
+      `"${inc.id}"`,
+      `"${inc.timestamp}"`,
+      `"${inc.location}"`,
+      `"${inc.category}"`,
+      `"${inc.severity.toUpperCase()}"`,
+      `"${inc.status}"`,
+      `"${inc.guardName}"`,
+      `"${inc.guardId}"`,
+      `"${(inc.notes || "").replace(/"/g, '""')}"`
+    ]);
+
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [headers.join(","), ...incidentRows.map((e) => e.join(","))].join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    const dateStr = new Date().toISOString().slice(0, 10);
+    link.setAttribute("download", `Somnath_Security_Incident_Ledger_${dateStr}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast({
+      title: "Security Ledger Exported",
+      description: `Downloaded Somnath_Security_Incident_Ledger_${dateStr}.csv (${securityIncidents.length} entries)`,
+    });
+  };
+
+  const exportInspectionLogsCSV = () => {
+    const headers = ["Log_ID", "Time", "Gate", "Issue_Detected", "Action_Taken", "Inspecting_Guard"];
+    const rows = inspectionLogs.map((log) => [
+      `"${log.id}"`,
+      `"${log.time}"`,
+      `"${log.gate}"`,
+      `"${log.issue}"`,
+      `"${log.action}"`,
+      `"${log.guard}"`
+    ]);
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    const dateStr = new Date().toISOString().slice(0, 10);
+    link.setAttribute("download", `Somnath_Frisking_Inspection_Log_${dateStr}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast({
+      title: "Frisking Report Exported",
+      description: `Downloaded Somnath_Frisking_Inspection_Log_${dateStr}.csv (${inspectionLogs.length} entries)`,
+    });
+  };
+
   const { isConnected: isSSELive } = useSSE("/api/v1/stream", {
     enabled: !!adminUser,
     onAlert: (incomingAlert) => {
@@ -1779,9 +1851,20 @@ const AdminDashboard = () => {
 
             {/* Interventions History */}
             <div className="space-y-2">
-              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Today's Frisking & Cloakroom Redirections ({inspectionLogs.length})
-              </h4>
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Today's Frisking & Cloakroom Redirections ({inspectionLogs.length})
+                </h4>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-6 text-[10px] px-2 border-indigo-500/40 text-indigo-700 dark:text-indigo-400 hover:bg-indigo-500/10"
+                  onClick={exportInspectionLogsCSV}
+                >
+                  <Download className="w-3 h-3 mr-1" />
+                  Export Frisking CSV
+                </Button>
+              </div>
               <div className="space-y-1.5 max-h-48 overflow-y-auto">
                 {inspectionLogs.map((log) => (
                   <div key={log.id} className="p-2.5 rounded border bg-card flex items-center justify-between text-xs">
@@ -2373,9 +2456,20 @@ const AdminDashboard = () => {
             {/* Log Entries Header & Filter */}
             <div className="space-y-2">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Logged Incidents Ledger ({securityIncidents.length})
-                </h4>
+                <div className="flex items-center gap-2">
+                  <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Logged Incidents Ledger ({securityIncidents.length})
+                  </h4>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-6 text-[10px] px-2 border-blue-500/40 text-blue-700 dark:text-blue-400 hover:bg-blue-500/10"
+                    onClick={exportSecurityReportCSV}
+                  >
+                    <Download className="w-3 h-3 mr-1" />
+                    Export CSV
+                  </Button>
+                </div>
                 <div className="flex items-center gap-1.5 flex-wrap">
                   {["all", "Unattended Baggage", "Perimeter Barricade", "Crowd Surge"].map((cat) => (
                     <Button
