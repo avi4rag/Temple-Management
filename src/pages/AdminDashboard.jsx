@@ -134,6 +134,7 @@ const AdminDashboard = () => {
   const [showEvacuationCommandModal, setShowEvacuationCommandModal] = useState(false);
   const [evacuationLevel, setEvacuationLevel] = useState("Level 2");
   const [evacuationBroadcastZone, setEvacuationBroadcastZone] = useState("all");
+  const [cctvZoneFilter, setCctvZoneFilter] = useState("all");
 
   const toggleAdminSiren = () => {
     if (adminSirenActive) {
@@ -383,36 +384,75 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {cameras.map((camera) => (
-              <Card
-                key={camera.id}
-                className="cursor-pointer hover:shadow-md transition-shadow"
-                onClick={() => setPreviewCamera(camera)}
+          {/* Zone Filter Chips */}
+          <div className="flex flex-wrap items-center gap-2 mb-4 bg-muted/40 p-2.5 rounded-lg border border-border/60">
+            <span className="text-xs font-semibold text-muted-foreground mr-1">Zone Filter:</span>
+            {[
+              { id: "all", label: "All Cameras", count: cameras.length },
+              { id: "sanctum", label: "Sanctum & Mandap", count: cameras.filter((c) => c.zone === "sanctum").length },
+              { id: "gates", label: "Entrance Gates", count: cameras.filter((c) => c.zone === "gates").length },
+              { id: "sea", label: "Sea Wall & Promenade", count: cameras.filter((c) => c.zone === "sea").length },
+              { id: "parking", label: "Parking & Transit", count: cameras.filter((c) => c.zone === "parking").length },
+            ].map((tab) => (
+              <Button
+                key={tab.id}
+                size="sm"
+                variant={cctvZoneFilter === tab.id ? "default" : "outline"}
+                className="h-7 text-xs rounded-full px-3"
+                onClick={() => setCctvZoneFilter(tab.id)}
               >
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm">{camera.name}</CardTitle>
-                  <CardDescription className="text-xs">
-                    {camera.location}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="aspect-video bg-muted rounded-md mb-3 flex items-center justify-center">
-                    <Camera className="h-8 w-8 text-muted-foreground" />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">
-                      Crowd Density
-                    </span>
-                    <Badge
-                      className={`text-xs ${getCrowdLevelColor(camera.crowd_density)}`}
-                    >
-                      {camera.crowd_density}%
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
+                {tab.label}
+                <Badge
+                  variant={cctvZoneFilter === tab.id ? "secondary" : "outline"}
+                  className="ml-1.5 px-1 py-0 text-[10px] h-4"
+                >
+                  {tab.count}
+                </Badge>
+              </Button>
             ))}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {cameras
+              .filter((cam) => (cctvZoneFilter === "all" ? true : cam.zone === cctvZoneFilter))
+              .map((camera) => (
+                <Card
+                  key={camera.id}
+                  className="cursor-pointer hover:shadow-md transition-shadow"
+                  onClick={() => setPreviewCamera(camera)}
+                >
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-sm">{camera.name}</CardTitle>
+                      <Badge variant="outline" className="text-[10px] capitalize">
+                        {camera.zone || "general"}
+                      </Badge>
+                    </div>
+                    <CardDescription className="text-xs">
+                      {camera.location}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="aspect-video bg-muted rounded-md mb-3 flex items-center justify-center relative overflow-hidden">
+                      <Camera className="h-8 w-8 text-muted-foreground" />
+                      <span className="absolute top-2 left-2 flex items-center gap-1 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded font-mono">
+                        <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-ping inline-block" />
+                        REC
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">
+                        Crowd Density
+                      </span>
+                      <Badge
+                        className={`text-xs ${getCrowdLevelColor(camera.crowd_density || 40)}`}
+                      >
+                        {camera.crowd_density || 40}%
+                      </Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
           </div>
         </section>
 
