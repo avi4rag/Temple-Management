@@ -183,6 +183,70 @@ const AdminDashboard = () => {
     severity: "medium",
     notes: "",
   });
+  const [securityRoster, setSecurityRoster] = useState([
+    {
+      id: "GRD-101",
+      name: "Havildar K. Rathod",
+      rank: "Head Constable (SSF)",
+      shift: "Morning",
+      post: "Gate 1 (Digvijay Dwar)",
+      phone: "+91 98250 11201",
+      status: "On Post",
+      assignedArea: "Baggage Scanner & Metal Detector 1",
+    },
+    {
+      id: "GRD-102",
+      name: "Guard Mahendra Solanki",
+      rank: "Security Sevak",
+      shift: "Morning",
+      post: "Gate 2 (VIP & Senior Ramp)",
+      phone: "+91 98250 11202",
+      status: "On Post",
+      assignedArea: "Divyang Ramp Escort Lane",
+    },
+    {
+      id: "GRD-103",
+      name: "Coast Guard Sevak Jadeja",
+      rank: "Coastal Marine Warden",
+      shift: "Morning",
+      post: "South Sea Wall Walkway",
+      phone: "+91 98250 11203",
+      status: "On Post",
+      assignedArea: "Arabian Sea Tidal Barricade",
+    },
+    {
+      id: "GRD-104",
+      name: "Marshal P. Patel",
+      rank: "Crowd Flow Marshal",
+      shift: "Evening",
+      post: "Sabha Mandap Queue Line",
+      phone: "+91 98250 11204",
+      status: "Standby",
+      assignedArea: "Pradakshina Bypass & Sanctum Queue",
+    },
+    {
+      id: "GRD-105",
+      name: "Officer D. Vala",
+      rank: "Sub-Inspector (SSF)",
+      shift: "Evening",
+      post: "Central CCTV Control Room",
+      phone: "+91 98250 11205",
+      status: "Standby",
+      assignedArea: "AI Telemetry & Video Surveillance Feed",
+    },
+    {
+      id: "GRD-106",
+      name: "Guard Vikram Chudasama",
+      rank: "Night Watchman",
+      shift: "Night",
+      post: "Outer Boundary & Sea Wall",
+      phone: "+91 98250 11206",
+      status: "Off Duty",
+      assignedArea: "Perimeter Infrared Sensor Patrolling",
+    },
+  ]);
+  const [showRosterModal, setShowRosterModal] = useState(false);
+  const [rosterShiftFilter, setRosterShiftFilter] = useState("all");
 
   const toggleAdminSiren = () => {
     if (adminSirenActive) {
@@ -276,6 +340,34 @@ const AdminDashboard = () => {
       title: "Security Incident Logged",
       description: `Report ${created.id} recorded in central security log.`,
     });
+  };
+
+  const handleReassignPost = (guardId, newPost) => {
+    setSecurityRoster((prev) =>
+      prev.map((g) => (g.id === guardId ? { ...g, post: newPost, status: "On Post" } : g))
+    );
+    const guard = securityRoster.find((g) => g.id === guardId);
+    toast({
+      title: "Guard Post Reassigned",
+      description: `${guard?.name || "Guard"} reallocated to ${newPost}`,
+    });
+  };
+
+  const handleToggleGuardStatus = (guardId) => {
+    setSecurityRoster((prev) =>
+      prev.map((g) => {
+        if (g.id !== guardId) return g;
+        const nextStatus =
+          g.status === "On Post"
+            ? "Break"
+            : g.status === "Break"
+            ? "Standby"
+            : g.status === "Standby"
+            ? "Off Duty"
+            : "On Post";
+        return { ...g, status: nextStatus };
+      })
+    );
   };
 
   const { isConnected: isSSELive } = useSSE("/api/v1/stream", {
@@ -824,6 +916,14 @@ const AdminDashboard = () => {
               >
                 <Shield className="mr-2 h-4 w-4 text-blue-600" />
                 🛡️ Security Incident Log & Entry Desk ({securityIncidents.length} Reported Today)
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full justify-start text-sky-700 dark:text-sky-400 font-medium"
+                onClick={() => setShowRosterModal(true)}
+              >
+                <UserCheck className="mr-2 h-4 w-4 text-sky-600" />
+                👮 Security Guard Shift Roster & Post Allocation ({securityRoster.filter((g) => g.status === "On Post").length} On Duty)
               </Button>
               <Button
                 variant="outline"
@@ -2362,6 +2462,175 @@ const AdminDashboard = () => {
             <div className="flex justify-end pt-2">
               <Button size="sm" variant="outline" onClick={() => setShowIncidentModal(false)} className="text-xs">
                 Close Incident Desk
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Security Guard Shift Assignment Roster Modal */}
+      <Dialog open={showRosterModal} onOpenChange={setShowRosterModal}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-lg">
+              <UserCheck className="h-5 w-5 text-sky-600" />
+              Security Guard Shift Assignment Roster & Post Allocation
+            </DialogTitle>
+            <DialogDescription className="text-xs">
+              Somnath Security Force (SSF) on-duty personnel deployment across Morning, Evening, and Night squads.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            {/* Shift Squad Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="p-3 rounded-lg border bg-sky-500/10 border-sky-500/20">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-sky-900 dark:text-sky-300">Morning Shift</span>
+                  <Badge variant="outline" className="text-[10px] bg-background">06:00 - 14:00</Badge>
+                </div>
+                <div className="mt-2 text-xl font-bold text-sky-700 dark:text-sky-400">
+                  {securityRoster.filter((g) => g.shift === "Morning" && g.status === "On Post").length} Active
+                </div>
+                <div className="text-[10px] text-muted-foreground mt-0.5">
+                  Posts: Gate 1, Gate 2, Sea Wall
+                </div>
+              </div>
+
+              <div className="p-3 rounded-lg border bg-amber-500/10 border-amber-500/20">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-amber-900 dark:text-amber-300">Evening Shift</span>
+                  <Badge variant="outline" className="text-[10px] bg-background">14:00 - 22:00</Badge>
+                </div>
+                <div className="mt-2 text-xl font-bold text-amber-700 dark:text-amber-400">
+                  {securityRoster.filter((g) => g.shift === "Evening").length} Deployed
+                </div>
+                <div className="text-[10px] text-muted-foreground mt-0.5">
+                  Posts: Sabha Mandap, CCTV Room
+                </div>
+              </div>
+
+              <div className="p-3 rounded-lg border bg-indigo-500/10 border-indigo-500/20">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-indigo-900 dark:text-indigo-300">Night Patrol</span>
+                  <Badge variant="outline" className="text-[10px] bg-background">22:00 - 06:00</Badge>
+                </div>
+                <div className="mt-2 text-xl font-bold text-indigo-700 dark:text-indigo-400">
+                  {securityRoster.filter((g) => g.shift === "Night").length} Scheduled
+                </div>
+                <div className="text-[10px] text-muted-foreground mt-0.5">
+                  Posts: Sea Wall & Perimeter Infrared
+                </div>
+              </div>
+            </div>
+
+            {/* Filter buttons */}
+            <div className="flex items-center justify-between flex-wrap gap-2 pt-1">
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                SSF Guard Personnel ({securityRoster.length})
+              </span>
+              <div className="flex gap-1.5">
+                {["all", "Morning", "Evening", "Night"].map((shift) => (
+                  <Button
+                    key={shift}
+                    size="sm"
+                    variant={rosterShiftFilter === shift ? "default" : "outline"}
+                    className="h-7 text-xs px-2.5"
+                    onClick={() => setRosterShiftFilter(shift)}
+                  >
+                    {shift === "all" ? "All Shifts" : `${shift} Shift`}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            {/* Guards Roster List */}
+            <div className="space-y-2.5 max-h-72 overflow-y-auto pr-1">
+              {securityRoster
+                .filter((g) => (rosterShiftFilter === "all" ? true : g.shift === rosterShiftFilter))
+                .map((guard) => (
+                  <div
+                    key={guard.id}
+                    className="p-3 rounded-lg border bg-card hover:bg-muted/20 transition-colors space-y-2 text-xs"
+                  >
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-foreground text-sm">{guard.name}</span>
+                        <Badge variant="outline" className="text-[10px] font-mono">
+                          {guard.id}
+                        </Badge>
+                        <Badge variant="secondary" className="text-[10px]">
+                          {guard.rank}
+                        </Badge>
+                        <Badge
+                          className={`text-[10px] ${
+                            guard.status === "On Post"
+                              ? "bg-emerald-600 text-white"
+                              : guard.status === "Break"
+                              ? "bg-amber-600 text-white"
+                              : guard.status === "Standby"
+                              ? "bg-blue-600 text-white"
+                              : "bg-muted text-muted-foreground"
+                          }`}
+                        >
+                          {guard.status}
+                        </Badge>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-7 text-[10px] px-2"
+                          onClick={() => handleToggleGuardStatus(guard.id)}
+                        >
+                          Change Status
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] pt-1 border-t border-border/40">
+                      <div>
+                        <label className="block text-[10px] font-semibold text-muted-foreground uppercase mb-0.5">
+                          Assigned Security Post:
+                        </label>
+                        <select
+                          className="w-full h-7 px-2 text-xs rounded border border-input bg-background font-medium"
+                          value={guard.post}
+                          onChange={(e) => handleReassignPost(guard.id, e.target.value)}
+                        >
+                          <option value="Gate 1 (Digvijay Dwar)">Gate 1 (Digvijay Dwar Main)</option>
+                          <option value="Gate 2 (VIP & Senior Ramp)">Gate 2 (VIP & Divyang Ramp)</option>
+                          <option value="South Sea Wall Walkway">South Sea Wall Walkway</option>
+                          <option value="Sabha Mandap Queue Line">Sabha Mandap Queue Line</option>
+                          <option value="Central CCTV Control Room">Central CCTV Control Room</option>
+                          <option value="Outer Boundary & Sea Wall">Outer Boundary & Sea Wall</option>
+                          <option value="Prasad Pavilion & Cloakroom">Prasad Pavilion & Cloakroom</option>
+                          <option value="Emergency Gate 3 (Sea Gate)">Emergency Gate 3 (Sea Gate)</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <span className="block text-[10px] font-semibold text-muted-foreground uppercase mb-0.5">
+                          Shift & Duty Specifics:
+                        </span>
+                        <div className="text-muted-foreground flex flex-col gap-0.5">
+                          <span>
+                            <strong>Shift:</strong> {guard.shift} Squad &bull; <strong>Contact:</strong> {guard.phone}
+                          </span>
+                          <span className="truncate">
+                            <strong>Area:</strong> {guard.assignedArea}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <Button size="sm" variant="outline" onClick={() => setShowRosterModal(false)} className="text-xs">
+                Close Guard Roster
               </Button>
             </div>
           </div>
