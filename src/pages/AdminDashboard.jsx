@@ -46,6 +46,10 @@ import {
   Volume2,
   VolumeX,
   ShieldAlert,
+  Shield,
+  FileText,
+  Download,
+  UserCheck,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -133,8 +137,52 @@ const AdminDashboard = () => {
   const [adminSirenActive, setAdminSirenActive] = useState(false);
   const [showEvacuationCommandModal, setShowEvacuationCommandModal] = useState(false);
   const [evacuationLevel, setEvacuationLevel] = useState("Level 2");
-  const [evacuationBroadcastZone, setEvacuationBroadcastZone] = useState("all");
   const [cctvZoneFilter, setCctvZoneFilter] = useState("all");
+  const [securityIncidents, setSecurityIncidents] = useState([
+    {
+      id: "SEC-INC-101",
+      timestamp: "08:45 AM",
+      location: "Gate 1 (Digvijay Dwar)",
+      guardId: "SG-RATHOD-42",
+      guardName: "Havildar K. Rathod",
+      category: "Unattended Baggage",
+      severity: "high",
+      status: "Resolved",
+      notes: "Devotee luggage bag left unattended near shoe counter; screened by scanning squad and safely restored to pilgrim.",
+    },
+    {
+      id: "SEC-INC-102",
+      timestamp: "10:12 AM",
+      location: "South Sea Promenade",
+      guardId: "SG-JADEJA-18",
+      guardName: "Coast Guard Sevak Jadeja",
+      category: "Perimeter Barricade",
+      severity: "medium",
+      status: "Resolved",
+      notes: "High tide wave warning ignored on rocky shoreline; 2 visitors guided back inside safety perimeter rail.",
+    },
+    {
+      id: "SEC-INC-103",
+      timestamp: "11:30 AM",
+      location: "Sabha Mandap Queue Line",
+      guardId: "SG-PATEL-07",
+      guardName: "Marshal P. Patel",
+      category: "Crowd Surge",
+      severity: "low",
+      status: "Under Monitoring",
+      notes: "Devotee rush during midday Bhog Aarti; gate 3 bypass opened to balance flow into pradakshina corridor.",
+    },
+  ]);
+  const [showIncidentModal, setShowIncidentModal] = useState(false);
+  const [incidentCategoryFilter, setIncidentCategoryFilter] = useState("all");
+  const [newIncident, setNewIncident] = useState({
+    location: "Gate 1 (Digvijay Dwar)",
+    guardId: "SG-RATHOD-42",
+    guardName: "Havildar K. Rathod",
+    category: "Unattended Baggage",
+    severity: "medium",
+    notes: "",
+  });
 
   const toggleAdminSiren = () => {
     if (adminSirenActive) {
@@ -193,6 +241,42 @@ const AdminDashboard = () => {
 
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  const handleCreateIncident = (e) => {
+    e?.preventDefault();
+    if (!newIncident.notes.trim()) {
+      toast({
+        title: "Missing Incident Notes",
+        description: "Please enter incident description or action taken notes.",
+        variant: "destructive",
+      });
+      return;
+    }
+    const created = {
+      id: `SEC-INC-${Math.floor(100 + Math.random() * 900)}`,
+      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      location: newIncident.location,
+      guardId: newIncident.guardId || "SG-PATROL-01",
+      guardName: newIncident.guardName || "Duty Guard",
+      category: newIncident.category,
+      severity: newIncident.severity,
+      status: "Under Monitoring",
+      notes: newIncident.notes.trim(),
+    };
+    setSecurityIncidents([created, ...securityIncidents]);
+    setNewIncident({
+      location: "Gate 1 (Digvijay Dwar)",
+      guardId: "SG-RATHOD-42",
+      guardName: "Havildar K. Rathod",
+      category: "Unattended Baggage",
+      severity: "medium",
+      notes: "",
+    });
+    toast({
+      title: "Security Incident Logged",
+      description: `Report ${created.id} recorded in central security log.`,
+    });
+  };
 
   const { isConnected: isSSELive } = useSSE("/api/v1/stream", {
     enabled: !!adminUser,
@@ -732,6 +816,14 @@ const AdminDashboard = () => {
               >
                 <ShieldAlert className="mr-2 h-4 w-4 text-red-600" />
                 🚨 Crisis Command & Evacuation Protocol (Emergency Mustering)
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full justify-start text-blue-700 dark:text-blue-400 font-medium"
+                onClick={() => setShowIncidentModal(true)}
+              >
+                <Shield className="mr-2 h-4 w-4 text-blue-600" />
+                🛡️ Security Incident Log & Entry Desk ({securityIncidents.length} Reported Today)
               </Button>
               <Button
                 variant="outline"
@@ -2027,6 +2119,249 @@ const AdminDashboard = () => {
                 className="text-xs"
               >
                 Close Crisis Command
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+      {/* Security Incident Log & Entry Modal */}
+      <Dialog open={showIncidentModal} onOpenChange={setShowIncidentModal}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-lg">
+              <Shield className="h-5 w-5 text-blue-600" />
+              Security Incident Telemetry & Logging Desk
+            </DialogTitle>
+            <DialogDescription className="text-xs">
+              Log on-ground incidents, unattended baggage, perimeter barricade infractions, and security escorts across Somnath campus.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-5 py-2">
+            {/* Quick Stats Banner */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
+              <div className="p-2.5 rounded-lg border bg-card">
+                <span className="text-[10px] text-muted-foreground uppercase font-semibold block">Total Incidents</span>
+                <span className="text-xl font-bold text-foreground">{securityIncidents.length}</span>
+              </div>
+              <div className="p-2.5 rounded-lg border bg-amber-500/10 border-amber-500/20">
+                <span className="text-[10px] text-amber-700 dark:text-amber-300 uppercase font-semibold block">Active / Monitoring</span>
+                <span className="text-xl font-bold text-amber-600">
+                  {securityIncidents.filter((i) => i.status === "Under Monitoring").length}
+                </span>
+              </div>
+              <div className="p-2.5 rounded-lg border bg-emerald-500/10 border-emerald-500/20">
+                <span className="text-[10px] text-emerald-700 dark:text-emerald-300 uppercase font-semibold block">Resolved Today</span>
+                <span className="text-xl font-bold text-emerald-600">
+                  {securityIncidents.filter((i) => i.status === "Resolved").length}
+                </span>
+              </div>
+              <div className="p-2.5 rounded-lg border bg-red-500/10 border-red-500/20">
+                <span className="text-[10px] text-red-700 dark:text-red-300 uppercase font-semibold block">High / Critical</span>
+                <span className="text-xl font-bold text-red-600">
+                  {securityIncidents.filter((i) => i.severity === "high" || i.severity === "critical").length}
+                </span>
+              </div>
+            </div>
+
+            {/* Incident Entry Form */}
+            <form onSubmit={handleCreateIncident} className="p-4 rounded-lg border bg-muted/30 space-y-3">
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground flex items-center gap-1.5">
+                  <FileText className="h-4 w-4 text-primary" />
+                  New Incident Quick Entry
+                </h4>
+                <Badge variant="outline" className="text-[10px]">
+                  Somnath Security Force (SSF)
+                </Badge>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div>
+                  <label className="block text-[11px] font-medium text-muted-foreground mb-1">
+                    Location / Sector:
+                  </label>
+                  <select
+                    className="w-full h-8 px-2 text-xs rounded-md border border-input bg-background"
+                    value={newIncident.location}
+                    onChange={(e) => setNewIncident({ ...newIncident, location: e.target.value })}
+                  >
+                    <option value="Gate 1 (Digvijay Dwar)">Gate 1 (Digvijay Dwar Promenade)</option>
+                    <option value="Gate 2 (VIP & Senior Ramp)">Gate 2 (VIP & Senior Ramp)</option>
+                    <option value="Sabha Mandap Queue Line">Sabha Mandap Queue Corridor</option>
+                    <option value="Sanctum Garbhagriha Corridor">Sanctum Garbhagriha Outflow</option>
+                    <option value="South Sea Promenade">South Sea Wall Promenade</option>
+                    <option value="East Pilgrim Parking Area">East Pilgrim Parking Area</option>
+                    <option value="Prasad Distribution Pavilion">Prasad Distribution Pavilion</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-medium text-muted-foreground mb-1">
+                    Incident Category:
+                  </label>
+                  <select
+                    className="w-full h-8 px-2 text-xs rounded-md border border-input bg-background"
+                    value={newIncident.category}
+                    onChange={(e) => setNewIncident({ ...newIncident, category: e.target.value })}
+                  >
+                    <option value="Unattended Baggage">Unattended Baggage</option>
+                    <option value="Perimeter Barricade">Perimeter Barricade Infraction</option>
+                    <option value="Crowd Surge">Crowd Surge / Queue Bottleneck</option>
+                    <option value="Unauthorized Photography">Unauthorized Photography</option>
+                    <option value="Lost Child / Person">Lost Child / Missing Pilgrim</option>
+                    <option value="Medical Distress">Medical Distress / First Aid</option>
+                    <option value="Frisking Non-Compliance">Frisking Non-Compliance</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-medium text-muted-foreground mb-1">
+                    Reporting Guard (Name & ID):
+                  </label>
+                  <Input
+                    className="h-8 text-xs"
+                    value={newIncident.guardName}
+                    onChange={(e) => setNewIncident({ ...newIncident, guardName: e.target.value })}
+                    placeholder="e.g. Havildar K. Rathod"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-medium text-muted-foreground mb-1">
+                    Severity Level:
+                  </label>
+                  <div className="flex gap-2">
+                    {["low", "medium", "high", "critical"].map((sev) => (
+                      <Button
+                        key={sev}
+                        type="button"
+                        size="sm"
+                        variant={newIncident.severity === sev ? "default" : "outline"}
+                        className={`h-8 flex-1 text-[11px] capitalize ${
+                          newIncident.severity === sev && sev === "critical" ? "bg-red-600 hover:bg-red-700 text-white" : ""
+                        }`}
+                        onClick={() => setNewIncident({ ...newIncident, severity: sev })}
+                      >
+                        {sev}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-medium text-muted-foreground mb-1">
+                  Incident Description & Action Taken:
+                </label>
+                <Input
+                  className="h-8 text-xs"
+                  placeholder="Detail observations, actions initiated, and security resolution..."
+                  value={newIncident.notes}
+                  onChange={(e) => setNewIncident({ ...newIncident, notes: e.target.value })}
+                />
+              </div>
+
+              <div className="flex justify-end pt-1">
+                <Button size="sm" type="submit" className="text-xs h-8">
+                  <Shield className="h-3.5 w-3.5 mr-1" />
+                  Log Security Incident Entry
+                </Button>
+              </div>
+            </form>
+
+            {/* Log Entries Header & Filter */}
+            <div className="space-y-2">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Logged Incidents Ledger ({securityIncidents.length})
+                </h4>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {["all", "Unattended Baggage", "Perimeter Barricade", "Crowd Surge"].map((cat) => (
+                    <Button
+                      key={cat}
+                      size="sm"
+                      variant={incidentCategoryFilter === cat ? "default" : "outline"}
+                      className="h-6 text-[10px] px-2"
+                      onClick={() => setIncidentCategoryFilter(cat)}
+                    >
+                      {cat === "all" ? "All Categories" : cat}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                {securityIncidents
+                  .filter((i) => (incidentCategoryFilter === "all" ? true : i.category === incidentCategoryFilter))
+                  .map((incident) => (
+                    <div
+                      key={incident.id}
+                      className="p-3 rounded-lg border bg-card hover:bg-muted/30 transition-colors space-y-1.5 text-xs"
+                    >
+                      <div className="flex items-center justify-between flex-wrap gap-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono font-bold text-foreground">{incident.id}</span>
+                          <Badge variant="outline" className="text-[10px]">
+                            {incident.timestamp}
+                          </Badge>
+                          <Badge
+                            className={`text-[10px] uppercase ${
+                              incident.severity === "critical" || incident.severity === "high"
+                                ? "bg-red-600 text-white"
+                                : incident.severity === "medium"
+                                ? "bg-amber-600 text-white"
+                                : "bg-blue-600 text-white"
+                            }`}
+                          >
+                            {incident.severity}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge
+                            variant={incident.status === "Resolved" ? "default" : "secondary"}
+                            className="text-[10px]"
+                          >
+                            {incident.status}
+                          </Badge>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-6 text-[10px] px-2"
+                            onClick={() => {
+                              const updated = securityIncidents.map((it) =>
+                                it.id === incident.id
+                                  ? {
+                                      ...it,
+                                      status: it.status === "Resolved" ? "Under Monitoring" : "Resolved",
+                                    }
+                                  : it
+                              );
+                              setSecurityIncidents(updated);
+                            }}
+                          >
+                            Toggle Status
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="text-[11px] text-muted-foreground flex flex-wrap gap-3">
+                        <span><strong>Location:</strong> {incident.location}</span>
+                        <span><strong>Officer:</strong> {incident.guardName} ({incident.guardId})</span>
+                        <span><strong>Category:</strong> {incident.category}</span>
+                      </div>
+
+                      <p className="text-[11px] text-foreground font-mono bg-muted/40 p-2 rounded">
+                        {incident.notes}
+                      </p>
+                    </div>
+                  ))}
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <Button size="sm" variant="outline" onClick={() => setShowIncidentModal(false)} className="text-xs">
+                Close Incident Desk
               </Button>
             </div>
           </div>
