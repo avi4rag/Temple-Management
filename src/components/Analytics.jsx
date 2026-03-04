@@ -33,6 +33,7 @@ import {
   Sparkles,
   Zap,
   ArrowUpRight,
+  Flame,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -40,6 +41,16 @@ const Analytics = () => {
   const { t } = useLanguage();
   const [selectedMetric, setSelectedMetric] = useState("daily");
   const [timeRange, setTimeRange] = useState("week");
+  const [auspiciousFilter, setAuspiciousFilter] = useState("all");
+
+  const auspiciousComparisonData = [
+    { dayType: "Somvar (Mondays)", normal: 12500, auspicious: 28500, multiplier: "2.3x", queueWait: "45 min", category: "Weekly Somvars" },
+    { dayType: "Maha Shivratri", normal: 14000, auspicious: 85000, multiplier: "6.1x", queueWait: "120 min", category: "Major Festivals" },
+    { dayType: "Kartik Purnima", normal: 13500, auspicious: 45000, multiplier: "3.3x", queueWait: "75 min", category: "Major Festivals" },
+    { dayType: "Shravan Somvar", normal: 12000, auspicious: 42000, multiplier: "3.5x", queueWait: "65 min", category: "Major Festivals" },
+    { dayType: "Amavasya (New Moon)", normal: 11000, auspicious: 24000, multiplier: "2.2x", queueWait: "40 min", category: "Tithi Cycles" },
+    { dayType: "Purnima (Full Moon)", normal: 13000, auspicious: 32000, multiplier: "2.5x", queueWait: "50 min", category: "Tithi Cycles" },
+  ];
 
   const hourlyPredictionData = [
     { hour: "05:00", actual: 120, predicted: 110, waitMin: 5, aarti: "Pre-Dawn" },
@@ -602,6 +613,84 @@ const Analytics = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Auspicious Day vs Normal Day Comparison Bar Chart */}
+      <Card className="shadow-sacred border-amber-500/20 bg-gradient-to-br from-amber-500/5 via-orange-500/5 to-transparent">
+        <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <CardTitle className="flex items-center text-lg gap-2 text-foreground">
+              <Flame className="w-5 h-5 text-amber-600 animate-pulse" />
+              Auspicious Festival Day vs. Regular Day Footfall Surge
+            </CardTitle>
+            <p className="text-xs text-muted-foreground mt-1">
+              Historical crowd comparative analytics demonstrating peak footfall multipliers on sacred tithis against normal weekday baseline
+            </p>
+          </div>
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {["all", "Major Festivals", "Weekly Somvars", "Tithi Cycles"].map((cat) => (
+              <Button
+                key={cat}
+                size="sm"
+                variant={auspiciousFilter === cat ? "default" : "outline"}
+                className={`h-7 text-xs px-2.5 ${
+                  auspiciousFilter === cat ? "bg-amber-600 hover:bg-amber-700 text-white" : ""
+                }`}
+                onClick={() => setAuspiciousFilter(cat)}
+              >
+                {cat === "all" ? "All Occasions" : cat}
+              </Button>
+            ))}
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={auspiciousComparisonData.filter(
+                  (d) => (auspiciousFilter === "all" ? true : d.category === auspiciousFilter)
+                )}
+                margin={{ top: 10, right: 10, left: 0, bottom: 25 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                <XAxis dataKey="dayType" tick={{ fontSize: 11 }} angle={-15} textAnchor="end" interval={0} />
+                <YAxis tick={{ fontSize: 11 }} />
+                <Tooltip
+                  formatter={(value, name) => [
+                    `${value.toLocaleString()} Pilgrims`,
+                    name === "auspicious" ? "Auspicious Surge Volume" : "Weekday Baseline Average",
+                  ]}
+                  labelFormatter={(label) => {
+                    const item = auspiciousComparisonData.find((d) => d.dayType === label);
+                    return `${label} — Influx Multiplier: ${item?.multiplier} (Avg Wait: ${item?.queueWait})`;
+                  }}
+                />
+                <Legend verticalAlign="top" wrapperStyle={{ paddingBottom: "10px" }} />
+                <Bar dataKey="normal" fill="#94a3b8" name="Normal Weekday Baseline" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="auspicious" fill="#ea580c" name="Sacred Festival Surge" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Surge Comparative Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 text-xs">
+            <div className="p-3 rounded-lg border bg-card">
+              <span className="text-[10px] uppercase font-semibold text-muted-foreground block">Peak Surge Multiplier</span>
+              <span className="text-xl font-bold text-amber-600">6.1x (Maha Shivratri)</span>
+              <span className="text-[11px] text-muted-foreground block mt-0.5">85,000+ devotees over 24 hrs</span>
+            </div>
+            <div className="p-3 rounded-lg border bg-card">
+              <span className="text-[10px] uppercase font-semibold text-muted-foreground block">Average Holy Day Surge</span>
+              <span className="text-xl font-bold text-foreground">+240% Inflow</span>
+              <span className="text-[11px] text-muted-foreground block mt-0.5">Across Somvar & Purnima cycles</span>
+            </div>
+            <div className="p-3 rounded-lg border bg-card">
+              <span className="text-[10px] uppercase font-semibold text-muted-foreground block">Queue Mitigation Protocol</span>
+              <span className="text-xl font-bold text-emerald-600">3-Tier Staggering</span>
+              <span className="text-[11px] text-muted-foreground block mt-0.5">Automated bypass & prasad hold bays</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <Card className="shadow-temple">
         <CardHeader>
