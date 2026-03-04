@@ -40,6 +40,8 @@ import {
   Ban,
   Smartphone,
   Check,
+  Sparkles,
+  Zap,
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
@@ -207,6 +209,15 @@ const QueueSystem = () => {
     : [];
 
   const allDisplaySlots = [...timeSlots, ...nightVigilSlots];
+
+  const recommendedSlots = allDisplaySlots
+    .filter((s) => s.status !== "full")
+    .map((s) => {
+      const waitMinutes = parseInt(s.waitTime, 10) || 20;
+      return { ...s, waitMinutes };
+    })
+    .sort((a, b) => a.waitMinutes - b.waitMinutes)
+    .slice(0, 3);
 
   useEffect(() => {
     if (numberOfDevotees > 0) {
@@ -666,59 +677,105 @@ const QueueSystem = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {allDisplaySlots.map((slot, index) => (
-              <div
-                key={index}
-                className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                  selectedSlot === slot.time
-                    ? "border-primary bg-primary/5"
-                    : slot.isFestivalSlot
-                      ? "border-amber-500/50 bg-amber-500/5 hover:border-amber-500"
-                      : slot.status === "full"
-                        ? "border-muted bg-muted/20 cursor-not-allowed opacity-60"
-                        : "border-border hover:border-primary/50 hover:bg-primary/5"
-                }`}
-                onClick={() =>
-                  slot.status !== "full" && setSelectedSlot(slot.time)
-                }
-              >
-                <div className="flex justify-between items-start mb-3">
-                  <div>
-                    <div className="font-semibold text-foreground">
-                      {slot.time}
-                    </div>
-                    {slot.ritual && (
-                      <div className="text-[10px] text-amber-700 dark:text-amber-300 font-medium mt-0.5">
-                        🔱 {slot.ritual}
-                      </div>
-                    )}
-                    {getAartiTag(slot.time) && (
-                      <Badge
-                        variant="outline"
-                        className="mt-1 border-amber-500/50 bg-amber-500/10 text-amber-700 dark:text-amber-400 text-[10px] gap-1 py-0"
-                      >
-                        <Flame className="w-2.5 h-2.5 text-amber-600" />
-                        {getAartiTag(slot.time)}
-                      </Badge>
-                    )}
-                  </div>
-                  <Badge className={getStatusColor(slot.status)}>
-                    {slot.status}
-                  </Badge>
-                </div>
-                <div className="flex justify-between text-sm text-muted-foreground">
-                  <span className="flex items-center">
-                    <Clock className="w-3 h-3 mr-1" />
-                    Wait: {slot.waitTime}
-                  </span>
-                  <span className="flex items-center">
-                    <Users className="w-3 h-3 mr-1" />
-                    {slot.remaining} slots left
-                  </span>
-                </div>
+          {/* AI Recommended Fastest Slots Banner */}
+          <div className="mb-4 p-3 rounded-lg border border-emerald-500/30 bg-gradient-to-r from-emerald-500/10 via-teal-500/5 to-transparent flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-emerald-600 animate-pulse shrink-0" />
+              <div>
+                <span className="text-xs font-semibold text-foreground block">
+                  AI Lowest Wait Time Recommendations:
+                </span>
+                <span className="text-[11px] text-muted-foreground">
+                  Fastest sanctum turnstile clearance slots with minimal queue congestion
+                </span>
               </div>
-            ))}
+            </div>
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {recommendedSlots.map((rec, idx) => (
+                <Button
+                  key={idx}
+                  size="sm"
+                  variant={selectedSlot === rec.time ? "default" : "outline"}
+                  className={`h-7 text-xs px-2.5 rounded-full border-emerald-500/40 ${
+                    selectedSlot === rec.time
+                      ? "bg-emerald-600 text-white"
+                      : "text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/10"
+                  }`}
+                  onClick={() => setSelectedSlot(rec.time)}
+                >
+                  <Zap className="w-3 h-3 mr-1 text-emerald-500" />
+                  {rec.time} ({rec.waitTime})
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {allDisplaySlots.map((slot, index) => {
+              const isRecommended = recommendedSlots.some((r) => r.time === slot.time);
+              return (
+                <div
+                  key={index}
+                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                    selectedSlot === slot.time
+                      ? "border-primary bg-primary/5"
+                      : isRecommended
+                        ? "border-emerald-500/40 bg-emerald-500/5 hover:border-emerald-500"
+                        : slot.isFestivalSlot
+                          ? "border-amber-500/50 bg-amber-500/5 hover:border-amber-500"
+                          : slot.status === "full"
+                            ? "border-muted bg-muted/20 cursor-not-allowed opacity-60"
+                            : "border-border hover:border-primary/50 hover:bg-primary/5"
+                  }`}
+                  onClick={() =>
+                    slot.status !== "full" && setSelectedSlot(slot.time)
+                  }
+                >
+                  <div className="flex justify-between items-start mb-3">
+                    <div>
+                      <div className="font-semibold text-foreground">
+                        {slot.time}
+                      </div>
+                      {slot.ritual && (
+                        <div className="text-[10px] text-amber-700 dark:text-amber-300 font-medium mt-0.5">
+                          🔱 {slot.ritual}
+                        </div>
+                      )}
+                      <div className="flex items-center gap-1.5 flex-wrap mt-1">
+                        {isRecommended && (
+                          <Badge className="bg-emerald-600 text-white text-[10px] gap-1 py-0">
+                            <Zap className="w-2.5 h-2.5" />
+                            Lowest Wait (~{slot.waitTime})
+                          </Badge>
+                        )}
+                        {getAartiTag(slot.time) && (
+                          <Badge
+                            variant="outline"
+                            className="border-amber-500/50 bg-amber-500/10 text-amber-700 dark:text-amber-400 text-[10px] gap-1 py-0"
+                          >
+                            <Flame className="w-2.5 h-2.5 text-amber-600" />
+                            {getAartiTag(slot.time)}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                    <Badge className={getStatusColor(slot.status)}>
+                      {slot.status}
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between text-sm text-muted-foreground">
+                    <span className="flex items-center">
+                      <Clock className="w-3 h-3 mr-1" />
+                      Wait: {slot.waitTime}
+                    </span>
+                    <span className="flex items-center">
+                      <Users className="w-3 h-3 mr-1" />
+                      {slot.remaining} slots left
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </CardContent>
       </Card>
