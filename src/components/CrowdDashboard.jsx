@@ -59,6 +59,29 @@ const CrowdDashboard = ({ onNavigate }) => {
   const coastalWeather = weatherService.getCoastalForecast();
   const activeFestival = festivalService.getActiveFestival();
 
+  const isPeakHour =
+    (currentHour >= 6 && currentHour <= 8) ||
+    (currentHour >= 11 && currentHour <= 13) ||
+    (currentHour >= 18 && currentHour <= 20);
+
+  const darshanAdvisory = isPeakHour
+    ? {
+        type: "peak",
+        badge: "⚠️ Peak Aarti Rush Window",
+        color: "bg-amber-600 text-white",
+        borderColor: "border-amber-400",
+        message: "High sanctum influx due to ongoing Aarti session. Average wait time ~35-45 min.",
+        optimalNext: "Next optimal darshan window starts at 01:30 PM (expected wait <15 min).",
+      }
+    : {
+        type: "optimal",
+        badge: "🟢 Optimal Darshan Window Active",
+        color: "bg-emerald-600 text-white",
+        borderColor: "border-emerald-400",
+        message: "Fast-moving queue lines through Gate 1 & Gate 2. Current sanctum darshan wait is only ~15 min.",
+        optimalNext: "Recommended window ends at 05:45 PM before Sandhya Aarti rush.",
+      };
+
   const [isChiming, setIsChiming] = useState(false);
 
   const ringAartiBell = () => {
@@ -211,20 +234,30 @@ const CrowdDashboard = ({ onNavigate }) => {
           </CardContent>
         </Card>
 
-        <Card className="shadow-temple">
+        <Card className={`shadow-temple border ${darshanAdvisory.type === 'optimal' ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-amber-500/30 bg-amber-500/5'}`}>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
-              <Clock className="w-4 h-4 mr-2" />
-              {t("crowd.waitingTime")}
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
+                <Clock className="w-4 h-4 mr-2" />
+                {t("crowd.waitingTime")}
+              </CardTitle>
+              <Badge className={`text-[10px] px-1.5 py-0.5 ${darshanAdvisory.color}`}>
+                {darshanAdvisory.type === 'optimal' ? 'Optimal Window' : 'Peak Rush'}
+              </Badge>
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-foreground mb-2">
-              15 min
+            <div className="text-3xl font-bold text-foreground mb-2 flex items-center gap-2">
+              {isPeakHour ? "35-40 min" : "15 min"}
+              <Badge variant="outline" className="text-[10px] font-normal">
+                {isPeakHour ? "Aarti Rush" : "Fast Flow"}
+              </Badge>
             </div>
             <div className="flex items-center space-x-2">
               <TrendingUp className="w-4 h-4 text-success" />
-              <span className="text-sm text-success">Improving</span>
+              <span className="text-xs text-muted-foreground truncate">
+                {darshanAdvisory.message}
+              </span>
             </div>
           </CardContent>
         </Card>
@@ -259,6 +292,57 @@ const CrowdDashboard = ({ onNavigate }) => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Peak vs. Optimal Darshan Time Advisory Banner */}
+      <Card className={`border shadow-sm ${darshanAdvisory.type === 'optimal' ? 'border-emerald-500/30 bg-gradient-to-r from-emerald-500/10 via-teal-500/5 to-cyan-500/10' : 'border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-orange-500/5 to-yellow-500/10'}`}>
+        <CardContent className="p-4 sm:p-5">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <div className={`p-2.5 rounded-full shrink-0 ${darshanAdvisory.type === 'optimal' ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400' : 'bg-amber-500/20 text-amber-600 dark:text-amber-400'}`}>
+                <Clock className="w-6 h-6 animate-pulse" />
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="font-semibold text-foreground text-sm sm:text-base">
+                    Darshan Queue Advisory: {darshanAdvisory.badge}
+                  </h3>
+                  <Badge className={`text-xs ${darshanAdvisory.color}`}>
+                    Slot: {currentHour}:00 - {currentHour + 1}:00 hrs
+                  </Badge>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed max-w-2xl">
+                  {darshanAdvisory.message} {darshanAdvisory.optimalNext}
+                </p>
+              </div>
+            </div>
+
+            {/* Daily Windows Timeline Chips */}
+            <div className="flex items-center gap-1.5 text-xs flex-wrap shrink-0">
+              {[
+                { time: "05:00 - 07:00", label: "Dawn", status: "optimal" },
+                { time: "07:00 - 08:30", label: "Mangla", status: "peak" },
+                { time: "08:30 - 11:30", label: "Morning", status: "optimal" },
+                { time: "11:30 - 13:30", label: "Bhog Aarti", status: "peak" },
+                { time: "13:30 - 17:30", label: "Afternoon", status: "optimal" },
+                { time: "18:30 - 20:30", label: "Sandhya", status: "peak" },
+                { time: "20:30 - 22:00", label: "Night", status: "optimal" },
+              ].map((slot, idx) => (
+                <div
+                  key={idx}
+                  className={`px-2 py-1 rounded-md border text-center text-[10px] ${
+                    slot.status === "optimal"
+                      ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300"
+                      : "bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-300"
+                  }`}
+                >
+                  <div className="font-semibold">{slot.label}</div>
+                  <div className="text-[9px] opacity-80">{slot.status === "optimal" ? "🟢 Fast" : "🔴 Rush"}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Arabian Sea Coastal Weather & Maritime Tide Banner */}
       <Card className="border-sky-500/20 bg-gradient-to-r from-sky-500/10 via-blue-500/5 to-cyan-500/10 shadow-sm">
