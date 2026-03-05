@@ -145,6 +145,7 @@ const HeroSection = ({ onGetStarted }) => {
               <Button
                 onClick={onGetStarted}
                 size="lg"
+                aria-label="Get Started with Somnath Darshan & Queue Booking"
                 className="bg-gradient-sacred hover:bg-gradient-divine shadow-divine text-lg px-8 py-6 transition-sacred"
               >
                 {t("hero.getStarted")}
@@ -153,6 +154,7 @@ const HeroSection = ({ onGetStarted }) => {
                 onClick={playSacredBell}
                 size="lg"
                 variant="outline"
+                aria-label="Ring Sacred Sanctum Bronze Bell Chime"
                 className={`bg-white/15 hover:bg-white/25 border-white/40 text-white backdrop-blur-sm text-base px-6 py-6 transition-all ${
                   isPlayingChime ? "ring-2 ring-yellow-400 scale-105" : ""
                 }`}
@@ -164,6 +166,7 @@ const HeroSection = ({ onGetStarted }) => {
                 onClick={toggleHeroAudioTour}
                 size="lg"
                 variant="outline"
+                aria-label="Listen to Somnath Sacred Audio Guide Narration"
                 className={`bg-white/15 hover:bg-white/25 border-white/40 text-white backdrop-blur-sm text-base px-6 py-6 transition-all ${
                   isPlayingAudioTour ? "ring-2 ring-amber-400 bg-amber-500/20 scale-105" : ""
                 }`}
@@ -173,6 +176,7 @@ const HeroSection = ({ onGetStarted }) => {
               </Button>
               <Button
                 size="lg"
+                aria-label="Navigate to Administration Portal"
                 className="bg-primary text-primary-foreground hover:bg-primary-dark shadow-divine text-lg px-8 py-6 transition-sacred"
                 onClick={() => navigate("/admin/login")}
               >

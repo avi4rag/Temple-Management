@@ -104,7 +104,8 @@ const Navigation = ({ activeSection, onSectionChange }) => {
             <button
               type="button"
               onClick={handleHomeNavigation}
-              className="flex items-center space-x-3 hover:opacity-80 transition-opacity cursor-pointer"
+              aria-label="Divya Setu Home"
+              className="flex items-center space-x-3 hover:opacity-80 transition-opacity cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-primary rounded-lg"
             >
               <div className="w-10 h-10 bg-gradient-sacred rounded-full flex items-center justify-center">
                 <Home className="w-6 h-6 text-primary-foreground" />
@@ -121,7 +122,7 @@ const Navigation = ({ activeSection, onSectionChange }) => {
               </div>
             </button>
 
-            <div className="flex items-center space-x-1">
+            <div className="flex items-center space-x-1" role="navigation" aria-label="Primary Navigation">
               {navItems.map((item) => {
                 const Icon = item.icon;
 
@@ -130,6 +131,8 @@ const Navigation = ({ activeSection, onSectionChange }) => {
                     key={item.id}
                     variant={activeSection === item.id ? "default" : "ghost"}
                     onClick={() => handleNavigation(item.id)}
+                    aria-label={`Navigate to ${item.label}`}
+                    aria-current={activeSection === item.id ? "page" : undefined}
                     className={cn(
                       "flex items-center space-x-2 transition-sacred",
                       activeSection === item.id &&
@@ -149,6 +152,7 @@ const Navigation = ({ activeSection, onSectionChange }) => {
                   <Button
                     variant="outline"
                     size="sm"
+                    aria-label={`Select language, current: ${currentLangOption?.name || "English"}`}
                     className="text-xs px-2 py-1"
                   >
                     <Languages className="w-3 h-3 mr-1" />
@@ -162,6 +166,7 @@ const Navigation = ({ activeSection, onSectionChange }) => {
                     <DropdownMenuItem
                       key={language.code}
                       onClick={() => handleLanguageChange(language.code)}
+                      aria-label={`Switch language to ${language.name}`}
                       className={cn(
                         "flex items-center justify-between cursor-pointer",
                         currentLanguage === language.code && "bg-accent",
@@ -180,6 +185,7 @@ const Navigation = ({ activeSection, onSectionChange }) => {
                       setIsLangOpen(false);
                       setIsLanguageModalOpen(true);
                     }}
+                    aria-label="Browse all supported regional devotee languages"
                     className="cursor-pointer text-xs font-medium text-primary flex items-center justify-center py-1.5"
                   >
                     <Languages className="w-3.5 h-3.5 mr-1" />
@@ -191,6 +197,7 @@ const Navigation = ({ activeSection, onSectionChange }) => {
               <Button
                 variant="outline"
                 size="sm"
+                aria-label="Access Temple Staff and Administration Portal"
                 onClick={() => navigate("/admin/login")}
                 className="text-xs px-2.5 py-1 flex items-center border-primary/20 hover:bg-primary/5"
               >
@@ -209,7 +216,8 @@ const Navigation = ({ activeSection, onSectionChange }) => {
             <button
               type="button"
               onClick={handleHomeNavigation}
-              className="flex items-center space-x-3 hover:opacity-80 transition-opacity cursor-pointer"
+              aria-label="Divya Setu Home"
+              className="flex items-center space-x-3 hover:opacity-80 transition-opacity cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-primary rounded-lg"
             >
               <div className="w-8 h-8 bg-gradient-sacred rounded-full flex items-center justify-center">
                 <Home className="w-4 h-4 text-primary-foreground" />
@@ -223,7 +231,8 @@ const Navigation = ({ activeSection, onSectionChange }) => {
               size="sm"
               onClick={() => setIsOpen(!isOpen)}
               className="p-2"
-              aria-label={isOpen ? "Close navigation" : "Open navigation"}
+              aria-label={isOpen ? "Close navigation menu" : "Open navigation menu"}
+              aria-expanded={isOpen}
             >
               {isOpen ? (
                 <X className="w-6 h-6" />
@@ -236,7 +245,7 @@ const Navigation = ({ activeSection, onSectionChange }) => {
 
         {isOpen && (
           <div className="bg-background border-t border-border shadow-temple">
-            <div className="px-4 py-4 space-y-2">
+            <div className="px-4 py-4 space-y-2" role="menu" aria-label="Mobile Navigation">
               {navItems.map((item) => {
                 const Icon = item.icon;
 
@@ -245,6 +254,7 @@ const Navigation = ({ activeSection, onSectionChange }) => {
                     key={item.id}
                     variant={activeSection === item.id ? "default" : "ghost"}
                     onClick={() => handleNavigation(item.id)}
+                    aria-label={`Navigate to ${item.label}`}
                     className={cn(
                       "w-full justify-start space-x-3 transition-sacred",
                       activeSection === item.id &&
@@ -262,6 +272,7 @@ const Navigation = ({ activeSection, onSectionChange }) => {
                   <Button
                     variant="outline"
                     className="flex-1 justify-start"
+                    aria-label="Change devotee language"
                     onClick={() => {
                       setIsOpen(false);
                       setIsLanguageModalOpen(true);
@@ -276,6 +287,7 @@ const Navigation = ({ activeSection, onSectionChange }) => {
                   <Button
                     variant="outline"
                     className="w-full justify-start text-sm"
+                    aria-label="Access Staff & Administration Portal"
                     onClick={() => {
                       navigate("/admin/login");
                       setIsOpen(false);
@@ -322,12 +334,14 @@ const Navigation = ({ activeSection, onSectionChange }) => {
                   <button
                     key={language.code}
                     type="button"
+                    aria-label={`Select language ${language.name} (${language.nativeName})`}
+                    aria-pressed={isSelected}
                     onClick={() => {
                       handleLanguageChange(language.code);
                       setIsLanguageModalOpen(false);
                     }}
                     className={cn(
-                      "flex flex-col items-start p-3 rounded-lg border text-left transition-all hover:border-primary/50 hover:bg-primary/5",
+                      "flex flex-col items-start p-3 rounded-lg border text-left transition-all hover:border-primary/50 hover:bg-primary/5 focus:outline-hidden focus:ring-2 focus:ring-primary cursor-pointer",
                       isSelected
                         ? "border-primary bg-primary/10 shadow-xs ring-1 ring-primary/40 font-semibold"
                         : "border-border bg-card",
