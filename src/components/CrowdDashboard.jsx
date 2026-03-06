@@ -23,6 +23,7 @@ import {
   Wifi,
   CheckCircle2,
   ShieldCheck,
+  ShieldAlert,
 } from "lucide-react";
 import {
   Dialog,
@@ -36,9 +37,12 @@ import { useQuery } from "@tanstack/react-query";
 import { crowdService } from "@/services/crowdService";
 import { weatherService } from "@/services/weatherService";
 import { festivalService } from "@/services/festivalService";
+import { authService } from "@/services/authService";
 
-const CrowdDashboard = ({ onNavigate }) => {
+const CrowdDashboard = ({ onNavigate, showFeed = false }) => {
   const { t } = useLanguage();
+  const currentUser = authService.getCurrentUser();
+  const canViewFeed = Boolean(showFeed || currentUser?.role === "admin" || currentUser?.role === "staff");
   const [selectedCameraZone, setSelectedCameraZone] = useState(null);
   const [showTelemetryModal, setShowTelemetryModal] = useState(false);
   const [telemetryUptime] = useState("99.94%");
@@ -427,14 +431,21 @@ const CrowdDashboard = ({ onNavigate }) => {
                 <span>&lt;140ms Latency</span>
               </div>
               <div className="h-4 w-px bg-border" />
-              <Button
-                size="sm"
-                variant="outline"
-                className="h-7 text-xs border-emerald-500/40 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/10"
-                onClick={() => setShowTelemetryModal(true)}
-              >
-                Inspect Telemetry
-              </Button>
+              {canViewFeed ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-7 text-xs border-emerald-500/40 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/10"
+                  onClick={() => setShowTelemetryModal(true)}
+                >
+                  Inspect Telemetry
+                </Button>
+              ) : (
+                <div className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  <span>CCTV Network Active</span>
+                </div>
+              )}
             </div>
           </div>
         </CardContent>
@@ -593,16 +604,18 @@ const CrowdDashboard = ({ onNavigate }) => {
                       )}
                     </div>
                     <div className="flex items-center space-x-2">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => setSelectedCameraZone(zone)}
-                        className="h-7 px-2 text-xs text-primary hover:bg-primary/10"
-                        title="View Live CCTV Feed"
-                      >
-                        <Camera className="w-3.5 h-3.5 mr-1" />
-                        Feed
-                      </Button>
+                      {canViewFeed && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setSelectedCameraZone(zone)}
+                          className="h-7 px-2 text-xs text-primary hover:bg-primary/10"
+                          title="View Live CCTV Feed (Staff Only)"
+                        >
+                          <Camera className="w-3.5 h-3.5 mr-1" />
+                          Feed
+                        </Button>
+                      )}
                       <span className="text-sm text-muted-foreground">
                         {zone.count}/{zone.capacity}
                       </span>
@@ -649,8 +662,24 @@ const CrowdDashboard = ({ onNavigate }) => {
         open={Boolean(selectedCameraZone)}
         onOpenChange={(open) => !open && setSelectedCameraZone(null)}
       >
-        <DialogContent className="max-w-2xl bg-zinc-950 text-zinc-100 border-zinc-800 p-0 overflow-hidden">
-          <DialogHeader className="p-4 pb-2 border-b border-zinc-800">
+        {!canViewFeed ? (
+          <DialogContent className="max-w-md p-6 text-center">
+            <div className="flex flex-col items-center gap-3">
+              <div className="p-3 bg-amber-500/10 text-amber-600 rounded-full">
+                <ShieldAlert className="w-8 h-8" />
+              </div>
+              <DialogTitle className="text-lg font-bold">Access Restricted: Temple Staff Only</DialogTitle>
+              <DialogDescription className="text-xs text-muted-foreground leading-relaxed">
+                Live CCTV video feeds and high-frame-rate surveillance streams are restricted to authenticated Temple Security and IT Administration personnel.
+              </DialogDescription>
+              <Button size="sm" onClick={() => setSelectedCameraZone(null)} className="mt-2">
+                Close
+              </Button>
+            </div>
+          </DialogContent>
+        ) : (
+          <DialogContent className="max-w-2xl bg-zinc-950 text-zinc-100 border-zinc-800 p-0 overflow-hidden">
+            <DialogHeader className="p-4 pb-2 border-b border-zinc-800">
             <DialogTitle className="flex items-center justify-between text-base font-semibold">
               <span className="flex items-center gap-2">
                 <Video className="w-4 h-4 text-emerald-400" />
@@ -715,6 +744,7 @@ const CrowdDashboard = ({ onNavigate }) => {
             </Button>
           </div>
         </DialogContent>
+        )}
       </Dialog>
 
       {/* CCTV Telemetry & Optical Health Modal */}
