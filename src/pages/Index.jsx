@@ -7,6 +7,7 @@ import EmergencyAlert from "@/components/EmergencyAlert";
 import ServicesInfo from "@/components/ServicesInfo";
 import Analytics from "@/components/Analytics";
 import Footer from "@/components/Footer";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -82,7 +83,9 @@ const Index = () => {
       <div
         className={`flex-1 ${activeSection !== "home" ? "pt-20 md:pt-24" : ""}`}
       >
-        {renderSection()}
+        <ErrorBoundary key={activeSection}>
+          {renderSection()}
+        </ErrorBoundary>
       </div>
 
       <Footer />
