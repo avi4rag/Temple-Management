@@ -47,7 +47,8 @@ export { languages };
 const translations = {
   en: {
     "nav.home": "Home",
-    "nav.crowdMonitor": "Crowd Monitor",
+    "nav.crowdDashboard": "Live Crowd",
+    "nav.crowdMonitor": "Live Crowd",
     "nav.darshanQueue": "Darshan Queue",
     "nav.templeMap": "Temple Map",
     "nav.emergency": "Emergency",
@@ -60,7 +61,7 @@ const translations = {
       "Experience seamless darshan with real-time crowd monitoring, virtual queues, and smart navigation at the sacred Somnath Jyotirlinga.",
     "hero.getStarted": "Get Started",
     "hero.viewMap": "View Temple Map",
-    "crowd.title": "Real-time Crowd Monitoring",
+    "crowd.title": "Live Crowd Monitoring",
     "crowd.currentFootfall": "Current Footfall",
     "crowd.capacity": "Temple Capacity",
     "crowd.waitingTime": "Average Waiting Time",
@@ -109,7 +110,8 @@ const translations = {
 
   hi: {
     "nav.home": "होम",
-    "nav.crowdMonitor": "भीड़ निगरानी",
+    "nav.crowdDashboard": "लाइव भीड़",
+    "nav.crowdMonitor": "लाइव भीड़",
     "nav.darshanQueue": "दर्शन क्यू",
     "nav.templeMap": "मंदिर मानचित्र",
     "nav.emergency": "आपातकाल",
@@ -122,7 +124,7 @@ const translations = {
       "पवित्र सोमनाथ ज्योतिर्लिंग में रियल-टाइम भीड़ निगरानी, वर्चुअल क्यू और स्मार्ट नेवीगेशन के साथ निर्बाध दर्शन का अनुभव करें।",
     "hero.getStarted": "शुरू करें",
     "hero.viewMap": "मंदिर मानचित्र देखें",
-    "crowd.title": "रियल-टाइम भीड़ निगरानी",
+    "crowd.title": "लाइव भीड़ निगरानी",
     "crowd.currentFootfall": "वर्तमान आगंतुक संख्या",
     "crowd.capacity": "मंदिर क्षमता",
     "crowd.waitingTime": "औसत प्रतीक्षा समय",
@@ -171,7 +173,8 @@ const translations = {
 
   gu: {
     "nav.home": "હોમ",
-    "nav.crowdMonitor": "ભીડ નિરીક્ષણ",
+    "nav.crowdDashboard": "લાઇવ ભીડ",
+    "nav.crowdMonitor": "લાઇવ ભીડ",
     "nav.darshanQueue": "દર્શન કતાર",
     "nav.templeMap": "મંદિર નકશો",
     "nav.emergency": "કટોકટી",
@@ -184,7 +187,7 @@ const translations = {
       "પવિત્ર સોમનાથ જ્યોતિર્લિંગમાં રિયલ-ટાઇમ ભીડ નિરીક્ષણ, વર્ચ્યુઅલ કતાર અને સ્માર્ટ નેવિગેશન સાથે નિર્બાધ દર્શનનો અનુભવ કરો.",
     "hero.getStarted": "શરૂ કરો",
     "hero.viewMap": "મંદિર નકશો જુઓ",
-    "crowd.title": "રિયલ-ટાઇમ ભીડ નિરીક્ષણ",
+    "crowd.title": "લાઇવ ભીડ નિરીક્ષણ",
     "crowd.currentFootfall": "વર્તમાન આગંતુક સંખ્યા",
     "crowd.capacity": "મંદિર ક્ષમતા",
     "crowd.waitingTime": "સરેરાશ રાહ જોવાનો સમય",
@@ -233,7 +236,8 @@ const translations = {
 
   mr: {
     "nav.home": "होम",
-    "nav.crowdMonitor": "गर्दी निरीक्षण",
+    "nav.crowdDashboard": "थेट गर्दी",
+    "nav.crowdMonitor": "थेट गर्दी",
     "nav.darshanQueue": "दर्शन रांग",
     "nav.templeMap": "मंदिर नकाशा",
     "nav.emergency": "आणीबाणी",
@@ -246,7 +250,7 @@ const translations = {
       "पवित्र सोमनाथ ज्योतिर्लिंगमध्ये रिअल-टाइम गर्दी निरीक्षण, व्हर्च्युअल रांग आणि स्मार्ट नेव्हिगेशनसह निर्बाध दर्शनचा अनुभव घ्या.",
     "hero.getStarted": "सुरुवात करा",
     "hero.viewMap": "मंदिर नकाशा पहा",
-    "crowd.title": "रिअल-टाइम गर्दी निरीक्षण",
+    "crowd.title": "थेट गर्दी निरीक्षण",
     "crowd.currentFootfall": "सध्याची भाविक संख्या",
     "crowd.capacity": "मंदिर क्षमता",
     "crowd.waitingTime": "सरासरी प्रतीक्षा वेळ",
@@ -295,7 +299,8 @@ const translations = {
 
   sa: {
     "nav.home": "गृहम्",
-    "nav.crowdMonitor": "जनसंमर्द दर्शनम्",
+    "nav.crowdDashboard": "प्रत्यक्ष संमर्दः",
+    "nav.crowdMonitor": "प्रत्यक्ष संमर्दः",
     "nav.darshanQueue": "दर्शन पङ्क्तिः",
     "nav.templeMap": "मन्दिर मानचित्रम्",
     "nav.emergency": "आपत्कालः",
@@ -357,7 +362,8 @@ const translations = {
 
   ta: {
     "nav.home": "முகப்பு",
-    "nav.crowdMonitor": "கூட்டம் கண்காணிப்பு",
+    "nav.crowdDashboard": "நேரலை கூட்டம்",
+    "nav.crowdMonitor": "நேரலை கூட்டம்",
     "nav.darshanQueue": "தரிசன வரிசை",
     "nav.templeMap": "கோயில் வரைபடம்",
     "nav.emergency": "அவசரம்",
@@ -370,7 +376,7 @@ const translations = {
       "புனித சோமநாத ஜோதிர்லிங்கத்தில் நிகழ்நேர கூட்ட கண்காணிப்பு மற்றும் விர்ச்சுவல் வரிசையுடன் அமைதியான தரிசனம் பெறுங்கள்.",
     "hero.getStarted": "தொடங்குங்கள்",
     "hero.viewMap": "வரைபடத்தை காண்க",
-    "crowd.title": "நிகழ்நேர கூட்ட கண்காணிப்பு",
+    "crowd.title": "நேரலை கூட்டம் கண்காணிப்பு",
     "crowd.currentFootfall": "தற்போதைய பக்தர்கள்",
     "crowd.capacity": "கோயில் கொள்ளளவு",
     "crowd.waitingTime": "சராசரி காத்திருப்பு நேரம்",
@@ -419,7 +425,8 @@ const translations = {
 
   te: {
     "nav.home": "హోమ్",
-    "nav.crowdMonitor": "రద్దీ పర్యవేక్షణ",
+    "nav.crowdDashboard": "లైవ్ రద్దీ",
+    "nav.crowdMonitor": "లైవ్ రద్దీ",
     "nav.darshanQueue": "దర్శనం క్యూ",
     "nav.templeMap": "ఆలయ మ్యాప్",
     "nav.emergency": "అత్యవసరం",
@@ -432,7 +439,7 @@ const translations = {
       "పవిత్ర సోమనాథ జ్యోతిర్లింగంలో రియల్-టైమ్ రద్దీ పర్యవేక్షణ మరియు వర్చువల్ క్యూతో సులభతర దర్శనం పొందండి.",
     "hero.getStarted": "ప్రారంభించండి",
     "hero.viewMap": "ఆలయ మ్యాప్ చూడండి",
-    "crowd.title": "రియల్-టైమ్ రద్దీ పర్యవేక్షణ",
+    "crowd.title": "లైవ్ రద్దీ పర్యవేక్షణ",
     "crowd.currentFootfall": "ప్రస్తుత భక్తుల సంఖ్య",
     "crowd.capacity": "ఆలయ సామర్థ్యం",
     "crowd.waitingTime": "సగటు వేచి ఉండే సమయం",
@@ -481,7 +488,8 @@ const translations = {
 
   bn: {
     "nav.home": "হোম",
-    "nav.crowdMonitor": "ভিড় পর্যবেক্ষণ",
+    "nav.crowdDashboard": "লাইভ ভিড়",
+    "nav.crowdMonitor": "লাইভ ভিড়",
     "nav.darshanQueue": "দর্শন সারি",
     "nav.templeMap": "মন্দির মানচিত্র",
     "nav.emergency": "জরুরি সেবা",
@@ -494,7 +502,7 @@ const translations = {
       "পবিত্র সোমনাথ জ্যোতির্লিঙ্গে রিয়েল-টাইম ভিড় পর্যবেক্ষণ এবং ভার্চুয়াল সারির মাধ্যমে শান্তিপূর্ণ দর্শন লাভ করুন।",
     "hero.getStarted": "শুরু করুন",
     "hero.viewMap": "মানচিত্র দেখুন",
-    "crowd.title": "রিয়েল-টাইম ভিড় পর্যবেক্ষণ",
+    "crowd.title": "লাইভ ভিড় পর্যবেক্ষণ",
     "crowd.currentFootfall": "বর্তমান ভক্ত সমাগম",
     "crowd.capacity": "মন্দির ধারণক্ষমতা",
     "crowd.waitingTime": "গড় অপেক্ষার সময়",
