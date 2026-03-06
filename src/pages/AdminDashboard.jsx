@@ -69,6 +69,7 @@ import { faqService } from "@/services/faqService";
 import { prasadService } from "@/services/prasadService";
 import { useToast } from "@/hooks/use-toast";
 import { useSSE } from "@/hooks/useSSE";
+import CrowdDashboard from "@/components/CrowdDashboard";
 
 const AdminDashboard = () => {
   const queryClient = useQueryClient();
@@ -84,6 +85,7 @@ const AdminDashboard = () => {
   const [showFestivalModal, setShowFestivalModal] = useState(false);
   const [adminUser, setAdminUser] = useState(null);
   const [previewCamera, setPreviewCamera] = useState(null);
+  const [showFullCrowdDashboard, setShowFullCrowdDashboard] = useState(false);
   const [showPushModal, setShowPushModal] = useState(false);
   const [pushNotification, setPushNotification] = useState({
     title: "",
@@ -684,7 +686,16 @@ const AdminDashboard = () => {
               <Camera className="mr-2 h-5 w-5" />
               Live CCTV & Crowd Monitoring
             </h2>
-            <div className="space-x-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                variant={showFullCrowdDashboard ? "default" : "outline"}
+                onClick={() => setShowFullCrowdDashboard((prev) => !prev)}
+                className={showFullCrowdDashboard ? "bg-gradient-sacred text-white" : ""}
+              >
+                <Activity className="mr-2 h-4 w-4" />
+                {showFullCrowdDashboard ? "Hide Zone Feeds" : "Full Zone Feeds"}
+              </Button>
+
               <Button
                 variant="outline"
                 onClick={() => navigate("/crowd-monitor")}
@@ -699,6 +710,28 @@ const AdminDashboard = () => {
               </Button>
             </div>
           </div>
+
+          {showFullCrowdDashboard && (
+            <div className="mb-6 rounded-xl border border-primary/20 overflow-hidden shadow-lg bg-card">
+              <div className="p-3 bg-muted/60 border-b flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Badge className="bg-emerald-600 text-white text-xs">Admin Verified Session</Badge>
+                  <span className="text-xs text-muted-foreground">Live Zone Feeds and Camera Stream Ingestion Active</span>
+                </div>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-7 text-xs"
+                  onClick={() => setShowFullCrowdDashboard(false)}
+                >
+                  Close
+                </Button>
+              </div>
+              <div className="p-2 sm:p-4">
+                <CrowdDashboard showFeed={true} />
+              </div>
+            </div>
+          )}
 
           {/* Zone Filter Chips */}
           <div className="flex flex-wrap items-center gap-2 mb-4 bg-muted/40 p-2.5 rounded-lg border border-border/60">
