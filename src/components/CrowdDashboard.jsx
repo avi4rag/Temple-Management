@@ -187,10 +187,10 @@ const CrowdDashboard = ({ onNavigate }) => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground mb-2">
-            {t("crowd.title")}
+            {t("nav.crowdDashboard") || "Live Crowd"}
           </h1>
           <p className="text-muted-foreground">
-            Real-time temple occupancy and crowd flow analysis
+            Real-time temple occupancy and live devotee density analysis
           </p>
         </div>
         <div className="flex items-center gap-3">
