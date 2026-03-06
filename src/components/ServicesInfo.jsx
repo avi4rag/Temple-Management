@@ -529,6 +529,115 @@ const ServicesInfo = () => {
     },
   ];
 
+  const featuredTempleServices = [
+    {
+      id: "accommodation",
+      title: "Accommodation",
+      icon: Hotel,
+      description: "Official Trust guest houses (Sagar Darshan, Maheshwari, Lilavati) near the sacred temple.",
+      status: "Rooms Available",
+      bgColor: "bg-amber-500/10",
+      iconColor: "text-amber-600",
+      badgeColor: "border-amber-500/40 text-amber-700 dark:text-amber-300",
+      actionLabel: "View Guest Houses",
+      onAction: () => setActiveTab("accommodation"),
+    },
+    {
+      id: "prasad",
+      title: "Prasad Booking",
+      icon: Gift,
+      description: "Pure Desi Ghee dry fruit Ladoo boxes sanctified in morning Aarti, delivered via India Post.",
+      status: "Dispatched Daily",
+      bgColor: "bg-orange-500/10",
+      iconColor: "text-orange-600",
+      badgeColor: "border-orange-500/40 text-orange-700 dark:text-orange-300",
+      actionLabel: "Speed Post Prasad",
+      onAction: () => setActiveTab("postal-prasad"),
+    },
+    {
+      id: "lockers",
+      title: "Locker & Cloakroom",
+      icon: Lock,
+      description: "Complimentary digital lockers at Digvijay Dwar Gate 1 & 2 for mobile phones, cameras and baggage.",
+      status: "Free Seva",
+      bgColor: "bg-blue-500/10",
+      iconColor: "text-blue-600",
+      badgeColor: "border-blue-500/40 text-blue-700 dark:text-blue-300",
+      actionLabel: "Locker Details",
+      onAction: () => setActiveTab("services"),
+    },
+    {
+      id: "wheelchair",
+      title: "Wheelchair Assistance",
+      icon: Heart,
+      description: "Dedicated barrier-free ramps, battery golf buggies, and trained sevak escorts for senior citizens.",
+      status: "Priority 24/7",
+      bgColor: "bg-emerald-500/10",
+      iconColor: "text-emerald-600",
+      badgeColor: "border-emerald-500/40 text-emerald-700 dark:text-emerald-300",
+      actionLabel: "Request Assistance",
+      onAction: () => setActiveTab("services"),
+    },
+    {
+      id: "medical",
+      title: "Medical Aid Clinic",
+      icon: Phone,
+      description: "24/7 emergency first-responder clinic with on-duty physician, oxygen support, and cardiac ICU ambulance.",
+      status: "Active 24/7",
+      bgColor: "bg-rose-500/10",
+      iconColor: "text-rose-600",
+      badgeColor: "border-rose-500/40 text-rose-700 dark:text-rose-300",
+      actionLabel: "Call 02876-231200",
+      onAction: () => {
+        window.open("tel:02876231200");
+        toast({ title: "Emergency Medical Clinic", description: "Connecting to Somnath Trust Emergency Desk: 02876-231200" });
+      },
+    },
+    {
+      id: "audio-guide",
+      title: "Sacred Audio Guide",
+      icon: Headphones,
+      description: "Multilingual spoken audio tour narrating temple history, Baan Stambh, and Dwadasha Jyotirlinga.",
+      status: "Free Digital Guide",
+      bgColor: "bg-indigo-500/10",
+      iconColor: "text-indigo-600",
+      badgeColor: "border-indigo-500/40 text-indigo-700 dark:text-indigo-300",
+      actionLabel: "Listen to Guide",
+      onAction: () => {
+        const chapter = audioTourService.getChapters()[0];
+        if (chapter) togglePlayTourChapter(chapter);
+        toast({ title: "Playing Audio Guide", description: "Temple history audio guide started." });
+      },
+    },
+    {
+      id: "donation",
+      title: "E-Hundi & Donations",
+      icon: Sparkles,
+      description: "Direct devotional daan for Annakshetra, Goushala, and temple upkeep with instant 80G tax receipt.",
+      status: "80G Tax Exempt",
+      bgColor: "bg-amber-500/10",
+      iconColor: "text-amber-600",
+      badgeColor: "border-amber-500/40 text-amber-700 dark:text-amber-300",
+      actionLabel: "Offer Daan",
+      onAction: () => setActiveTab("donation"),
+    },
+    {
+      id: "helpline",
+      title: "Pilgrim Helpline",
+      icon: Phone,
+      description: "24/7 dedicated helpline for lost persons, temple inquiry, darshan schedules, and transit assistance.",
+      status: "Toll Free",
+      bgColor: "bg-cyan-500/10",
+      iconColor: "text-cyan-600",
+      badgeColor: "border-cyan-500/40 text-cyan-700 dark:text-cyan-300",
+      actionLabel: "Call 1800-233-1008",
+      onAction: () => {
+        window.open("tel:18002331008");
+        toast({ title: "Pilgrim Helpline", description: "Calling Somnath Trust Helpline: 1800-233-1008" });
+      },
+    },
+  ];
+
   return (
     <div className="p-6 space-y-6 bg-gradient-peaceful min-h-screen">
       <div className="flex items-center justify-between">
@@ -541,6 +650,46 @@ const ServicesInfo = () => {
             transport
           </p>
         </div>
+      </div>
+
+      {/* Featured Temple Services Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {featuredTempleServices.map((svc) => {
+          const Icon = svc.icon;
+          return (
+            <Card
+              key={svc.id}
+              className="border-primary/10 hover:border-primary/40 hover:shadow-md transition-all flex flex-col justify-between"
+            >
+              <CardHeader className="p-4 pb-2">
+                <div className="flex items-center justify-between mb-2">
+                  <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${svc.bgColor} ${svc.iconColor}`}>
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <Badge variant="outline" className={`text-[10px] ${svc.badgeColor}`}>
+                    {svc.status}
+                  </Badge>
+                </div>
+                <CardTitle className="text-sm font-semibold text-foreground">
+                  {svc.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 pt-0 space-y-3">
+                <p className="text-xs text-muted-foreground line-clamp-2">
+                  {svc.description}
+                </p>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={svc.onAction}
+                  className="w-full text-xs h-7 hover:bg-primary hover:text-primary-foreground border-primary/20"
+                >
+                  {svc.actionLabel}
+                </Button>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
