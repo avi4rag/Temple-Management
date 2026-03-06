@@ -32,7 +32,8 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { QrCode, Lock, CheckCircle, BatteryCharging, BookOpen, Volume2, Play, Pause, Headphones, HelpCircle, ChevronDown, ChevronUp, Search, Gift, Truck } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { QrCode, Lock, CheckCircle, BatteryCharging, BookOpen, Volume2, Play, Pause, Headphones, HelpCircle, ChevronDown, ChevronUp, Search, Gift, Truck, Heart } from "lucide-react";
 import { donationService } from "@/services/donationService";
 import { shuttleService } from "@/services/shuttleService";
 import { audioTourService } from "@/services/audioTourService";
