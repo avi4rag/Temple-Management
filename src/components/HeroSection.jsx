@@ -109,44 +109,44 @@ const HeroSection = ({ onGetStarted }) => {
 
   return (
     <div className="min-h-screen bg-gradient-peaceful">
-      <div className="relative h-screen overflow-hidden">
+      <div className="relative min-h-[calc(100svh-var(--header-h,72px))] pt-[var(--header-h,72px)] flex items-center justify-center overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{ backgroundImage: `url(${heroImage})` }}
         />
         <div className="absolute inset-0 bg-black/40" />
 
-        <div className="relative z-10 container mx-auto px-6 h-full flex items-center justify-center">
-          <div className="text-center text-white max-w-4xl">
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 py-6 sm:py-10 flex flex-col items-center justify-center w-full">
+          <div className="text-center text-white max-w-4xl mx-auto">
             {festival && festival.id !== "normal" && (
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/25 border border-amber-300/40 text-amber-200 backdrop-blur-md mb-6 animate-pulse shadow-lg text-sm">
-                <Sparkles className="w-4 h-4 text-amber-300" />
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/25 border border-amber-300/40 text-amber-200 backdrop-blur-md mb-4 sm:mb-6 animate-pulse shadow-lg text-xs sm:text-sm">
+                <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-300" />
                 <span className="font-semibold">
                   {festival.name} Active: {festival.badge} • 24hr Continuous Darshan
                 </span>
-                <span className="text-xs bg-amber-400 text-amber-950 font-bold px-2 py-0.5 rounded-full ml-1">
+                <span className="text-[10px] sm:text-xs bg-amber-400 text-amber-950 font-bold px-2 py-0.5 rounded-full ml-1">
                   Special Vigil Protocol
                 </span>
               </div>
             )}
 
-            <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-4 sm:mb-6 leading-tight">
               <span className="block">{t("hero.title")}</span>
               <span className="block bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text text-transparent">
                 {t("hero.subtitle")}
               </span>
             </h1>
 
-            <p className="text-xl md:text-2xl mb-8 text-gray-200 leading-relaxed">
+            <p className="text-base sm:text-xl md:text-2xl mb-6 sm:mb-8 text-gray-200 leading-relaxed max-w-3xl mx-auto">
               {t("hero.description")}
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+            <div className="flex flex-wrap gap-3 sm:gap-4 justify-center items-center mb-8 sm:mb-10">
               <Button
                 onClick={onGetStarted}
                 size="lg"
                 aria-label="Get Started with Somnath Darshan & Queue Booking"
-                className="bg-gradient-sacred hover:bg-gradient-divine shadow-divine text-lg px-8 py-6 transition-sacred"
+                className="bg-gradient-sacred hover:bg-gradient-divine shadow-divine text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6 transition-sacred"
               >
                 {t("hero.getStarted")}
               </Button>
@@ -155,11 +155,11 @@ const HeroSection = ({ onGetStarted }) => {
                 size="lg"
                 variant="outline"
                 aria-label="Ring Sacred Sanctum Bronze Bell Chime"
-                className={`bg-white/15 hover:bg-white/25 border-white/40 text-white backdrop-blur-sm text-base px-6 py-6 transition-all ${
+                className={`bg-white/15 hover:bg-white/25 border-white/40 text-white backdrop-blur-sm text-sm sm:text-base px-5 sm:px-6 py-5 sm:py-6 transition-all ${
                   isPlayingChime ? "ring-2 ring-yellow-400 scale-105" : ""
                 }`}
               >
-                <Bell className={`w-5 h-5 mr-2 ${isPlayingChime ? "animate-bounce text-yellow-300" : ""}`} />
+                <Bell className={`w-4 h-4 sm:w-5 sm:h-5 mr-2 ${isPlayingChime ? "animate-bounce text-yellow-300" : ""}`} />
                 {isPlayingChime ? "Chiming Sanctum Bell..." : "Ring Sacred Bell (घंटी)"}
               </Button>
               <Button
@@ -167,46 +167,46 @@ const HeroSection = ({ onGetStarted }) => {
                 size="lg"
                 variant="outline"
                 aria-label="Listen to Somnath Sacred Audio Guide Narration"
-                className={`bg-white/15 hover:bg-white/25 border-white/40 text-white backdrop-blur-sm text-base px-6 py-6 transition-all ${
+                className={`bg-white/15 hover:bg-white/25 border-white/40 text-white backdrop-blur-sm text-sm sm:text-base px-5 sm:px-6 py-5 sm:py-6 transition-all ${
                   isPlayingAudioTour ? "ring-2 ring-amber-400 bg-amber-500/20 scale-105" : ""
                 }`}
               >
-                <Headphones className={`w-5 h-5 mr-2 ${isPlayingAudioTour ? "animate-pulse text-amber-300" : ""}`} />
+                <Headphones className={`w-4 h-4 sm:w-5 sm:h-5 mr-2 ${isPlayingAudioTour ? "animate-pulse text-amber-300" : ""}`} />
                 {isPlayingAudioTour ? "Playing Audio Guide..." : "Sacred Audio Guide (गाइड)"}
               </Button>
               <Button
                 size="lg"
                 aria-label="Navigate to Administration Portal"
-                className="bg-primary text-primary-foreground hover:bg-primary-dark shadow-divine text-lg px-8 py-6 transition-sacred"
+                className="bg-primary text-primary-foreground hover:bg-primary-dark shadow-divine text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6 transition-sacred"
                 onClick={() => navigate("/admin/login")}
               >
                 Admin Portal
               </Button>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
-              <Card className="bg-white/10 backdrop-blur-sm border-white/20 p-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 max-w-2xl mx-auto w-full">
+              <Card className="bg-white/10 backdrop-blur-sm border-white/20 p-3 sm:p-4">
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-green-400 mb-1">
+                  <div className="text-2xl sm:text-3xl font-bold text-green-400 mb-0.5 sm:mb-1">
                     2,847
                   </div>
-                  <div className="text-sm text-gray-300">Current Devotees</div>
+                  <div className="text-xs sm:text-sm text-gray-300">Current Devotees</div>
                 </div>
               </Card>
-              <Card className="bg-white/10 backdrop-blur-sm border-white/20 p-4">
+              <Card className="bg-white/10 backdrop-blur-sm border-white/20 p-3 sm:p-4">
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-blue-400 mb-1">
+                  <div className="text-2xl sm:text-3xl font-bold text-blue-400 mb-0.5 sm:mb-1">
                     15 min
                   </div>
-                  <div className="text-sm text-gray-300">Avg Wait Time</div>
+                  <div className="text-xs sm:text-sm text-gray-300">Avg Wait Time</div>
                 </div>
               </Card>
-              <Card className="bg-white/10 backdrop-blur-sm border-white/20 p-4">
+              <Card className="bg-white/10 backdrop-blur-sm border-white/20 p-3 sm:p-4">
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-orange-400 mb-1">
+                  <div className="text-2xl sm:text-3xl font-bold text-orange-400 mb-0.5 sm:mb-1">
                     Normal
                   </div>
-                  <div className="text-sm text-gray-300">Crowd Status</div>
+                  <div className="text-xs sm:text-sm text-gray-300">Crowd Status</div>
                 </div>
               </Card>
             </div>

@@ -5,6 +5,7 @@
 /* Sacred Temple Design System - Somnath Crowd Management */
 @layer base {
   :root {
+    --header-h: 72px;
     --background: 45 100% 98%;
     --foreground: 25 20% 15%;
 
@@ -76,6 +77,12 @@
     --sidebar-border: 220 13% 91%;
 
     --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  @media (max-width: 768px) {
+    :root {
+      --header-h: 60px;
+    }
   }
 
   .dark {
